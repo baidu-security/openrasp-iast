@@ -27,7 +27,7 @@ except Exception:
 
 entry_points={
     "console_scripts": [
-        "openrasp_iast=openrasp_iast.main:run"
+        "openrasp-iast=openrasp_iast.main:run"
     ]
 }
 
