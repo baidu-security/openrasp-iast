@@ -1,0 +1,62 @@
+FROM centos:centos7
+
+LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
+
+# 命令行配置
+COPY files/.bash* files/.vimrc /root/
+
+# 安装软件
+RUN yum install -y epel-release
+RUN yum install -y httpd \
+	make wget curl zip unzip vim bzip2 net-tools iproute lrzsz nc patch lsof rsync bind-utils \
+    gettext git file lftp jq psmisc \
+	glibc.i686 python2-crypto
+
+COPY files/httpd.sh /etc/init.d/httpd.sh
+COPY files/httpd.conf /etc/httpd/conf/httpd.conf
+RUN chmod 755 /etc/init.d/httpd.sh
+
+# 安装 mariadb 5.5
+RUN yum install -y mariadb-server mariadb \
+	&& mysql_install_db --user=mysql
+
+COPY files/mysql.sh /etc/init.d/mysql.sh
+COPY files/server.cnf /etc/my.cnf.d/
+RUN chmod 755 /etc/my.cnf.d/server.cnf /etc/init.d/mysql.sh
+
+# 安装 php7.2
+RUN curl https://packages.baidu.com/app/remi/remi-release-7.rpm -o remi-release-7.rpm \
+	&& rpm -ivh remi-release-7.rpm \
+	&& rm -f remi-release-7.rpm
+
+RUN yum install -y php72 php72-fpm php72-php php72-php-fpm php72-php-cli \
+	php72-php-mysqlnd php72-php-gd php72-php-soap php72-php-bcmath \
+	php72-php-mcrypt php72-php-mbstring php72-php-xml php72-php-pecl-yaml \
+	php72-php-ioncube-loader php72-php-intl
+
+RUN ln -s /opt/remi/php72/root/bin/php /usr/bin
+
+# 安装 composer
+RUN curl -sS https://getcomposer.org/installer | php \
+	&& mv composer.phar /usr/bin/composer
+
+# 删除apache欢迎界面
+RUN rm -rf /etc/httpd/conf.d/welcome.conf
+
+# 安装 py3.7.3
+RUN yum install -y gcc openssl-devel bzip2-devel libffi-devel ncurses-devel
+
+RUN cd /root/ && wget https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz \
+    && tar -zxf Python-3.7.3.tgz && rm -rf Python-3.7.3.tgz \
+    && cd Python-3.7.3 && ./configure --enable-optimizations && make altinstall \
+    && ln -s /usr/local/bin/python3.7 /usr/bin/python3 \
+    && ln -s /usr/local/bin/pip3.7 /usr/bin/pip3
+
+COPY files/requirements.txt /root/
+RUN cd /root/ && pip3 install -r requirements.txt
+RUN ln -s /usr/local/bin/pytest /usr/local/bin/pytest3
+
+COPY files/start.sh /root/start.sh
+
+ENTRYPOINT ["/bin/bash", "/root/start.sh"]
+EXPOSE 80

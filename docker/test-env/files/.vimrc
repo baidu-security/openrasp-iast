@@ -1,0 +1,30 @@
+let asmsyntax="nasm"
+set ignorecase
+set expandtab
+set tabstop=4
+set ff=unix
+set t_Co=256
+set nomodeline
+set autochdir
+set hlsearch
+set noerrorbells novisualbell
+set fileencodings=utf-8,gbk,ucs-bom,cp936
+set encoding=utf-8
+set nocompatible
+set nu
+set history=1000
+set background=dark
+syn on
+set autoindent
+set smartindent
+set showmatch
+set vb t_vb=
+set ruler
+set nohls
+set cindent
+set tabstop=4
+set shiftwidth=4
+set incsearch
+set cursorline
+set mouse=a
+set lz

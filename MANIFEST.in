@@ -1,0 +1,4 @@
+include openrasp_iast/config.default.yaml
+graft openrasp_iast/web
+graft openrasp_iast/lib
+

@@ -1,0 +1,11 @@
+[run]
+branch = True
+concurrency = multiprocessing
+omit =
+    ./test/*
+    conftest.py
+    t.py
+    test.py
+    ttt.py
+    */site-packages/*
+
