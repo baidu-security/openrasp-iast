@@ -42,6 +42,6 @@ log.rotate_num: 2                                     # rotate文件最多保存
 database.host: localhost                              # 数据库地址
 database.port: 3306                                   # 端口
 database.username: root                               # 连接用户名
-database.password: ''                                 # 连接密码
-database.db_name: openrasp_iast                       # 数据库名
+database.password: ''                                 # 连接密码, 纯数字需使用引号包裹 如'123456'
+database.db_name: openrasp                            # 数据库名
 
