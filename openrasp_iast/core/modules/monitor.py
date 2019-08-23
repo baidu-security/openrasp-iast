@@ -19,7 +19,6 @@ limitations under the License.
 
 import os
 import time
-import curses
 import psutil
 import threading
 
