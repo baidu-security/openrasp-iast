@@ -135,7 +135,7 @@ class ScannerScheduler(object):
         system_info = RuntimeInfo().get_system_info()
         if system_info["cpu"] > Config().get_config("monitor.max_cpu"):
             Logger().info("CPU percent is higher than limit (use:{}%, limit:{}%), scan rate will decrease.".format(
-                system_info["cpu"]), Config().get_config("monitor.max_cpu"))
+                system_info["cpu"], Config().get_config("monitor.max_cpu")))
             return True, False
         elif system_info["cpu"] < Config().get_config("monitor.min_cpu"):
             return False, True
