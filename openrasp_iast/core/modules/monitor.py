@@ -440,12 +440,12 @@ class Monitor(base.BaseModule):
                     if self.crash_module == "main":
                         Logger().info("OpenRASP-IAST exit!")
                         print("[!] OpenRASP-IAST exit!")
-                        os._sys.exit(0)
+                        sys.exit(0)
                     else:
                         Logger().critical("Detect Module {} down, exit!".format(self.crash_module))
-                        os._sys.exit(1)
+                        sys.exit(1)
                     
             except Exception as e:
                 Logger().critical("Monitor module crash with unknow error!", exc_info=e)
                 self._terminate_modules()
-                os._sys.exit(2)
+                sys.exit(2)

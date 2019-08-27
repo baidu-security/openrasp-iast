@@ -12,6 +12,8 @@ __pycache__
 openrasp_iast.egg-info/
 htmlcov
 /log
+/dist
+/build
 openrasp_iast/log
 config.yaml
 config.yaml*

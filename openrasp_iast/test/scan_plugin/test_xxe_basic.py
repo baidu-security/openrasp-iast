@@ -70,7 +70,9 @@ def get_normal_response():
                 "dnt": "1", 
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
                 "accept-encoding": "gzip, deflate", 
+                "content-length":"",
                 "accept-language": "zh-CN,zh;q=0.9"
+                
             }, 
             "url": "http://localburp.com:8005/011-ssrf-curl.php?test=xml", 
             "nic": [
@@ -135,6 +137,7 @@ def get_vuln_response():
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
                 "accept-encoding": "gzip, deflate", 
                 "accept-language": "zh-CN,zh;q=0.9", 
+                "content-length":"",
                 "content-type": "application/x-www-form-urlencoded"
             }, 
             "url": "http://localburp.com:8005/011-ssrf-curl.php?test=xml", 
@@ -232,6 +235,7 @@ def test_normal(scan_plugin_fixture):
                 "dnt": "1", 
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
                 "accept-encoding": "gzip, deflate", 
+                "content-length": "",
                 "accept-language": "zh-CN,zh;q=0.9"
             }, 
             "url": "http://localburp.com:8005/011-ssrf-curl.php?test=xml", 

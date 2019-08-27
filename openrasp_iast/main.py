@@ -96,7 +96,7 @@ def detach_run():
             print("[!] Openrasp IAST start error, fork failed!")
         else:
             print("[-] OpenRASP-IAST is Started!")
-        os._sys.exit(0)
+        os._exit(0)
     os.close(0)
     sys.stdin = open('/dev/null')
     os.close(1)
