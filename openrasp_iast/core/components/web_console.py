@@ -19,6 +19,7 @@ limitations under the License.
 
 import re
 import os
+import sys
 import json
 import asyncio
 import traceback
@@ -162,7 +163,7 @@ class WebConsole(object):
             server.listen(self.port)
         except OSError as e:
             Logger().critical("Monitor web_console bind port error!", exc_info=e)
-            exit(1)
+            sys.exit(1)
         else:
             tornado.ioloop.IOLoop.current().start()
 

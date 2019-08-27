@@ -440,8 +440,10 @@ class RaspResult(object):
         result = 0
         for header_name in self.rasp_result_dict["context"]["header"]:
             if header_name.lower() == "content-length":
-                result = int(
-                    self.rasp_result_dict["context"]["header"][header_name])
+                try:
+                    result = int(self.rasp_result_dict["context"]["header"][header_name])
+                except Exception:
+                    pass
         return result
 
     def get_json(self):

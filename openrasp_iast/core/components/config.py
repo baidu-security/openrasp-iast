@@ -67,7 +67,7 @@ class Config(object):
         except Exception as e:
             print("[!]OpenRASP-IAST init error! Please check if {} is writable".format(sys_tmp))
             traceback.print_exc()
-            exit(1)
+            sys.exit(1)
 
     def get_config_path(self):
         """
@@ -107,7 +107,7 @@ class Config(object):
         except Exception:
             print("[!] Fail to generate config!")
             traceback.print_exc()
-            exit(1)
+            sys.exit(1)
 
         try:
             config_dir = os.path.dirname(self._config_path)
@@ -118,7 +118,7 @@ class Config(object):
         except Exception as e:
             print("[!] Fail to generate config, check if {} is writable!".format(self._config_path))
             traceback.print_exc()
-            exit(1)
+            sys.exit(1)
 
         print("[-] Config file generated to: {}".format(self._config_path))
 
@@ -244,7 +244,7 @@ class Config(object):
         if self._config_path is None or not os.path.isfile(self._config_path):
             cmd = "'" + sys.argv[0] + " config'"
             print("[!] OpenRASP-IAST init error, no config file found, use {} to generate a config file!".format(cmd))
-            exit(1)
+            sys.exit(1)
 
         self._config_path = os.path.realpath(os.path.abspath(self._config_path))
 
@@ -266,12 +266,12 @@ class Config(object):
                     os.remove(self.config_dict["log.path"] + "/log.file")
             except Exception as e:
                 print("[!] OpenRASP-IAST init error, log path: {} is not writable!".format(os.path.abspath(self.config_dict["log.path"])))
-                exit(1)
+                sys.exit(1)
 
         except Exception as e:
             print("[!] OpenRASP-IAST load config error! Please check config file: {}! \n".format(self._config_path))
             traceback.print_exc()
-            exit(1)
+            sys.exit(1)
     
     def get_config(self, name):
         """

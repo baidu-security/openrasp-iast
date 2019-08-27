@@ -37,17 +37,17 @@ def init_check():
     version = float(platform.python_version()[:3])
     if version < 3.7:
         print("[!] You must run this tool with Python 3.7 or newer version.")
-        exit(1)
+        sys.exit(1)
     
     if sys.platform not in ("linux", "darwin"):
         print("[!] Not support to run on platform: {}, use linux.".format(sys.platform))
-        exit(1)
+        sys.exit(1)
 
     try:
         import aiohttp, aiomysql, jsonschema, lru, peewee, peewee_async, psutil, pymysql, tornado, yaml, cloghandler, requests
     except ModuleNotFoundError as e:
         print(e, ", use command 'pip3 install -r requirements.txt' to install dependency packages.")
-        exit(1)
+        sys.exit(1)
 
     try:
         conn = pymysql.connect(
@@ -63,7 +63,7 @@ def init_check():
         conn.close()
     except Exception:
         print("[!] MySQL connection fail, check database config!")
-        exit(1)
+        sys.exit(1)
 
     # 测试是否能正确连接云控
     if Config().config_dict["cloud_api.enable"]:
@@ -78,13 +78,13 @@ def init_check():
                 response = json.loads(r.text)
                 if response["status"] != 0:
                     print("[!] Test cloud server failed, got HTTP code: {}, response: {}".format(r.status_code, r.text))
-                    exit(1)
+                    sys.exit(1)
             else:
                 print("[!] Test cloud server failed, got HTTP code: {}".format(r.status_code))
-                exit(1)
+                sys.exit(1)
         except Exception:
             print("[!] Cloud server url:{} connect failed, check option 'monitor.cloud_api' in config file!".format(url))
-            exit(1)
+            sys.exit(1)
 
 def detach_run():
     """
@@ -96,7 +96,7 @@ def detach_run():
             print("[!] Openrasp IAST start error, fork failed!")
         else:
             print("[-] OpenRASP-IAST is Started!")
-        os._exit(0)
+        os._sys.exit(0)
     os.close(0)
     sys.stdin = open('/dev/null')
     os.close(1)
@@ -200,7 +200,7 @@ def set_config(args):
         except Exception as e:
             print(e)
             print("[!] Can't resolve mysql connection url: {}".format(args.mysql_url))
-            exit(1)
+            sys.exit(1)
     if args.log_level is not None:
         Config().config_dict["log.level"] = args.log_level
     Config().save_config()

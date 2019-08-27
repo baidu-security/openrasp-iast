@@ -19,6 +19,7 @@ limitations under the License.
 
 import os
 import lru
+import sys
 import time
 import asyncio
 import logging
@@ -75,7 +76,7 @@ class Preprocessor(base.BaseModule):
             server.bind(Config().get_config("preprocessor.http_port"))
         except OSError as e:
             Logger().critical("Preprocessor bind port error!", exc_info=e)
-            exit(1)
+            sys.exit(1)
         else:
             # 这里会创建多个子进程，需要重新初始化Communicator
             server.start(Config().get_config("preprocessor.process_num"))

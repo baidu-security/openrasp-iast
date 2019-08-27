@@ -18,6 +18,7 @@ limitations under the License.
 """
 
 import re
+import sys
 import copy
 import queue
 import types
@@ -67,7 +68,7 @@ class ScanPluginBase(object):
             self._failed_set = Communicator().get_internal_shared("failed_task_set")
         except exceptions.InternalSharedKeyError as e:
             Logger().error("Try to init scan_plugin before set internal shared key in Communicator! Check 'error.log' for more information.")
-            exit(1)
+            sys.exit(1)
 
         self._request_session = audit_tools.Session()
         self._request_data = audit_tools.RequestData
@@ -312,7 +313,6 @@ class ScanPluginBase(object):
             if type(message) is str:
                 if await self.report(request_data_list, message):
                     self.logger.info("Plugin {} find vuln!".format(self.plugin_info["name"]))
-
 
     async def report(self, request_data_list, message=""):
         """

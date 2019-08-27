@@ -18,6 +18,7 @@ limitations under the License.
 """
 
 import os
+import sys
 import time
 import json
 import copy
@@ -81,7 +82,7 @@ class ScannerManager(object):
                     plugin_import_path, fromlist=[plugin_name])
             except Exception as e:
                 Logger().critical("Error in load plugin: {}".format(plugin_name), exc_info=e)
-                exit(1)
+                sys.exit(1)
             else:
                 plugin_instance = getattr(
                     plugin_module, plugin_name).ScanPlugin()
@@ -91,7 +92,7 @@ class ScannerManager(object):
                         "scanner plugin: {} preload success!".format(plugin_name))
                 else:
                     Logger().critical("Detect scanner plugin {} not inherit class ScanPluginBase!".format(plugin_name))
-                    exit(1)
+                    sys.exit(1)
 
         plugin_status = {}
         for plugin_name in self.plugin_loaded:

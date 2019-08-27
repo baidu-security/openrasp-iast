@@ -18,6 +18,7 @@ limitations under the License.
 """
 
 import os
+import sys
 import time
 import psutil
 import threading
@@ -133,8 +134,8 @@ class ScannerScheduler(object):
         """
         system_info = RuntimeInfo().get_system_info()
         if system_info["cpu"] > Config().get_config("monitor.max_cpu"):
-            Logger().info("CPU percent is higher than limit ({})".format(
-                system_info["cpu"]))
+            Logger().info("CPU percent is higher than limit (use:{}%, limit:{}%), scan rate will decrease.".format(
+                system_info["cpu"]), Config().get_config("monitor.max_cpu"))
             return True, False
         elif system_info["cpu"] < Config().get_config("monitor.min_cpu"):
             return False, True
@@ -423,7 +424,7 @@ class Monitor(base.BaseModule):
             Logger().info("Monitor init success!")
         else:
             self._terminate_modules()
-            exit(1)
+            sys.exit(1)
         
         while True:
             try:
@@ -439,12 +440,12 @@ class Monitor(base.BaseModule):
                     if self.crash_module == "main":
                         Logger().info("OpenRASP-IAST exit!")
                         print("[!] OpenRASP-IAST exit!")
-                        os._exit(0)
+                        os._sys.exit(0)
                     else:
                         Logger().critical("Detect Module {} down, exit!".format(self.crash_module))
-                        os._exit(1)
+                        os._sys.exit(1)
                     
             except Exception as e:
                 Logger().critical("Monitor module crash with unknow error!", exc_info=e)
                 self._terminate_modules()
-                os._exit(2)
+                os._sys.exit(2)

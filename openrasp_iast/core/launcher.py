@@ -18,6 +18,7 @@ limitations under the License.
 """
 
 import os
+import sys
 import errno
 import signal
 import psutil
@@ -60,7 +61,7 @@ class Launcher(object):
                         else:
                             Logger().critical("Detect Monitor down, exit!")
                             print("[!] Detect Monitor down, OpenRASP-IAST exit!")
-                            exit(1)
+                            sys.exit(1)
 
                     exitcode = status >> 8
             except OSError as e:

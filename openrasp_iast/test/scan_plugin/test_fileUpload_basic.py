@@ -148,6 +148,8 @@ def get_vuln_response():
                 "name": "file", 
                 "filename": "openrasp.php", 
                 "content": "12345", 
+                "dest_path":     "/var/www/html/upload/openrasp.php",
+                "dest_realpath": "/var/www/html/upload/openrasp.php",
                 "hook_type": "fileUpload"
             }, 
             {
@@ -261,6 +263,8 @@ def test_normal(scan_plugin_fixture):
                 "name": "file", 
                 "filename": "test.txt", 
                 "content": "12345", 
+                "dest_path":     "/var/www/html/upload/openrasp.php",
+                "dest_realpath": "/var/www/html/upload/openrasp.php",
                 "hook_type": "fileUpload"
             },
             {
