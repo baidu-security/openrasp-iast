@@ -161,8 +161,11 @@ class ScannerManager(object):
 
         if "scan_rate" in config:
             for key in config["scan_rate"]:
-                origin_config["scan_rate"][key] = config["scan_rate"][key]
-        
+                if config["scan_rate"][key] >= 0:
+                    origin_config["scan_rate"][key] = config["scan_rate"][key]
+            if origin_config["scan_rate"]["min_request_interval"] > origin_config["scan_rate"]["max_request_interval"]:
+                origin_config["scan_rate"]["max_request_interval"] = origin_config["scan_rate"]["min_request_interval"]
+
         if "white_url_reg" in config:
             origin_config["white_url_reg"] = config["white_url_reg"]
 

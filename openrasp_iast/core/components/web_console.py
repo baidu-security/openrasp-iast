@@ -209,13 +209,16 @@ class ApiHandlerBase(tornado.web.RequestHandler):
                 "type": "object",
                 "properties": {
                     "max_concurrent_request": {
-                        "type": "number"
+                        "type": "integer",
+                        "minimum": 0
                     },
                     "max_request_interval": {
-                        "type": "number"
+                        "type": "integer",
+                        "minimum": 0
                     },
                     "min_request_interval": {
-                        "type": "number"
+                        "type": "integer",
+                        "minimum": 0
                     }
                 }
             },

@@ -8,7 +8,7 @@ a = Analysis(['main.py'],
              binaries=[],
              datas=[("./config.default.yaml", "."),
                     ("./web", "./web"),
-                    # ("./plugin", "./plugin")
+                    ("./plugin", "./plugin")
                     ],
              hiddenimports=[],
              hookspath=[],

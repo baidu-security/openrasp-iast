@@ -176,7 +176,7 @@ class Logger(object):
         """
         初始化
         """
-        self._log_level = getattr(logging, Config().get_config("log.level").upper())
+        self._log_level = Config().get_config("log.level").upper()
         if self._log_level not in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
             self._log_level = "INFO"
         self.log_path = Config().get_config("log.path")

@@ -114,7 +114,10 @@ def start(args):
     
     print("[-] Using config file: {}".format(Config().get_config_path()))
     init_check()
-    print("[-] Log file will generate to {}".format(Config().get_config("log.path")))
+    
+    real_log_path = os.path.realpath(Config().get_config("log.path"))
+    log_level = Config().get_config("log.level").upper()
+    print("[-] Log file will generate to {}, log level: {}".format(real_log_path, log_level))
     
     from core.launcher import Launcher
 
