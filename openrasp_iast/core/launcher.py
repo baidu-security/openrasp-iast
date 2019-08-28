@@ -76,9 +76,10 @@ class Launcher(object):
                 core_num = Config().get_config("affinity.core_num")
                 cpu_count = psutil.cpu_count()
                 if core_num <= 0 or cpu_count < core_num:
-                    mask = 1
+                    mask = range(1)
+                    Logger().warning("Config item affinity.core_num invalid, use defaut (1)")
                 else:
-                    mask = 2 ** core_num - 1
+                    mask = range(core_num)
                 os.sched_setaffinity(os.getpid(), mask)
             except Exception as e:
                 Logger().error("set affinity error!", exc_info=e)
