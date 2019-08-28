@@ -36,9 +36,11 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         """
         测试向量生成
         """
-        if not (rasp_result_ins.has_hook_type("writeFile") and 
-                rasp_result_ins.has_hook_type("fileUpload")):
+        
+        if rasp_result_ins.has_hook_type("fileUpload")):
             return
+        elif server_language == "java" and not rasp_result_ins.has_hook_type("writeFile"):
+            return 
 
         java_payloads = [
             ("openrasp.jsp", "openrasp.jsp"),
