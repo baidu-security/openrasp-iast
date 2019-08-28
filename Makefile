@@ -16,3 +16,8 @@ clean:
 	find ./openrasp_iast -name __pycache__ | xargs rm -rf
 	find ./openrasp_iast -name '*.pyc' | xargs rm -rf
 	rm -rf build dist *.egg-info
+
+build:
+	cd openrasp_iast && \
+	pip3 install -r requirements.txt && \
+	pyinstaller main.spec

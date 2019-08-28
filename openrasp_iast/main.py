@@ -113,8 +113,9 @@ def start(args):
     Config().load_config(args.config_path)
     
     print("[-] Using config file: {}".format(Config().get_config_path()))
-
     init_check()
+    print("[-] Log file will generate to {}".format(Config().get_config("log.path")))
+    
     from core.launcher import Launcher
 
     pid, config_path = Config().get_running_info()
