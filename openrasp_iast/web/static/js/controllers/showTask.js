@@ -54,11 +54,9 @@ define([], function () {
                 $scope.data = [];
                 if(status == 0){
                     $scope.count = Object.keys(response.data['data']).length
-                    if ($scope.count > 0){
-                        var tmp_data = response.data['data']
-                        $scope.data = tmp_data;
-                        $scope.displayRecord();
-                    }
+                    var tmp_data = response.data['data']
+                    $scope.data = tmp_data;
+                    $scope.displayRecord();
                 }else{
                     alert(response.data['description'])
                 }
