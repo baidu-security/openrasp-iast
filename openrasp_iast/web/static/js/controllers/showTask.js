@@ -248,7 +248,7 @@ define([], function () {
             $scope.minInterval = isNaN(Number($scope.minInterval))? undefined:Number($scope.minInterval);
             $scope.maxInterval = isNaN(Number($scope.maxInterval))? undefined:Number($scope.maxInterval);
             $scope.urlWhiteRegex == undefined? "":$scope.urlWhiteRegex;
-            if($scope.concurrent && $scope.maxInterval && $scope.minInterval >= 0){
+            if($scope.concurrent > 0 && $scope.maxInterval > 0 && $scope.minInterval >= 0){
                 if($scope.minInterval <= $scope.maxInterval){
                     getRequest(setConfigUrl, {
                         "host": host,
@@ -282,13 +282,12 @@ define([], function () {
                     });
                 }else{
                     $scope.minInterval = undefined
-                    alert("最小速率不应超过最大速率")
+                    alert("最小间隔不应超过最大间隔")
                     $scope.modalDisplay = false;
                     //$scope.msg = undefined
                 }
             }else{
                 $scope.modalDisplay = false;
-                //$scope.msg = undefined
             }
         }
 
