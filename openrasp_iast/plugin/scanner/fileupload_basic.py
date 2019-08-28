@@ -36,8 +36,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         """
         测试向量生成
         """
-        
-        if rasp_result_ins.has_hook_type("fileUpload")):
+        server_language = rasp_result_ins.get_server_info()["language"]
+        if not rasp_result_ins.has_hook_type("fileUpload"):
             return
         elif server_language == "java" and not rasp_result_ins.has_hook_type("writeFile"):
             return 
@@ -51,8 +51,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         php_payloads = [
             ("openrasp.php", ".php"),
             ("../../openrasp.php", ".php")]
-        
-        server_language = rasp_result_ins.get_server_info()["language"]
+
         if server_language == "java":
             payload_list = java_payloads
         else:
