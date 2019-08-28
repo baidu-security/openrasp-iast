@@ -109,6 +109,11 @@ class Config(object):
             traceback.print_exc()
             sys.exit(1)
 
+        if os.path.isdir(self._config_path):
+            print("[!] Detect config path '{}' is a directory!".format(self._config_path))
+            print("[!] Config path should be a file path, like /path/to/config.yaml, not directory!")
+            sys.exit(1)
+        
         try:
             config_dir = os.path.dirname(self._config_path)
             if not os.path.exists(config_dir):

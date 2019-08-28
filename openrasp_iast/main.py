@@ -215,7 +215,7 @@ def run():
     parser_start.add_argument(
         "-f", "--foreground", help="Run in foreground", action="store_true")
     parser_start.add_argument(
-        "-c", "--config-path", help="Assign config file path")
+        "-c", "--config-path", help="Assign config file path, like /path/to/config.yaml")
 
     parser_stop = subparsers.add_parser('stop', help='stop help')
     parser_stop.set_defaults(func=stop)
@@ -230,7 +230,7 @@ def run():
     # 输出路径
     parser_config.add_argument(
         "-o", "--output-path", 
-        help="Assign path config file path to generate, if not specify will generate to /home/username/openrasp-iast/config.yaml", 
+        help="Assign path config file path to generate, default is /home/username/openrasp-iast/config.yaml", 
         type=str, default=None, nargs='?')
 
     # Preprocessor 模块
