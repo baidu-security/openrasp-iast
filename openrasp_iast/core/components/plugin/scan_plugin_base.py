@@ -328,4 +328,5 @@ class ScanPluginBase(object):
         Raises:
             exceptions.DatabaseError - 数据库发生错误时引发
         """
+        message = "Openrasp-iast漏洞扫描 - " + message
         return await self._report_model.put(request_data_list, self.plugin_info["name"], self.plugin_info["description"], message)
