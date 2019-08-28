@@ -562,8 +562,6 @@ class ScannerStatusHandler(ApiHandlerBase):
                 "pid": 64067, // 扫描进程pid
                 "host": "127.0.0.1", // 扫描的目标主机
                 "port": 8005, // 扫描的目标端口
-                "auth_plugin": "default", // 使用的授权插件（功能尚未使用）
-                "scan_plugin_list": ["plugin1", "plugin2"] // 为空时，默认使用所有插件
                 "cancel": 0, // 是否正在取消
                 "pause": 0, // 是否被暂停
                 "cpu": "0.0%", // cpu占用
