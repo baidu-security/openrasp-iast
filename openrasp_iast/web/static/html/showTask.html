@@ -43,7 +43,12 @@
                 <td>
                     {{data[taskId].scanned}}/{{data[taskId].total}}
                 </td>
-                <td>{{data[taskId].last_time * 1000 | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                <td>
+                    <div ng-show="data[taskId].last_time == 0">—</div>
+                    <div ng-show="data[taskId].last_time != 0">
+                        {{data[taskId].last_time * 1000 | date:'yyyy-MM-dd HH:mm:ss'}}
+                    </div>
+                </td>
                 <td>
                     <div ng-show="status == unscanned">—</div>
                     <div ng-show="status != unscanned">CPU {{data[taskId].cpu}} / MEM {{data[taskId].mem}}</div>
