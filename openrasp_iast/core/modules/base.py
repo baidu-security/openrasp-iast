@@ -51,7 +51,6 @@ class Process(multiprocessing.Process):
         if instance_id != None:
             self.module_name += "_" + str(instance_id)
         super(Process, self).__init__(name=self.module_name, daemon=True)
-        # super(Process, self).__init__(name=self.module_name, daemon=False)
 
     def run(self):
         """ 初始化并启动module线程 """
