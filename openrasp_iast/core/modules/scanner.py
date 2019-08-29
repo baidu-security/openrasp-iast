@@ -315,4 +315,4 @@ class Scanner(base.BaseModule):
         self.mark_id = plugin_scan_min_id
 
         Logger().debug("Finish scan num: {}, remain task: {}, max scanned id: {}".format(
-            finish_count, self.scan_queue_remaining, mark_id))
+            finish_count, self.scan_queue_remaining, plugin_scan_min_id))
