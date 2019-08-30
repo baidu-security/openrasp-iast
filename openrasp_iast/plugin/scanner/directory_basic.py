@@ -66,7 +66,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         test_params = self.mutant_helper.get_params_list(request_data_ins, ["get", "post", "json", "headers", "cookies"])
 
         for param in test_params:
-            if not request_data_ins.is_param_concat_in_hook("directory", param["value"]):
+            if not request_data_ins.is_param_concat_in_hook("directory", param["value"].rstrip("/\\")):
                 continue
             payload_seq = self.gen_payload_seq()
             for payload in payload_list:
