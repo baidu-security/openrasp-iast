@@ -267,7 +267,7 @@ class Scanner(base.BaseModule):
                 self.scan_queue_remaining += data_count
                 return
             else:
-                Logger().debug("No url need scan, fetch task sleep")
+                Logger().debug("No url need scan, fetch task sleep {}s".format(sleep_interval * continuously_sleep))
                 if continuously_sleep < 10:
                     continuously_sleep += 1
                 await asyncio.sleep(sleep_interval * continuously_sleep)

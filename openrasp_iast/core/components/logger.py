@@ -110,7 +110,8 @@ class Logger(object):
         if module_name == "Preprocessor":
             access_logger = logging.getLogger("tornado.access")
             access_logger.handlers = []
-            access_logger.propagate = True
+            access_logger.propagate = False
+            access_logger.setLevel(logging.CRITICAL)
             access_logger.parent = root_logger
             log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = "Preprocessor.log"
@@ -119,6 +120,7 @@ class Logger(object):
         elif module_name == "Monitor":
             access_logger = logging.getLogger("tornado.access")
             access_logger.propagate = False
+            access_logger.setLevel(logging.CRITICAL)
             access_logger.handlers = []
             log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = "Monitor.log"
