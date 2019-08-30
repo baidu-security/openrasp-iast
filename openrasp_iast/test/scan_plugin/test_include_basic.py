@@ -259,6 +259,6 @@ def test_normal(scan_plugin_fixture):
     rasp_result_ins = rasp_result.RaspResult(rasp_result_json)
 
     plugin_ins.has_report = False
-    asyncio.run(plugin_ins._scan(rasp_result_ins))
+    asyncio.run(plugin_ins._scan(0, rasp_result_ins))
     assert plugin_ins.has_report == True
 
