@@ -189,7 +189,7 @@ class RuntimeInfo(object):
 
     def get_latest_info(self):
         """
-        获取最近一次的刷新获得的状态信息
+        获取最近一次的刷新获得的状态信息(Communicator共享内存中的信息)
 
         Returns:
             dict, 结构

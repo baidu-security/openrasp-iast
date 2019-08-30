@@ -36,8 +36,7 @@ class Session(object):
         初始化
         """
         cookie_jar = aiohttp.DummyCookieJar()
-        conn = aiohttp.TCPConnector(
-            limit=Config().get_config("scanner.max_concurrent_request"))
+        conn = aiohttp.TCPConnector(limit=0)
         timeout = aiohttp.ClientTimeout(
             total=Config().get_config("scanner.request_timeout"))
         self.session = aiohttp.ClientSession(

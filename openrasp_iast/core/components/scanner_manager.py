@@ -370,8 +370,6 @@ class ScannerManager(object):
                     "pid": 64067, // 扫描进程pid
                     "host": "127.0.0.1", // 扫描的目标主机
                     "port": 8005, // 扫描的目标端口
-                    "auth_plugin": "default", // 使用的授权插件（功能尚未使用）
-                    "scan_plugin_list": ["plugin1", "plugin2"] // 为空时，默认使用所有插件
                     "rasp_result_timeout": 0, // 获取rasp-agent结果超时数量
                     "waiting_rasp_request": 0, // 等待中的rasp-agent结果数量
                     "dropped_rasp_result": 0, // 收到的无效rasp-agent结果数量
@@ -408,9 +406,6 @@ class ScannerManager(object):
                 scheduler = self.scanner_schedulers[module_name]
             except KeyError:
                 raise exceptions.InvalidScannerId
-
-            result[module_id]["concurrent_request"] = Communicator().get_value("max_concurrent_request", module_name)
-            result[module_id]["request_interval"] = Communicator().get_value("max_concurrent_request", module_name)
 
             table_prefix = result[module_id]["host"] + "_" + str(result[module_id]["port"])
             total, scanned = await NewRequestModel(table_prefix, multiplexing_conn=True).get_scan_count()
@@ -461,6 +456,11 @@ class ScannerManager(object):
                 "pause": 0, // 是否被暂停
                 "cpu": "0.0%", // cpu占用
                 "mem": "10.51 M", // 内存占用
+                "rasp_result_timeout": 0, // 获取rasp-agent结果超时数量
+                "waiting_rasp_request": 0, // 等待中的rasp-agent结果数量
+                "dropped_rasp_result": 0, // 收到的无效rasp-agent结果数量
+                "send_request": 0,  // 已发送测试请求
+                "failed_request": 0, // 发生错误的测试请求
                 "total": 5, // 当前url总数
                 "scanned": 2, // 扫描的url数量
                 "concurrent_request": 10, // 当前并发数

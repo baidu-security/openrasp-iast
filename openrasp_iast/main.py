@@ -77,13 +77,13 @@ def init_check():
             if r.status_code == 200:
                 response = json.loads(r.text)
                 if response["status"] != 0:
-                    print("[!] Test cloud server failed, got HTTP code: {}, response: {}".format(r.status_code, r.text))
+                    print("[!] Test cloud server failed, got HTTP code: {}, response: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, r.text))
                     sys.exit(1)
             else:
-                print("[!] Test cloud server failed, got HTTP code: {}".format(r.status_code))
+                print("[!] Test cloud server failed, got HTTP code: {}, check option startswith 'cloud_api' in config file!".format(r.status_code))
                 sys.exit(1)
         except Exception:
-            print("[!] Cloud server url:{} connect failed, check option 'monitor.cloud_api' in config file!".format(url))
+            print("[!] Cloud server url:{} connect failed, check option startswith 'cloud_api' in config file!".format(url))
             sys.exit(1)
 
 def detach_run():

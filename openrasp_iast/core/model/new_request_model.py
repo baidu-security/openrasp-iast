@@ -144,15 +144,13 @@ class NewRequestModel(base_model.BaseModel):
         result = []
         try:
             # 获取未扫描的最小id
-            query = self.ResultList.select().where((
+            query = self.ResultList.select(peewee.fn.MIN(self.ResultList.id)).where((
                 self.ResultList.id > self.start_id) & (
                 self.ResultList.scan_status == 0)
-            ).limit(1)
-            data = await peewee_async.execute(query)
-            if (len(data) == 0):
+            )
+            fetch_star_id = await peewee_async.scalar(query)
+            if fetch_star_id is None:
                 return []
-            else:
-                fetch_star_id = data[0].id 
 
             # 将要获取的记录标记为扫描中
             query = self.ResultList.update(
@@ -160,7 +158,10 @@ class NewRequestModel(base_model.BaseModel):
             ).where((
                 self.ResultList.scan_status == 0) & (
                 self.ResultList.id > self.start_id)
-            ).order_by(self.ResultList.id).limit(count)
+            ).order_by(
+                self.ResultList.id
+            ).limit(count)
+
             row_count = await peewee_async.execute(query)
             if (row_count == 0):
                 return result
@@ -172,6 +173,7 @@ class NewRequestModel(base_model.BaseModel):
             ).order_by(
                 self.ResultList.id
             ).limit(row_count)
+
             data = await peewee_async.execute(query)
 
             for line in data:
