@@ -62,7 +62,7 @@ class Logger(object):
             backupCount=Config().get_config("log.rotate_num")
         )
         date_fmt = '%Y-%m-%d %H:%M:%S'
-        log_fmt = '[%(asctime)s - %(levelname)s][%(processName)s] %(message)s [file: %(pathname)s, line %(lineno)d]'
+        log_fmt = '[%(asctime)s - %(levelname)s][%(processName)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
         fmt = logging.Formatter(fmt=log_fmt, datefmt=date_fmt)
         file_handler.setFormatter(fmt)
 
@@ -112,7 +112,7 @@ class Logger(object):
             access_logger.handlers = []
             access_logger.propagate = True
             access_logger.parent = root_logger
-            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s, line %(lineno)d]'
+            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = "Preprocessor.log"
             self._set_handler(root_logger, log_suffix, log_fmt, concurrent=True)
 
@@ -120,7 +120,7 @@ class Logger(object):
             access_logger = logging.getLogger("tornado.access")
             access_logger.propagate = False
             access_logger.handlers = []
-            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s, line %(lineno)d]'
+            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = "Monitor.log"
             self._set_handler(root_logger, log_suffix, log_fmt, concurrent=False)
 
@@ -128,12 +128,12 @@ class Logger(object):
             self.module_log_path = self.log_path + "/" + module_name
             if not os.path.exists(self.module_log_path):
                 os.makedirs(self.module_log_path)
-            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s, line %(lineno)d]'
+            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = module_name + "/Scanner.log"
             self._set_handler(root_logger, log_suffix, log_fmt, concurrent=False)
         
         else:
-            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s, line %(lineno)d]'
+            log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = module_name + ".log"
             self._set_handler(root_logger, log_suffix, log_fmt, concurrent=False)
 
@@ -161,7 +161,7 @@ class Logger(object):
         )
         module_name = Communicator().get_module_name()
         logger = logging.getLogger("openrasp_iast.module_name_" + plugin_name)
-        log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s, line %(lineno)d]'
+        log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
         date_fmt = '%Y-%m-%d %H:%M:%S'
         fmt = logging.Formatter(fmt=log_fmt, datefmt=date_fmt)
         handler.setFormatter(fmt)

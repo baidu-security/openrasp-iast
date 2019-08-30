@@ -258,12 +258,12 @@ class Scanner(base.BaseModule):
             data_list = await self.new_scan_model.get_new_scan(self.fetch_count)
             data_count = len(data_list)
             Logger().debug("Fetch {} task from db.".format(data_count))
-            if data_count > 0:
+            if data_count > 0 or self.scan_queue_remaining > 0:
                 for item in data_list:
                     for plugin_name in self.plugin_loaded:
                         # item 格式: {"id": id, "data":rasp_result_json}
                         self.plugin_loaded[plugin_name].add_task(item)
-                        Logger().debug("Send task with id: {} to plugins.".format(item["id"]))
+                    Logger().debug("Send task with id: {} to plugins.".format(item["id"]))
                 self.scan_queue_remaining += data_count
                 return
             else:
@@ -293,13 +293,15 @@ class Scanner(base.BaseModule):
             plugin_scan_min_num = min(scan_num_list)
             plugin_scan_min_id = min(scan_id_list)
             finish_count = plugin_scan_min_num - self.scan_num
-            
+
 
             if sleep_count > 20:
                 # 20个sleep内未扫描完成，每次最大获取任务量减半
                 self.scan_queue_remaining -= finish_count
                 self.scan_num = plugin_scan_min_num
                 sleep_count = 0
+                Logger().debug("Finish scan num: {}, remain task: {}, max scanned id: {}, decrease task fetch_count.".format(
+                    finish_count, self.scan_queue_remaining, plugin_scan_min_id))
             elif sleep_count > 10:
                 # 10-20个sleep内完成一半以上，每次最大获取任务量不变
                 if self.scan_queue_remaining < finish_count * 2:

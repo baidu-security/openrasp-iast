@@ -129,7 +129,7 @@ class ScanPluginBase(object):
                 if self._enable:
                     rasp_result_ins = self._task["data"]
                     try:
-                        await self._scan(rasp_result_ins)
+                        await self._scan(self._task["id"], rasp_result_ins)
                     except asyncio.CancelledError as e:
                         raise e
                     except Exception as e:
@@ -252,24 +252,27 @@ class ScanPluginBase(object):
         }
         return ret
 
-    async def _scan(self, rasp_result_ins):
+    async def _scan(self, task_id, rasp_result_ins):
         """
         使用协程并行方式对mutant生成的请求进行发送和结果检测
 
         Parameters:
-            mutant_ins - Mutant类的实例
+            task_id - int, 扫描task对应的id
+            rasp_result_ins - RaspResult实例
         """
         if self._white_reg is not None:
             uri = rasp_result_ins.get_path() + "?" + rasp_result_ins.get_query_string()
             if self._white_reg.search(uri) is not None:
-                self.logger.info("Skip task with request_id:{}, url match white reg, request url:{}".format(
+                self.logger.info("Skip task with task_id: {}, request_id:{}, url match white reg, request url:{}".format(
+                    task_id,
                     rasp_result_ins.get_request_id(),
                     rasp_result_ins.get_url()
                 ))
                 return
 
         mutant_generator = self.mutant(rasp_result_ins)
-        self.logger.info("Start task with request_id:{}, url:{}".format(
+        self.logger.info("Start task with task_id: {}, request_id:{}, url:{}".format(
+                task_id,
                 rasp_result_ins.get_request_id(),
                 rasp_result_ins.get_url()
         ))
