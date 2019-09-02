@@ -91,6 +91,8 @@ class ReportModel(base_model.BaseModel):
             await peewee_async.create_object(self.Report, **data)
         except peewee.IntegrityError:
             return False
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("Database error in put method!", exc_info=e)
             raise exceptions.DatabaseError
@@ -126,6 +128,8 @@ class ReportModel(base_model.BaseModel):
                 result["data"].append(line.rasp_result_list)
             return result
 
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("DB method get_new_scan Fail!", exc_info=e)
             raise exceptions.DatabaseError
@@ -170,13 +174,15 @@ class ReportModel(base_model.BaseModel):
                 )
             return result
 
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("DB method get_new_scan Fail!", exc_info=e)
             raise exceptions.DatabaseError
 
     def mark_report(self, count=20):
         """
-        删除报警数据
+        标记已上传的报警数据
 
         Parameters:
             count - int, 标记的数量

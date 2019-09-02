@@ -412,9 +412,10 @@ class ScannerManager(object):
                 raise exceptions.InvalidScannerId
 
             table_prefix = result[module_id]["host"] + "_" + str(result[module_id]["port"])
-            total, scanned = await NewRequestModel(table_prefix, multiplexing_conn=True).get_scan_count()
+            total, scanned, failed = await NewRequestModel(table_prefix, multiplexing_conn=True).get_scan_count()
             result[module_id]["total"] = total
             result[module_id]["scanned"] = scanned
+            result[module_id]["failed"] = failed
 
             if "pause" in result[module_id]:
                 del result[module_id]["pause"]
@@ -431,7 +432,7 @@ class ScannerManager(object):
             host - str, 目标host
             port - int, 目标port
             url_only - bool, 是否仅清空url
-        
+
         Raises:
             exceptions.DatabaseError - 数据库出错时引发此异常
         """
@@ -515,9 +516,10 @@ class ScannerManager(object):
             new_request_model = NewRequestModel(host_port, multiplexing_conn=True)
             result[host_port]["last_time"] = await new_request_model.get_last_time()
             if result[host_port].get("id", None) is None:
-                total, scanned = await new_request_model.get_scan_count()
+                total, scanned, failed = await new_request_model.get_scan_count()
                 result[host_port]["total"] = total
                 result[host_port]["scanned"] = scanned
+                result[host_port]["failed"] = failed
 
             target_config = self.config_model.get(host_port)
             if target_config is None:

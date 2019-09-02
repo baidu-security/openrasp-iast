@@ -87,6 +87,8 @@ class Session(object):
                 Logger().info("Send scan request timeout!")
                 await asyncio.sleep(1)
                 retry_times -= 1
+            except asyncio.CancelledError as e:
+                raise e
             except Exception as e:
                 Logger().error("Send scan request failed!", exc_info=e)
                 await asyncio.sleep(1)

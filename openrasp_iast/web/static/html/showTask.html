@@ -25,7 +25,7 @@
             <tr>
                 <th nowrap>目标</th>
                 <th nowrap>状态</th>
-                <th nowrap>进度</th>
+                <th nowrap>已扫描/已失败/总任务</th>
                 <th>最后收到任务</th>
                 <th>进程资源消耗</th>
                 <th nowrap>操作</th>
@@ -41,7 +41,7 @@
                     {{getTaskStatus(taskId)}}
                 </td>
                 <td>
-                    {{data[taskId].scanned}}/{{data[taskId].total}}
+                    {{data[taskId].scanned}}/{{data[taskId].failed}}/{{data[taskId].total}}
                 </td>
                 <td>
                     <div ng-show="data[taskId].last_time == 0">—</div>

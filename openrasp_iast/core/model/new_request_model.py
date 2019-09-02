@@ -122,6 +122,8 @@ class NewRequestModel(base_model.BaseModel):
             await peewee_async.create_object(self.ResultList, **data)
         except peewee.IntegrityError as e:
             return False
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("Database error in put method!", exc_info=e)
             raise exceptions.DatabaseError
@@ -183,6 +185,8 @@ class NewRequestModel(base_model.BaseModel):
                 })
             return result
 
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("Database error in get_new_scan method!", exc_info=e)
             raise exceptions.DatabaseError
@@ -199,38 +203,33 @@ class NewRequestModel(base_model.BaseModel):
             exceptions.DatabaseError - 数据库错误引发此异常
         """
         if last_id > self.start_id:
-            # 标记失败的扫描记录
-            query = self.ResultList.update({self.ResultList.scan_status: 3}).where((
-                self.ResultList.id <= last_id) & (
-                self.ResultList.id > self.start_id) & (
-                self.ResultList.id << failed_list)
-            )
             try:
+            
+                # 标记失败的扫描记录
+                query = self.ResultList.update({self.ResultList.scan_status: 3}).where((
+                    self.ResultList.id <= last_id) & (
+                    self.ResultList.id > self.start_id) & (
+                    self.ResultList.id << failed_list)
+                )
                 await peewee_async.execute(query)
-            except Exception as e:
-                Logger().critical("Database error in mark_result method!", exc_info=e)
-                raise exceptions.DatabaseError
 
-            # 标记已扫描的记录
-            query = self.ResultList.update({self.ResultList.scan_status: 1}).where((
-                self.ResultList.id <= last_id) & (
-                self.ResultList.id > self.start_id) & (
-                self.ResultList.scan_status == 2)
-            )
-            try:
+                # 标记已扫描的记录
+                query = self.ResultList.update({self.ResultList.scan_status: 1}).where((
+                    self.ResultList.id <= last_id) & (
+                    self.ResultList.id > self.start_id) & (
+                    self.ResultList.scan_status == 2)
+                )
                 await peewee_async.execute(query)
-            except Exception as e:
-                Logger().critical("Database error in mark_result method!", exc_info=e)
-                raise exceptions.DatabaseError
 
-            # 更新start_id
-            query = self.ResultList.select(peewee.fn.MAX(self.ResultList.id)).where((
-                self.ResultList.id > self.start_id) & (
-                self.ResultList.scan_status == 1)
-            )
+                # 更新start_id
+                query = self.ResultList.select(peewee.fn.MAX(self.ResultList.id)).where((
+                    self.ResultList.id > self.start_id) & (
+                    self.ResultList.scan_status == 1)
+                )
 
-            try:
                 result = await peewee_async.scalar(query)
+            except asyncio.CancelledError as e:
+                raise e
             except Exception as e:
                 Logger().critical("Database error in mark_result method!", exc_info=e)
                 raise exceptions.DatabaseError
@@ -248,30 +247,42 @@ class NewRequestModel(base_model.BaseModel):
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
-        query = self.ResultList.select(peewee.fn.COUNT(self.ResultList.id)).where(
-                self.ResultList.scan_status == 1)
         try:
-            result = await peewee_async.scalar(query)
-        except Exception as e:
-            Logger().critical("Database error in get_scan_count method!", exc_info=e)
-            raise exceptions.DatabaseError
-        if result is None:
-            scanned = 0
-        else:
-            scanned = result
+            query = self.ResultList.select(
+                peewee.fn.COUNT(self.ResultList.id)).where(
+                                self.ResultList.scan_status == 1)
 
-        query = self.ResultList.select(peewee.fn.COUNT(self.ResultList.id))
-        try:
             result = await peewee_async.scalar(query)
+            if result is None:
+                scanned = 0
+            else:
+                scanned = result
+            
+            query = self.ResultList.select(
+                peewee.fn.COUNT(self.ResultList.id)).where(
+                                self.ResultList.scan_status == 3)
+
+            result = await peewee_async.scalar(query)
+            if result is None:
+                failed = 0
+            else:
+                failed = result
+
+            query = self.ResultList.select(
+                peewee.fn.COUNT(self.ResultList.id))
+
+            result = await peewee_async.scalar(query)
+            if result is None:
+                total = 0
+            else:
+                total = result
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("Database error in get_scan_count method!", exc_info=e)
             raise exceptions.DatabaseError
-        if result is None:
-            total = 0
-        else:
-            total = result
         
-        return total, scanned
+        return total, scanned, failed
 
     async def get_last_time(self):
         """
@@ -288,6 +299,8 @@ class NewRequestModel(base_model.BaseModel):
         try:
             result = await peewee_async.execute(query)
             data = await peewee_async.execute(query)
+        except asyncio.CancelledError as e:
+            raise e
         except Exception as e:
             Logger().critical("Database error in get_last_time method!", exc_info=e)
             raise exceptions.DatabaseError
