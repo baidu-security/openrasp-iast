@@ -51,12 +51,13 @@ class Session(object):
         """
         await self.session.close()
 
-    async def send_request(self, request_data_ins):
+    async def send_request(self, request_data_ins, proxy_url=None):
         """
         异步发送一个http请求, 返回结果
 
         Parameters:
             request_data_ins - request_data.RequestData类的实例，包含请求的全部信息
+            proxy_url - 发送请求使用的代理url, 为None时不使用代理
 
         Returns:
             dict, 结构: 
@@ -75,7 +76,7 @@ class Session(object):
         while retry_times >= 0:
             try:
                 async with context.Context():
-                    async with http_func(**request_data_ins.get_aiohttp_param(), allow_redirects=False, ssl=False) as response:
+                    async with http_func(**request_data_ins.get_aiohttp_param(), proxy=proxy_url ,allow_redirects=False, ssl=False) as response:
                         response = { 
                             "status": response.status, 
                             "headers": response.headers, 

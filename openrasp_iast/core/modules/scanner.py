@@ -92,6 +92,8 @@ class Scanner(base.BaseModule):
         for plugin_name in self.scan_config["scan_plugin_status"]:
             self.plugin_loaded[plugin_name].set_enable(self.scan_config["scan_plugin_status"][plugin_name]["enable"])
             self.plugin_loaded[plugin_name].set_white_url_reg(self.scan_config["white_url_reg"])
+            self.plugin_loaded[plugin_name].set_scan_proxy(self.scan_config["scan_proxy"])
+            
         Logger().debug("Update scanner config to version {}, new config json is {}".format(self.scan_config["version"], json.dumps(self.scan_config)))
 
     def _init_plugin(self):

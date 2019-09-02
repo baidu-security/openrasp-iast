@@ -110,6 +110,7 @@ class ScannerManager(object):
                 "min_request_interval": Config().get_config("scanner.min_request_interval")
             },
             "white_url_reg": "",
+            "scan_proxy": "",
             "version": 0
         }
         
@@ -168,6 +169,9 @@ class ScannerManager(object):
 
         if "white_url_reg" in config:
             origin_config["white_url_reg"] = config["white_url_reg"]
+        
+        if "scan_proxy" in config:
+            origin_config["scan_proxy"] = config["scan_proxy"]
 
         origin_config["version"] = version + 1
         self.config_model.update(host_port, json.dumps(origin_config))

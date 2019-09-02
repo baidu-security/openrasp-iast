@@ -56,6 +56,7 @@ class ScanPluginBase(object):
         
         self._enable = True # 插件是否启用
         self._white_reg = None # 扫描url白名单
+        self._proxy_url = None # 扫描使用的代理
         self._scan_queue = queue.Queue() # 任务队列
         self._last_scan_id = 0 # 最近扫描完成的任务在数据库中的id
         self._scan_num = 0 # 当前已扫描url数量
@@ -115,6 +116,18 @@ class ScanPluginBase(object):
             self._white_reg = None
         else:
             self._white_reg = re.compile(reg_str)
+    
+    def set_scan_proxy(self, proxy_url):
+        """
+        设置扫描代理, 为空时设置为None
+
+        Parameters:
+            reg_str - str
+        """
+        if proxy_url == "":
+            self._proxy_url = None
+        else:
+            self._proxy_url = proxy_url
 
     async def async_run(self):
         """
@@ -237,7 +250,7 @@ class ScanPluginBase(object):
         self._register_result(request_id)
         try:
             self.logger.debug("Send scan request with id: {}, content: {}".format(request_id, request_data.get_aiohttp_param()))
-            response = await self._request_session.send_request(request_data)
+            response = await self._request_session.send_request(request_data, self._proxy_url)
             self.logger.debug("Request with id: {} get response: {}".format(request_id, response))
             rasp_result_ins = await self._wait_result(request_id)
             self.logger.debug("Request with id: {} get rasp_result: {}".format(request_id, rasp_result_ins.dump()))

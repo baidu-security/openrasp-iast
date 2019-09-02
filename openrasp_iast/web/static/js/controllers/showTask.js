@@ -121,7 +121,8 @@ define([], function () {
                 $scope.concurrent = scan_rate.max_concurrent_request
                 $scope.minInterval = scan_rate.min_request_interval
                 $scope.maxInterval = scan_rate.max_request_interval
-
+                $scope.urlWhiteRegex = $scope.config.white_url_reg
+                $scope.scanProxy = $scope.config.scan_proxy
             })
             .catch(function (result) {
                 var err = result.data;
@@ -248,6 +249,7 @@ define([], function () {
             $scope.minInterval = isNaN(Number($scope.minInterval))? undefined:Number($scope.minInterval);
             $scope.maxInterval = isNaN(Number($scope.maxInterval))? undefined:Number($scope.maxInterval);
             $scope.urlWhiteRegex == undefined? "":$scope.urlWhiteRegex;
+            $scope.scanProxy == undefined? "":$scope.scanProxy;
             if($scope.concurrent > 0 && $scope.maxInterval > 0 && $scope.minInterval >= 0){
                 if($scope.minInterval <= $scope.maxInterval){
                     getRequest(setConfigUrl, {
@@ -260,7 +262,8 @@ define([], function () {
                                 "max_request_interval": $scope.maxInterval,
                                 "min_request_interval": $scope.minInterval
                             },
-                            "white_url_reg": $scope.urlWhiteRegex
+                            "white_url_reg": $scope.urlWhiteRegex,
+                            "scan_proxy": $scope.scanProxy
                         }
                      })
                     .then(function (response) {

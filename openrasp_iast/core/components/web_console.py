@@ -25,6 +25,7 @@ import asyncio
 import traceback
 import jsonschema
 import tornado.web
+import urllib.parse
 import tornado.ioloop
 import tornado.httpserver
 
@@ -345,7 +346,8 @@ class ScanConfigHandler(ApiHandlerBase):
                     "max_request_interval": 1000,
                     "min_request_interval": 0
                 },
-                "white_url_reg": "^/logout"
+                "white_url_reg": "^/logout",
+                "scan_proxy": "http://127.0.0.1:8080"
             }
         }
         """
@@ -358,6 +360,13 @@ class ScanConfigHandler(ApiHandlerBase):
             self.config_validtor.validate(module_params["config"])
             if "white_url_reg" in module_params["config"]:
                 re.compile(module_params["config"]["white_url_reg"])
+            
+            if "scan_proxy" in module_params["config"]:
+                proxy_url = module_params["config"]["scan_proxy"]
+                if proxy_url != "":
+                    scheme = urllib.parse.urlparse(proxy_url).scheme
+                    if scheme not in ("http", "https"):
+                        assert False
 
         except (KeyError, TypeError, jsonschema.exceptions.ValidationError):
             ret = {
@@ -368,6 +377,11 @@ class ScanConfigHandler(ApiHandlerBase):
             ret = {
                 "status": 2,
                 "description": "白名单正则不合法!"
+            }
+        except AssertionError:
+            ret = {
+                "status": 3,
+                "description": "代理协议应为http或https!"
             }
         else:
             ScannerManager().mod_config(module_params)
