@@ -257,6 +257,7 @@ class Config(object):
             with open(self._config_path, "r") as f:
                 self.config_dict = yaml.load(f, Loader=yaml.FullLoader)
 
+            print("[-] Using config file: {}".format(self._config_path))
             self._check_format()
                     
             try:

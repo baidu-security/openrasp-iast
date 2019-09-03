@@ -61,8 +61,8 @@ def init_check():
         cursor._defer_warnings = True
         cursor.execute(sql)
         conn.close()
-    except Exception:
-        print("[!] MySQL connection fail, check database config!")
+    except Exception as e:
+        print("[!] MySQL connection fail, check database config! ", e)
         sys.exit(1)
 
     # 测试是否能正确连接云控
@@ -112,7 +112,6 @@ def start(args):
     """
     Config().load_config(args.config_path)
     
-    print("[-] Using config file: {}".format(Config().get_config_path()))
     init_check()
     
     real_log_path = os.path.realpath(Config().get_config("log.path"))
