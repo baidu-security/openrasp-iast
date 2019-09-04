@@ -247,8 +247,9 @@ class Config(object):
         else:
             self._config_path = path
         if self._config_path is None or not os.path.isfile(self._config_path):
-            cmd = "'" + sys.argv[0] + " config'"
-            print("[!] OpenRASP-IAST init error, no config file found, use {} to generate a config file!".format(cmd))
+            # cmd = "'" + sys.argv[0] + " config'"
+            # print("[!] OpenRASP-IAST init error, no config file found, use {} to generate a config file!".format(cmd))
+            print ('[!] No config file found, please refer to https://rasp.baidu.com/doc/install/iast.html#config for initial setup')
             sys.exit(1)
 
         self._config_path = os.path.realpath(os.path.abspath(self._config_path))
