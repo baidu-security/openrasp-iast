@@ -71,20 +71,21 @@ class Session(object):
             exceptions.ScanRequestFailed - 请求发送失败时引发此异常
         """
         http_func = getattr(self.session, request_data_ins.get_method())
-        Logger().debug("Send scan request data: {}".format(request_data_ins.get_aiohttp_param()))
+        request_params_dict = request_data_ins.get_aiohttp_param()
+        Logger().debug("Send scan request data: {}".format(request_params_dict))
         retry_times = Config().get_config("scanner.retry_times")
         while retry_times >= 0:
             try:
                 async with context.Context():
-                    async with http_func(**request_data_ins.get_aiohttp_param(), proxy=proxy_url ,allow_redirects=False, ssl=False) as response:
-                        response = { 
+                    async with http_func(**request_params_dict, proxy=proxy_url ,allow_redirects=False, ssl=False) as response:
+                        response = {
                             "status": response.status, 
                             "headers": response.headers, 
                             "body": await response.read()
                         }
                         break
             except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientError) as e:
-                Logger().info("Send scan request timeout!")
+                Logger().info("Send scan request timeout, request params:{}".format(request_params_dict))
                 await asyncio.sleep(1)
                 retry_times -= 1
             except asyncio.CancelledError as e:
