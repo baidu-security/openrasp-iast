@@ -123,7 +123,10 @@ class BaseModel(object):
             if table_prefix is not None:
                 self._model = self._create_model(database, table_prefix)
                 if create_table:
-                    database.create_tables([self._model])
+                    try:
+                        database.create_tables([self._model])
+                    except peewee.InternalError:
+                        pass
                 elif not self._model.table_exists():
                     raise exceptions.TableNotExist
 
