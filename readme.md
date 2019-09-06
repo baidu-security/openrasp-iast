@@ -4,4 +4,4 @@
 
 ## Quick Start
 
-参考[OpenRASP-IAST文档](https://rasp.baidu.com/beta-doc/install/iast.html)
+参考[OpenRASP-IAST文档](https://rasp.baidu.com/doc/install/iast.html)
