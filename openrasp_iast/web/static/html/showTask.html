@@ -87,7 +87,8 @@
         </tbody>
     </table>
 
-     <div class="footer" align="center">
+     <p class="text-center" ng-show="count == 0">暂无数据</p>
+     <div class="footer" align="center" ng-show="count > 0">
          <ul uib-pagination total-items="count" ng-model="currentPage" max-size="maxSize"
              items-per-page="perPageRecord" first-text="第一页" previous-text="上一页" next-text="下一页"
              last-text="最后页" boundary-links="true"
