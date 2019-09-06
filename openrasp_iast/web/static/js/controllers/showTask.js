@@ -75,6 +75,15 @@ define([], function () {
             getAllTasks();
         }
 
+        $scope.$watch('urlWhiteRegex',function(newVal,oldVal){
+            try {
+                new RegExp($scope.urlWhiteRegex)
+                $scope.regLegal = true
+            } catch (error) {
+                $scope.regLegal = false
+            }
+        })
+
         $scope.displayRecord = function(){
             $scope.eachTask = [];
             $scope.scannerIds = [];
@@ -250,7 +259,8 @@ define([], function () {
             $scope.maxInterval = isNaN(Number($scope.maxInterval))? undefined:Number($scope.maxInterval);
             $scope.urlWhiteRegex == undefined? "":$scope.urlWhiteRegex;
             $scope.scanProxy == undefined? "":$scope.scanProxy;
-            if($scope.concurrent > 0 && $scope.maxInterval > 0 && $scope.minInterval >= 0){
+
+            if($scope.regLegal && $scope.concurrent > 0 && $scope.maxInterval > 0 && $scope.minInterval >= 0){
                 if($scope.minInterval <= $scope.maxInterval){
                     getRequest(setConfigUrl, {
                         "host": host,
