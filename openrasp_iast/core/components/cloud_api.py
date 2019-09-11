@@ -41,7 +41,7 @@ class CloudApi(object):
         all_report_model = []
         tables = self.base_report_model.get_tables()
         for table_name in tables:
-            if table_name.endswith("_Report"):
+            if table_name.lower().endswith("_report"):
                 all_report_model.append(table_name)
 
         for table_name in all_report_model:

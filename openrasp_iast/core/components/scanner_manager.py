@@ -488,9 +488,10 @@ class ScannerManager(object):
             exceptions.DatabaseError - 数据库错误引发此异常
         """
         tables = BaseModel().get_tables()
+        Logger().debug("Got current tables: {}".format(", ".join(tables)))
         result = {}
         for table_name in tables:
-            if table_name.endswith("_ResultList"):
+            if table_name.lower().endswith("_resultlist"):
                 host_port = table_name[:-11]
             else:
                 continue
