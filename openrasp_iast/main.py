@@ -56,10 +56,14 @@ def init_check():
             user=Config().config_dict["database.username"],
             passwd=Config().config_dict["database.password"]
         )
-        sql = "select 1;"
+        sql = "select @@lower_case_table_names;"
         cursor = conn.cursor()
         cursor._defer_warnings = True
         cursor.execute(sql)
+        result = cursor.fetchall()
+        if len(result) > 0 and int(result[0][0]) == 1:
+            print("[!] MySQL System Variable lower-case-table-names should be set to 0 or 2! ")
+            sys.exit(1)
         conn.close()
     except Exception as e:
         print("[!] MySQL connection fail, check database config! ", e)
