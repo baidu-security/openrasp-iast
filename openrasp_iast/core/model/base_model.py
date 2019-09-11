@@ -18,6 +18,7 @@ limitations under the License.
 """
 
 import os
+import time
 import peewee
 import pymysql
 import peewee_async
@@ -88,9 +89,16 @@ class BaseModel(object):
             conn.close()
             cls.db_created = True
         
-        if multiplexing_conn and not hasattr(cls, "mul_database"):
-            cls.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
-            cls.mul_database.connect()
+        if multiplexing_conn:
+            if not hasattr(cls, "mul_database"):
+                cls.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
+                cls.mul_database.connect()
+                cls.mul_database_timeout = time.time() + 60
+            elif time.time() > cls.mul_database_timeout:
+                cls.mul_database.close()
+                cls.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
+                cls.mul_database.connect()
+                cls.mul_database_timeout = time.time() + 60
 
         instance = super(BaseModel, cls).__new__(cls)
         return instance
