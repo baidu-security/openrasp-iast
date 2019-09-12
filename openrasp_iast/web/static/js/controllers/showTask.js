@@ -14,6 +14,7 @@ define([], function () {
         var cleanUrl = '/api/model/clean_target';
         var startTaskUrl = '/api/scanner/new';
         var autoStartUrl = '/api/scanner/auto_start';
+        var autoStartStatusUrl = '/api/scanner/auto_start_status';
         var getConfigUrl = '/api/scanner/get_config';
         var setConfigUrl = '/api/scanner/config';
         $scope.data = [];
@@ -333,6 +334,20 @@ define([], function () {
         $scope.autoStartTask = function() {
             $scope.autoStartFlag = !$scope.autoStartFlag
             getRequest(autoStartUrl, {"auto_start": $scope.autoStartFlag})
+            .then(function (response) {
+                var status = response.data['status'];
+                if(status != 0){
+                   alert(response.data['description']);
+                }
+            })
+            .catch(function (result) {
+                var err = result.data;
+                if (err != undefined){
+                    alert(err)
+                }
+            });
+
+            getRequest(autoStartStatusUrl, {})
             .then(function (response) {
                 var status = response.data['status'];
                 if(status != 0){
