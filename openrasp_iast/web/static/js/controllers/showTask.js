@@ -74,21 +74,6 @@ define([], function () {
         // driver refresh
         $scope.refreshDriver = function(){
             getAllTasks();
-            getRequest(autoStartStatusUrl, {})
-            .then(function (response) {
-                var status = response.data['status'];
-                if(status != 0){
-                   alert(response.data['description']);
-                }else{
-                    $scope.autoStartFlag = response.data['data']['status'];
-                }
-            })
-            .catch(function (result) {
-                var err = result.data;
-                if (err != undefined){
-                    alert(err)
-                }
-            });
         }
 
         $scope.$watch('urlWhiteRegex',function(newVal,oldVal){
@@ -130,6 +115,25 @@ define([], function () {
                 headers: {'Content-Type': 'application/json'}
             })
         }
+
+        var setAutoStartStatus = function(){
+            getRequest(autoStartStatusUrl, {})
+            .then(function (response) {
+                var status = response.data['status'];
+                if(status != 0){
+                   alert(response.data['description']);
+                }else{
+                   $scope.autoStartFlag = response.data['data']['status'];
+                }
+            })
+            .catch(function (result) {
+                var err = result.data;
+                if (err != undefined){
+                    alert(err)
+                }
+            });
+        }
+        setAutoStartStatus();
 
         var getConfig = function(taskId){
             var host = $scope.data[taskId].host
