@@ -74,6 +74,21 @@ define([], function () {
         // driver refresh
         $scope.refreshDriver = function(){
             getAllTasks();
+            getRequest(autoStartStatusUrl, {})
+            .then(function (response) {
+                var status = response.data['status'];
+                if(status != 0){
+                   alert(response.data['description']);
+                }else{
+                    $scope.autoStartFlag = response.data['data']['status'];
+                }
+            })
+            .catch(function (result) {
+                var err = result.data;
+                if (err != undefined){
+                    alert(err)
+                }
+            });
         }
 
         $scope.$watch('urlWhiteRegex',function(newVal,oldVal){
@@ -334,20 +349,6 @@ define([], function () {
         $scope.autoStartTask = function() {
             $scope.autoStartFlag = !$scope.autoStartFlag
             getRequest(autoStartUrl, {"auto_start": $scope.autoStartFlag})
-            .then(function (response) {
-                var status = response.data['status'];
-                if(status != 0){
-                   alert(response.data['description']);
-                }
-            })
-            .catch(function (result) {
-                var err = result.data;
-                if (err != undefined){
-                    alert(err)
-                }
-            });
-
-            getRequest(autoStartStatusUrl, {})
             .then(function (response) {
                 var status = response.data['status'];
                 if(status != 0){
