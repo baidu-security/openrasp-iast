@@ -635,6 +635,19 @@ class ScannerManager(object):
         ri_min = boundary["min_request_interval"]
         scheduler.set_boundary_value(cr_max, ri_max, ri_min)
 
+    def get_auto_start(self):
+        """
+        获取自动启动扫描开关状态
+
+        Returns:
+            bool, 是否开启自启动扫描
+        """
+
+        if Communicator().get_value("auto_start", "Monitor") == 1:
+            return True
+        else:
+            return False
+
     def set_auto_start(self, auto_start):
         """
         设置自动启动扫描开关(请求首次接收时启动扫描)

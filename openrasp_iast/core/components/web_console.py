@@ -115,7 +115,14 @@ class WebConsole(object):
                 AutoStartHandler
             )
         )
-
+        
+        handlers.append(
+            tornado.web.url(
+                "/api/scanner/auto_start_status",
+                AutoStartStatusHandler
+            )
+        )
+        
         handlers.append(
             tornado.web.url(
                 "/api/model/get_all",
@@ -625,6 +632,23 @@ class AutoStartHandler(ApiHandlerBase):
                 "description": "ok"
             }
             return ret
+
+
+class AutoStartStatusHandler(ApiHandlerBase):
+    async def handle_request(self, data):
+        """
+        请求格式：
+        {}
+        """
+        status = ScannerManager().get_auto_start()
+        ret = {
+            "status": 0,
+            "description": "ok",
+            "data":{
+                "status":status
+            }
+        }
+        return ret
 
 
 class GetAllTargetHandler(ApiHandlerBase):
