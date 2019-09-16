@@ -1,11 +1,11 @@
-default: build-test run-test
+default: build
 
-build-test:
+build-test-env:
 	@echo "Build test enviroment..."
 	@root_path=$$(pwd); \
 	make -C "$${root_path}/docker/test-env"  build
 
-run-test:
+test:
 	@echo "Run test cases..."
 	@root_path=$$(pwd); \
 	docker run --rm -v "$${root_path}:/code" openrasp/iast-test-env

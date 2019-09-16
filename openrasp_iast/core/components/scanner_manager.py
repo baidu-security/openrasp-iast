@@ -61,7 +61,7 @@ class ScannerManager(object):
         """
         初始化扫描配置
         """
-        self.config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=False)
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
 
         self.plugin_loaded = {}
         plugin_path = Communicator().get_main_path() + "/plugin/scanner"
@@ -115,18 +115,18 @@ class ScannerManager(object):
         }
         
         # 插件列表有更新时，删除当前缓存的所有配置
-        origin_default_config = self.config_model.get("default")
+        origin_default_config = config_model.get("default")
         if origin_default_config is not None:
             origin_default_config = json.loads(origin_default_config)
             if len(origin_default_config["scan_plugin_status"]) != len(default_config["scan_plugin_status"]):
-                self.config_model.delete("all")
+                config_model.delete("all")
             else:
                 for plugin_names in origin_default_config["scan_plugin_status"]:
                     if plugin_names not in default_config["scan_plugin_status"]:
-                        self.config_model.delete("all")
+                        config_model.delete("all")
                         break
 
-        self.config_model.update("default", json.dumps(default_config))
+        config_model.update("default", json.dumps(default_config))
 
     def _check_alive(self):
         """
@@ -150,9 +150,10 @@ class ScannerManager(object):
             config - dict, 更新的config
         """
 
-        origin_config_json = self.config_model.get(host_port)
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        origin_config_json = config_model.get(host_port)
         if origin_config_json is None:
-            origin_config_json = self.config_model.get("default")
+            origin_config_json = config_model.get("default")
 
         origin_config = json.loads(origin_config_json)
         version = origin_config["version"]
@@ -174,7 +175,7 @@ class ScannerManager(object):
             origin_config["scan_proxy"] = config["scan_proxy"]
 
         origin_config["version"] = version + 1
-        self.config_model.update(host_port, json.dumps(origin_config))
+        config_model.update(host_port, json.dumps(origin_config))
 
         for scanner_id in range(len(self.scanner_list)):
             if self.scanner_list[scanner_id] is not None:
@@ -248,10 +249,11 @@ class ScannerManager(object):
             }
 
         """
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
         host_port = module_params["host"] + "_" + str(module_params["port"])
-        config_json = self.config_model.get(host_port)
+        config_json = config_model.get(host_port)
         if config_json is None:
-            config_json = self.config_model.get("default")
+            config_json = config_model.get("default")
         return json.loads(config_json)
 
     def mod_config(self, module_params):
@@ -442,7 +444,8 @@ class ScannerManager(object):
         else:
             NewRequestModel(table_prefix, multiplexing_conn=True).drop_table()
             ReportModel(table_prefix,  multiplexing_conn=True).drop_table()
-            self.config_model.delete(table_prefix)
+            config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+            config_model.delete(table_prefix)
         Communicator().set_clean_lru([table_prefix])
 
     async def get_all_target(self):
@@ -522,9 +525,10 @@ class ScannerManager(object):
                 result[host_port]["scanned"] = scanned
                 result[host_port]["failed"] = failed
 
-            target_config = self.config_model.get(host_port)
+            config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+            target_config = config_model.get(host_port)
             if target_config is None:
-                target_config = self.config_model.get("default")
+                target_config = config_model.get("default")
             result[host_port]["config"] = json.loads(target_config)
 
 
