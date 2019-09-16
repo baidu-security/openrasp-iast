@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"openrasp.app"},{"v":2,"unique":true,"key":{"name":1},"name":"app_name","ns":"openrasp.app","background":true}],"uuid":"bcc9e3f076ff44c69cf6dcd985511ea3"}

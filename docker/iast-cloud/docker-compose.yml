@@ -1,0 +1,59 @@
+version: '3'
+services:
+    apache-php7.2:
+        build:
+            context: ./images/apache-php7.2
+        image: openrasp/iast-cloud/apache-php:7.2
+        hostname: apache-php7.2
+        ports:
+            - "18662:18662"
+        volumes:
+            - "./volumes/apache-php7.2/html:/var/www/html"
+            - "./volumes/apache-php7.2/rasp:/rasp"
+        tty: true
+
+    mysql5.6:
+        build:
+            context: ./images/mysql5.6
+        image: openrasp/iast-cloud/mysql:5.6
+        hostname: mysql5.6
+        tty: true
+
+    rasp-cloud:
+        build:
+            context: ./images/rasp-cloud
+        image: openrasp/iast-cloud/rasp-cloud
+        hostname: rasp-cloud
+        ports: 
+            - "18660:8086"
+        depends_on:
+            - elasticsearch6.4.2
+            - mongodb3.6
+        tty: true
+
+    elasticsearch6.4.2:
+        build:
+            context: ./images/elasticsearch6.4.2
+        image: openrasp/iast-cloud/elasticsearch6.4.2
+        hostname: elasticsearch6.4.2
+        tty: true
+
+    mongodb3.6:
+        build:
+            context: ./images/mongodb3.6
+        image: openrasp/iast-cloud/mongodb3.6
+        hostname: mongodb3.6
+        tty: true
+
+    openrasp-iast:
+        build:
+            context: ./images/openrasp-iast
+        image: openrasp/iast-cloud/openrasp-iast
+        hostname: openrasp-iast
+        ports: 
+            - "18661:18664"
+        volumes:
+            - "../../openrasp_iast:/root/openrasp-iast-code"
+            - "./volumes/openrasp-iast/config/:/root/openrasp-iast/"
+            - "./volumes/openrasp-iast/logs/:/root/openrasp-iast-logs/"
+        tty: true

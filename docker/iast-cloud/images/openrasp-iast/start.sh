@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo '[-] Waiting for mysql start'
+while true
+do
+    nc -z mysql5.6 3306 && break
+    sleep 1
+done
+
+echo '[-] Waiting for rasp-cloud start'
+while true
+do
+    curl -I rasp-cloud:8086 &>/dev/null && break
+    sleep 1
+done
+
+echo '[-] starting OpenRASP-IAST ...'
+
+python3 /root/openrasp-iast-code/main.py start
+
+echo '[-] OpenRASP-IAST started'
+
+/bin/bash
