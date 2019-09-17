@@ -3,7 +3,7 @@ FROM php:7.2-apache
 LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
 RUN apt-get update && \
-    apt install wget
+    apt-get install -y wget
 
 RUN docker-php-source extract \
     && docker-php-ext-install mysqli \

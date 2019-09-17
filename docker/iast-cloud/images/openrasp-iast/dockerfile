@@ -2,9 +2,8 @@ FROM python:3.7.4-slim-stretch
 
 LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
-RUN apt-get update
 RUN apt-get update && \
-    apt install -y wget curl gcc netcat
+    apt-get install -y wget curl gcc netcat
 
 COPY requirements.txt /root/
 RUN cd /root/ && pip3 install -r requirements.txt

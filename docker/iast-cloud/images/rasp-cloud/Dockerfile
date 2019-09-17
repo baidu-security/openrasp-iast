@@ -3,7 +3,7 @@ FROM debian:stretch-slim
 LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
 RUN apt-get update && \
-    apt install -y wget curl
+    apt-get install -y wget curl
 
 RUN cd /root/ && \
     wget https://packages.baidu.com/app/openrasp/release/1.2.0/rasp-cloud.tar.gz && \
