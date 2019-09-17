@@ -17,6 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import re
 import json
 import pickle
 import hashlib
@@ -60,6 +61,8 @@ class RaspResult(object):
         }
     }
     rasp_result_validtor = jsonschema.Draft7Validator(schema)
+    
+    host_reg = re.compile(r'^[a-zA-Z0-9.\-]+$')
 
     def __init__(self, rasp_result_json):
         """
@@ -94,7 +97,9 @@ class RaspResult(object):
         """
         try:
             self.rasp_result_dict["web_server"]["port"]
-            self.rasp_result_dict["web_server"]["host"]
+            if not self.host_reg.match(self.rasp_result_dict["web_server"]["host"]):
+                raise KeyError
+
         except KeyError:
             try:
                 header_host = self.rasp_result_dict["context"]["header"]["host"]

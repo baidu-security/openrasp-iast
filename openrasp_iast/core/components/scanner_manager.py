@@ -500,7 +500,7 @@ class ScannerManager(object):
                 continue
             host_port_split = host_port.split("_")
 
-            host = "".join(host_port_split[:-1])
+            host = "_".join(host_port_split[:-1])
             port = host_port_split[-1]
             result[host_port] = {
                 "host": host,
