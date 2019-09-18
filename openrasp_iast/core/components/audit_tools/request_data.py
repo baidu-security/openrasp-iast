@@ -34,6 +34,23 @@ class RequestData(object):
 
     http_methods = ["get", "post", "head",
                     "push", "delete", "options", "patch"]
+    
+    hook_item_map = {
+        "sql": ["query"],
+        "ssrf": ["url"],
+        "directory": ["path"],
+        "readFile": ["path"],
+        "writeFile": ["path"],
+        "include": ["url"],
+        "webdav": ["source", "dest"],
+        "fileUpload": ["filename"],
+        "rename": ["source", "dest"],
+        "command": ["command"],
+        "xxe": ["entity"],
+        "ognl": ["expression"],
+        "deserialization": ["clazz"],
+        "eval": ["code"]
+    }
 
     def __init__(self, rasp_result_ins, payload_seq=None, payload_feature=None):
         """
@@ -344,32 +361,12 @@ class RequestData(object):
         """
         hook_info = self.rasp_result_ins.get_hook_info()
         params = self.rasp_result_ins.get_parameters()
-        if hook_type == "sql":
-            hook_item_key = ["query"]
-        elif hook_type == "ssrf":
-            hook_item_key = ["url"]
-        elif hook_type in ["directory", "readFile", "writeFile"]:
-            hook_item_key = ["path"]
-        elif hook_type == "include":
-            hook_item_key = ["url"]
-        elif hook_type == "webdav":
-            hook_item_key = ["source", "dest"]
-        elif hook_type == "fileUpload":
-            hook_item_key = ["filename"]
-        elif hook_type == "rename":
-            hook_item_key = ["source", "dest"]
-        elif hook_type == "command":
-            hook_item_key = ["command"]
-        elif hook_type == "xxe":
-            hook_item_key = ["entity"]
-        elif hook_type == "ognl":
-            hook_item_key = ["expression"]
-        elif hook_type == "deserialization":
-            hook_item_key = ["clazz"]
-        elif hook_type == "eval":
-            hook_item_key = ["code"]
-        else:
+
+        try:
+            hook_item_key = self.hook_item_map[hook_type]
+        except KeyError:
             raise exceptions.HookTypeNotExist
+
         for hook_item in hook_info:
             if hook_item["hook_type"] == hook_type:
                 for key in hook_item_key:
