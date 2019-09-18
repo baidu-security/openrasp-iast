@@ -16,5 +16,6 @@ openrasp-iast-*
 openrasp_iast/log
 openrasp_iast/dist
 openrasp_iast/build
-config.yaml
-config.yaml*
+/openrasp_iast/config.yaml
+/openrasp_iast/config.yaml*
+/config.yaml
