@@ -35,6 +35,10 @@ services:
         build:
             context: ./images/elasticsearch6.4.2
         image: openrasp/iast-cloud/elasticsearch6.4.2
+        ulimits: 
+            nofile:
+                soft: 131071
+                hard: 131071
         hostname: elasticsearch6.4.2
         tty: true
 
