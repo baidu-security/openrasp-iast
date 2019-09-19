@@ -141,7 +141,8 @@ class Scanner(base.BaseModule):
         模块主函数，启动协程
         """
         try:
-            asyncio.run(self.async_run())
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(self.async_run())
         except RuntimeError:
             Logger().info("Scanner process has been killed!")
         except Exception as e:
@@ -152,7 +153,7 @@ class Scanner(base.BaseModule):
         协程主函数
         """
         # 注册信号处理
-        loop = asyncio.get_running_loop()
+        loop = asyncio.get_event_loop()
         for signame in {'SIGINT', 'SIGTERM'}:
             loop.add_signal_handler(
                 getattr(signal, signame),
@@ -164,11 +165,11 @@ class Scanner(base.BaseModule):
         # 启动插件
         plugin_tasks = []
         for plugin_name in self.plugin_loaded:
-            plugin_tasks.append(asyncio.create_task(
+            plugin_tasks.append(loop.create_task(
                 self.plugin_loaded[plugin_name].async_run()))
 
         # 启动获取扫描结果队列的协程
-        task_fetch_rasp_result = asyncio.create_task(self._fetch_from_queue())
+        task_fetch_rasp_result = loop.create_task(self._fetch_from_queue())
 
         # 执行获取新扫描任务
         await self._fetch_new_scan()

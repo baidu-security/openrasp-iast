@@ -297,8 +297,9 @@ class ScanPluginBase(object):
 
         max_task = self.get_max_concureent_task()
         tasks = []
+        loop = asyncio.get_event_loop()
         for i in range(max_task):
-            tasks.append(asyncio.create_task(self._test_mutant_task(mutant_generator)))
+            tasks.append(loop.create_task(self._test_mutant_task(mutant_generator)))
         for task in tasks:
             await task
         self.logger.info("Finish task with request_id:{}".format(rasp_result_ins.get_request_id()))
