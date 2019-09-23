@@ -77,7 +77,7 @@ def init_check():
             "X-OpenRASP-AppID": Config().config_dict["cloud_api.app_id"]
         }
         try:
-            r = requests.post(url=url, headers=headers, json=[])
+            r = requests.post(url=url, headers=headers, json=[], timeout=3)
             if r.status_code == 200:
                 response = json.loads(r.text)
                 if response["status"] != 0:
