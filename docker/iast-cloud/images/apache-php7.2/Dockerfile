@@ -24,6 +24,8 @@ RUN cd /root && \
         --app-secret HUL1Z0zy1BuSFOWI2lHWqzzZ2Yrq12DJDeyHFDxcEAk \
         --backend-url http://rasp-cloud:8086
 
+RUN sed -i "s/openrasp.heartbeat_interval=180/openrasp.heartbeat_interval=10/" /usr/local/etc/php/conf.d/z_openrasp.ini
+
 COPY start.sh /root/
 
 ENTRYPOINT ["/bin/bash", "/root/start.sh"]
