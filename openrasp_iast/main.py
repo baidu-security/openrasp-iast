@@ -36,7 +36,7 @@ from core.components.config import Config
 def init_check():
     version = float(platform.python_version()[:3])
     if version < 3.6:
-        print("[!] You must run this tool with Python 3.7 or newer version.")
+        print("[!] You must run this tool with Python 3.6 or newer version.")
         sys.exit(1)
     
     if sys.platform not in ("linux", "darwin"):
