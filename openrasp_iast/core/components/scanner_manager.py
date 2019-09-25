@@ -490,7 +490,7 @@ class ScannerManager(object):
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
-        tables = BaseModel().get_tables()
+        tables = BaseModel(multiplexing_conn=True).get_tables()
         Logger().debug("Got current tables: {}".format(", ".join(tables)))
         result = {}
         for table_name in tables:

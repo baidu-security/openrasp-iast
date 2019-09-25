@@ -69,9 +69,9 @@ class Scanner(base.BaseModule):
         """
         获取缓存的扫描配置
         """
-        self.config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
         host_port = self.target_host + "_" + str(self.target_port)
-        config = self.config_model.get(host_port)
+        config = config_model.get(host_port)
         if config is None:
             raise exceptions.GetRuntimeConfigFail
         self.scan_config = json.loads(config)
@@ -80,15 +80,17 @@ class Scanner(base.BaseModule):
         """
         存储当前扫描目标配置
         """
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
         host_port = self.target_host + "_" + str(self.target_port)
-        self.config_model.update(host_port, json.dumps(self.scan_config))
+        config_model.update(host_port, json.dumps(self.scan_config))
 
     def _update_scan_config(self):
         """
         更新当前运行的扫描配置
         """
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
         host_port = self.target_host + "_" + str(self.target_port)
-        self.scan_config = json.loads(self.config_model.get(host_port))
+        self.scan_config = json.loads(config_model.get(host_port))
         for plugin_name in self.scan_config["scan_plugin_status"]:
             self.plugin_loaded[plugin_name].set_enable(self.scan_config["scan_plugin_status"][plugin_name]["enable"])
             self.plugin_loaded[plugin_name].set_white_url_reg(self.scan_config["white_url_reg"])

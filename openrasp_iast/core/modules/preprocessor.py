@@ -231,7 +231,7 @@ class ResultStorage(object):
             获取到的NewRequestModel实例
         """
         if host_port not in self.models:
-            self.models[host_port] = new_request_model.NewRequestModel(host_port)
+            self.models[host_port] = new_request_model.NewRequestModel(host_port, multiplexing_conn=True)
             self._start_scanner(host_port)
         return self.models[host_port]
 

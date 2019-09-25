@@ -388,15 +388,6 @@ class Monitor(base.BaseModule):
 
         # 多线程开始前初始化
         RuntimeInfo()
-
-        # 启动后台http server
-        web_console = WebConsole()
-        self.web_console_thread = threading.Thread(
-            target=web_console.run,
-            name="web_console_thread",
-            daemon=True
-        )
-        self.web_console_thread.start()
         
         if Config().get_config("cloud_api.enable"):
             self.cloud_thread = threading.Thread(
@@ -412,6 +403,15 @@ class Monitor(base.BaseModule):
             if module_name.startswith("Scanner"):
                 scanner_schedulers[module_name] = ScannerScheduler(module_name)
         ScannerManager().init_manager(scanner_schedulers)
+
+        # 启动后台http server
+        web_console = WebConsole()
+        self.web_console_thread = threading.Thread(
+            target=web_console.run,
+            name="web_console_thread",
+            daemon=True
+        )
+        self.web_console_thread.start()
 
         time.sleep(1)
         if self._check_alive():
