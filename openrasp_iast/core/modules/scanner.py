@@ -130,9 +130,9 @@ class Scanner(base.BaseModule):
         初始化数据库
         """
         model_prefix = self.target_host + "_" + str(self.target_port)
-        self.new_scan_model = NewRequestModel(model_prefix)
+        self.new_scan_model = NewRequestModel(model_prefix, multiplexing_conn=True)
         self.new_scan_model.reset_unscanned_item()
-        report_model = ReportModel(model_prefix)
+        report_model = ReportModel(model_prefix, multiplexing_conn=True)
         Communicator().set_internal_shared("report_model", report_model)
 
     def _exit(self, signame, loop):

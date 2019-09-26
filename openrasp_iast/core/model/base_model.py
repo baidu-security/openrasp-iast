@@ -22,6 +22,7 @@ import time
 import peewee
 import pymysql
 import peewee_async
+import threading
 
 from core.components import exceptions
 from core.components.logger import Logger
@@ -29,6 +30,8 @@ from core.components.config import Config
 
 
 class BaseModel(object):
+
+    mul_lock = threading.Lock()
 
     class LongTextField(peewee.TextField):
         """
@@ -90,15 +93,16 @@ class BaseModel(object):
             cls.db_created = True
         
         if multiplexing_conn:
-            if not hasattr(cls, "mul_database"):
-                cls.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
-                cls.mul_database.connect()
-                cls.mul_database_timeout = time.time() + 60
-            elif time.time() > cls.mul_database_timeout:
-                cls.mul_database.close()
-                cls.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
-                cls.mul_database.connect()
-                cls.mul_database_timeout = time.time() + 60
+            with BaseModel.mul_lock:
+                if not hasattr(BaseModel, "mul_database"):
+                    BaseModel.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
+                    BaseModel.mul_database.connect()
+                    BaseModel.mul_database_timeout = time.time() + 60
+                elif time.time() > BaseModel.mul_database_timeout:
+                    BaseModel.mul_database.close()
+                    BaseModel.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
+                    BaseModel.mul_database.connect()
+                    BaseModel.mul_database_timeout = time.time() + 60
 
         instance = super(BaseModel, cls).__new__(cls)
         return instance
@@ -119,14 +123,14 @@ class BaseModel(object):
         self.use_async = use_async
         try:
             if multiplexing_conn:
-                database = self.mul_database
+                database = BaseModel.mul_database
             else:
                 if self.use_async:
                     database = peewee_async.MySQLDatabase(**self.connect_para)
                 else:
                     database = peewee.MySQLDatabase(**self.connect_para)
                 database.connect()
-            
+                
             # table_prefix 为None则不建立数据表实例，仅用于调用基类方法
             if table_prefix is not None:
                 self._model = self._create_model(database, table_prefix)

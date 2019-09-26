@@ -34,12 +34,11 @@ class CloudApi(object):
         self.server_url = Config().get_config("cloud_api.backend_url") + "/v1/agent/log/attack"
         self.app_secret = Config().get_config("cloud_api.app_secret")
         self.app_id = Config().get_config("cloud_api.app_id")
-        self.base_report_model = report_model.ReportModel(
-            table_prefix=None, use_async=False, create_table=False, multiplexing_conn=True)
 
     def upload_report(self):
         all_report_model = []
-        tables = self.base_report_model.get_tables()
+        base_report_model = report_model.ReportModel(table_prefix=None, create_table=False, multiplexing_conn=True)
+        tables = base_report_model.get_tables()
         for table_name in tables:
             if table_name.lower().endswith("_report"):
                 all_report_model.append(table_name)
@@ -47,8 +46,7 @@ class CloudApi(object):
         for table_name in all_report_model:
             table_prefix = table_name[:-7]
             try:
-                model_ins = report_model.ReportModel(
-                    table_prefix=table_prefix, use_async=False, create_table=False, multiplexing_conn=True)
+                model_ins = report_model.ReportModel(table_prefix=table_prefix, create_table=False, multiplexing_conn=True)
 
                 while True:
                     data_list = model_ins.get_upload_report(20)

@@ -93,11 +93,11 @@ class Launcher(object):
         Logger().init_module_logger()
         ForkProxy()
         Logger().info("Launcher init success!")
-
+        
         preprocessor_proc = modules.Process(modules.Preprocessor)
         preprocessor_proc.start()
         self.preprocessor_pid = preprocessor_proc.pid
-        Logger().info("Preprocessor fork success!")        
+        Logger().info("Preprocessor fork success!")
 
         monitor_proc = modules.Process(modules.Monitor)
         monitor_proc.start()
