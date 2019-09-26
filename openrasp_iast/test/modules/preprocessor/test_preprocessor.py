@@ -69,7 +69,8 @@ http_data = {
     },
     "new_request_1": {
         "web_server": {
-           
+            "host": "www.test-host.com",
+            "port": 80
         },
         "context": {
             "requestId": "kci13",

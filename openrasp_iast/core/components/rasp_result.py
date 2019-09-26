@@ -97,22 +97,12 @@ class RaspResult(object):
         """
         try:
             self.rasp_result_dict["web_server"]["port"]
+            self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace("_", "-")
             if not self.host_reg.match(self.rasp_result_dict["web_server"]["host"]):
                 raise KeyError
-
         except KeyError:
-            try:
-                header_host = self.rasp_result_dict["context"]["header"]["host"]
-                header_host = header_host.split(":")
-                self.rasp_result_dict["web_server"] = {}
-                self.rasp_result_dict["web_server"]["host"] = header_host[0]
-                if len(header_host) > 1:
-                    self.rasp_result_dict["web_server"]["port"] = header_host[1]
-                    if not(0 < int(header_host[1]) < 65535):
-                        raise KeyError
-            except KeyError:
-                Logger().warning("RaspResult host get fail, data:{}".format(rasp_result_json))
-                raise exceptions.ResultHostError
+            Logger().warning("RaspResult host get fail, data:{}".format(rasp_result_json))
+            raise exceptions.ResultHostError
 
     def __str__(self):
         """
