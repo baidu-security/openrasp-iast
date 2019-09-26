@@ -59,7 +59,8 @@ class Logger(object):
             self.log_path + "/error.log",
             mode='a',
             maxBytes=Config().get_config("log.rotate_size")*1024*1024,
-            backupCount=Config().get_config("log.rotate_num")
+            backupCount=Config().get_config("log.rotate_num"),
+            debug=False
         )
         date_fmt = '%Y-%m-%d %H:%M:%S'
         log_fmt = '[%(asctime)s - %(levelname)s][%(processName)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
