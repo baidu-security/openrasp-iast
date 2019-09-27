@@ -17,8 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import re
 import copy
 import aiohttp
+import binascii
+import urllib.parse
 import http.cookies
 
 from core.components import common
@@ -34,23 +37,6 @@ class RequestData(object):
 
     http_methods = ["get", "post", "head",
                     "push", "delete", "options", "patch"]
-    
-    hook_item_map = {
-        "sql": ["query"],
-        "ssrf": ["url"],
-        "directory": ["path"],
-        "readFile": ["path"],
-        "writeFile": ["path"],
-        "include": ["url"],
-        "webdav": ["source", "dest"],
-        "fileUpload": ["filename"],
-        "rename": ["source", "dest"],
-        "command": ["command"],
-        "xxe": ["entity"],
-        "ognl": ["expression"],
-        "deserialization": ["clazz"],
-        "eval": ["code"]
-    }
 
     def __init__(self, rasp_result_ins, payload_seq=None, payload_feature=None):
         """
@@ -350,7 +336,7 @@ class RequestData(object):
 
     def is_param_concat_in_hook(self, hook_type, param_value):
         """
-        判断参数值是否拼接进入hook点获取的参数中
+        判断参数值与hook点参数是否存在相似部分
 
         Parameters:
             hook_type - str, 检查的hook点类型
@@ -359,20 +345,139 @@ class RequestData(object):
         Returns:
             Boolean
         """
+        if len(param_value) == 0:
+            return False
+        
         hook_info = self.rasp_result_ins.get_hook_info()
         params = self.rasp_result_ins.get_parameters()
 
-        try:
-            hook_item_key = self.hook_item_map[hook_type]
-        except KeyError:
-            raise exceptions.HookTypeNotExist
-
         for hook_item in hook_info:
             if hook_item["hook_type"] == hook_type:
-                for key in hook_item_key:
-                    if hook_item[key].find(str(param_value)) >= 0:
+                if hook_type in ("command", "sql"):
+                    return self._is_token_concat(param_value, hook_item["tokens"])
+                elif hook_type in ("ssrf", "include"):
+                    return self._is_url_concat(param_value, hook_item["url"])
+                elif hook_type in ("directory", "readFile", "writeFile"):
+                    return self._is_url_concat(param_value, hook_item["path"])
+                    pass
+                else:
+                    hook_item_map = {
+                        "webdav": ["source", "dest"],
+                        "fileUpload": ["filename"],
+                        "rename": ["source", "dest"],
+                        "xxe": ["entity"],
+                        "ognl": ["expression"],
+                        "deserialization": ["clazz"],
+                        "eval": ["code"]
+                    }
+                    for key in hook_item_map[hook_type]:
+                        if hook_item[key].find(str(param_value)) >= 0:
+                            return True
+        return False
+    
+    def _split_str_word(self, input_str):
+        """
+        按照单词和符号分割字符串
+        
+        Parameters:
+            input_str - str, 待分割字符串
+        
+        Returns:
+            list - 分割后的字符串
+        """
+        split_value = []
+        char = input_str[0]
+        if char > '\xff' or re.search(r'[a-zA-Z0-9_]', char):
+            word = True
+        else:
+            word = False
+        start = 0
+        index = 0
+        for char in input_str:
+            if char > '\xff' or re.search(r'[a-zA-Z0-9_]', char):
+                word_char = True
+            else:
+                word_char = False
+
+            if word != word_char:
+                split_value.append(input_str[start:index])
+                word = not word
+                start = index
+            index += 1
+        if index - start >= 3:
+            split_value.append(input_str[start:])
+        
+        return split_value
+
+    def _is_token_concat(self, param_value, tokens):
+        """
+        判断token是否被参数影响
+
+        Parameters:
+            param_value - str, 参数值
+            tokens - token列表，由iast.js的tokenize获取
+
+        Returns:
+            Boolean
+        """
+        param_value = param_value.strip()
+        if len(param_value) <= 3:
+            for token in tokens:
+                if len(token["text"]) >= len(param_value) and token["text"].find(param_value) != -1:
+                    return True
+        else:
+            split_value = self._split_str_word(param_value)
+
+            for token in tokens:
+                for item in split_value:
+                    if len(token["text"]) * len(item) < 10000:
+                        cs = common.lcs(token["text"], item)
+                        if len(cs) > 3 or len(token["text"]) * len(item) < 100:
+                            return True
+                    elif len(token["text"]) >= len(item) and token["text"].find(item) != -1:
                         return True
         return False
+
+    def _is_url_concat(self, param_value, url):
+        """
+        判断url是否被参数影响
+
+        Parameters:
+            param_value - str, 参数值
+            url - str, url
+
+        Returns:
+            Boolean
+        """
+        try:
+            parse_result = urllib.parse.urlparse(url)
+            url_items = {
+                "scheme": parse_result.scheme,
+                "netloc": parse_result.netloc,
+                "path": parse_result.path,
+                "query": parse_result.query
+            }
+        except Exception as e:
+            return False
+        
+        if len(param_value) <= 3:
+            for key in url_items:
+                if url_items[key].find(param_value) != -1:
+                    return True
+        else:
+            for key in url_items:
+                path_part = url_items[key].replace("\\", "/").split("/")
+                split_value = self._split_str_word(param_value)
+                for item in split_value:
+                    for part in path_part:
+                        if len(part) * len(item) < 10000:
+                            cs = common.lcs(part, item)
+                            if len(cs) > 3 or len(part) * len(item) < 100:
+                                return True
+                        elif len(part) >= len(item) and part.find(item) != -1:
+                            return True
+        return False
+
 
     def get_payload_info(self):
         """

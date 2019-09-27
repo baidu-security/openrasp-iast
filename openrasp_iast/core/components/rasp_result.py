@@ -28,7 +28,6 @@ import urllib.parse
 from core.components import common
 from core.components import exceptions
 from core.components.logger import Logger
-from core.components.communicator import Communicator
 
 
 class RaspResult(object):
