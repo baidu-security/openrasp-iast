@@ -59,7 +59,7 @@ class MutantHelper(object):
                     test_params.append({
                             "type": "json",
                             "name": item["json_path"],
-                            "value": item["value"]
+                            "value": str(item["value"])
                         })
             elif param_type == "body":
                 test_params.append({
@@ -79,7 +79,7 @@ class MutantHelper(object):
                     test_params.append({
                         "type": param_type,
                         "name": param_name,
-                        "value": all_param[param_type][param_name]
+                        "value": str(all_param[param_type][param_name])
                     })
         return test_params
 
