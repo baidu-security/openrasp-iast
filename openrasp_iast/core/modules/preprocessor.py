@@ -151,25 +151,29 @@ class jsonHandler(tornado.web.RequestHandler):
         """
         self.update_setting()
         hash_str = self.dedup_plugin.get_hash(rasp_result_ins)
-        host_port = rasp_result_ins.get_host_port()
-        try:
-            self.dedup_lru.check(host_port, hash_str)
-            Logger().info("Drop duplicate request with request_id: {} (request in lru)".format(rasp_result_ins.get_request_id()))
+        if hash_str is None:
+            Logger().debug("Drop white list request with request_id: {}".format(rasp_result_ins.get_request_id()))
             Communicator().increase_value("duplicate_request")
-        except KeyError:
-            rasp_result_ins.set_hash(hash_str)
+        else:
+            host_port = rasp_result_ins.get_host_port()
             try:
-                data_stored = await self.new_request_storage.put(rasp_result_ins)
-            except exceptions.DatabaseError as e:
-                self.dedup_lru.delete_key(host_port, hash_str)
-                raise e
-            else:
-                if data_stored:
-                    Logger().info("Get new request with request_id: {}".format(rasp_result_ins.get_request_id()))
-                    Communicator().increase_value("new_request")
+                self.dedup_lru.check(host_port, hash_str)
+                Logger().info("Drop duplicate request with request_id: {} (request in lru)".format(rasp_result_ins.get_request_id()))
+                Communicator().increase_value("duplicate_request")
+            except KeyError:
+                rasp_result_ins.set_hash(hash_str)
+                try:
+                    data_stored = await self.new_request_storage.put(rasp_result_ins)
+                except exceptions.DatabaseError as e:
+                    self.dedup_lru.delete_key(host_port, hash_str)
+                    raise e
                 else:
-                    Logger().info("Drop duplicate request with request_id: {}".format(rasp_result_ins.get_request_id()))
-                    Communicator().increase_value("duplicate_request")
+                    if data_stored:
+                        Logger().info("Get new request with request_id: {}".format(rasp_result_ins.get_request_id()))
+                        Communicator().increase_value("new_request")
+                    else:
+                        Logger().info("Drop duplicate request with request_id: {}".format(rasp_result_ins.get_request_id()))
+                        Communicator().increase_value("duplicate_request")
 
     def send_data(self, rasp_result_ins):
         """

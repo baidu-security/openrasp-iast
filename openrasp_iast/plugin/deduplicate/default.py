@@ -28,4 +28,9 @@ class DedupPlugin(dedup_plugin_base.DedupPluginBase):
     }
 
     def get_hash(self, rasp_result_ins):
+        """
+        返回None则该请求会被丢弃，可用于实现白名单
+        """
+        # if rasp_result_ins.get_url.find("logout") != -1:
+        #     return None
         return self.get_hash_default(rasp_result_ins)

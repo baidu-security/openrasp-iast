@@ -47,6 +47,7 @@ class DedupPluginBase(object):
     def get_hash(self, rasp_result_ins):
         """
         子类实现，返回一个用于区分重复请求的hash string
+        返回None则该请求会被丢弃，可用于实现白名单
         """
         raise NotImplementedError
 
