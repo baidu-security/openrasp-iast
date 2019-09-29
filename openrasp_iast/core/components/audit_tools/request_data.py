@@ -98,7 +98,10 @@ class RequestData(object):
             if key.lower() == "content-length":
                 del self.http_data["headers"][key]
 
-        self.queue_id = Communicator().get_module_id()
+        try:
+            self.queue_id = Communicator().get_module_id()
+        except TypeError:
+            self.queue_id = "1"
 
         self.payload_info = {
             # payload序列号, 同一测试点相同类型payload序列号应相同，保证报警不重复
@@ -354,12 +357,14 @@ class RequestData(object):
         for hook_item in hook_info:
             if hook_item["hook_type"] == hook_type:
                 if hook_type in ("command", "sql"):
-                    return self._is_token_concat(param_value, hook_item["tokens"])
+                    if self._is_token_concat(param_value, hook_item["tokens"]):
+                        return True
                 elif hook_type in ("ssrf", "include"):
-                    return self._is_url_concat(param_value, hook_item["url"])
+                    if self._is_url_concat(param_value, hook_item["url"]):
+                        return True
                 elif hook_type in ("directory", "readFile", "writeFile"):
-                    return self._is_url_concat(param_value, hook_item["path"])
-                    pass
+                    if self._is_url_concat(param_value, hook_item["path"]):
+                        return True
                 else:
                     hook_item_map = {
                         "webdav": ["source", "dest"],
@@ -431,9 +436,13 @@ class RequestData(object):
             for token in tokens:
                 for item in split_value:
                     if len(token["text"]) * len(item) < 10000:
-                        cs = common.lcs(token["text"], item)
-                        if len(cs) > 3 or len(token["text"]) * len(item) < 100:
-                            return True
+                        if len(token["text"]) <= 3:
+                            if param_value.find(token["text"]) != -1:
+                                return True
+                        else:
+                            cs = common.lcs(token["text"], item)
+                            if len(cs) > 3:
+                                return True
                     elif len(token["text"]) >= len(item) and token["text"].find(item) != -1:
                         return True
         return False
@@ -472,7 +481,7 @@ class RequestData(object):
                     for part in path_part:
                         if len(part) * len(item) < 10000:
                             cs = common.lcs(part, item)
-                            if len(cs) > 3 or len(part) * len(item) < 100:
+                            if len(cs) > 3:
                                 return True
                         elif len(part) >= len(item) and part.find(item) != -1:
                             return True

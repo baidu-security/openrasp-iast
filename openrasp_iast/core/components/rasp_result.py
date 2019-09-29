@@ -95,13 +95,16 @@ class RaspResult(object):
             rasp_result_json - 接收自rasp agent的rasp_result json字符串
         """
         try:
-            self.rasp_result_dict["web_server"]["port"]
-            self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace("_", "-")
-            if not self.host_reg.match(self.rasp_result_dict["web_server"]["host"]):
-                raise KeyError
+            self.rasp_result_dict["context"]["header"]["scan-request-id"]
         except KeyError:
-            Logger().warning("RaspResult host get fail, data:{}".format(rasp_result_json))
-            raise exceptions.ResultHostError
+            try:
+                self.rasp_result_dict["web_server"]["port"]
+                self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace("_", "-")
+                if not self.host_reg.match(self.rasp_result_dict["web_server"]["host"]):
+                    raise KeyError
+            except KeyError:
+                Logger().warning("RaspResult host get fail, data:{}".format(rasp_result_json))
+                raise exceptions.ResultHostError
 
     def __str__(self):
         """
