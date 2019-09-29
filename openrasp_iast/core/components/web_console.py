@@ -655,14 +655,20 @@ class GetAllTargetHandler(ApiHandlerBase):
     async def handle_request(self, data):
         """
         请求格式：
-        {}
+        {
+            "page":1
+        }
         """
-        data = await ScannerManager().get_all_target()
+        page = data.get("page", 1)
+        result, total = await ScannerManager().get_all_target(page)
         ret = {
             "status": 0,
             "description": "ok",
             # data 格式参考get_all_target返回值
-            "data": data
+            "data": {
+                "total": total,
+                "result": result
+            }
         }
         return ret
 

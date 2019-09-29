@@ -127,6 +127,7 @@ class ScannerManager(object):
                         break
 
         config_model.update("default", json.dumps(default_config))
+        self.default_config = default_config
 
     def _check_alive(self):
         """
@@ -448,9 +449,12 @@ class ScannerManager(object):
             config_model.delete(table_prefix)
         Communicator().set_clean_lru([table_prefix])
 
-    async def get_all_target(self):
+    async def get_all_target(self, page=1):
         """
         获取数据库中存在的所有目标主机的列表
+        
+        Parameters:
+            page - int, 获取的页码，每页10个主机
 
         Returns:
             list, item为dict,格式为：
@@ -492,14 +496,21 @@ class ScannerManager(object):
         """
         tables = BaseModel(multiplexing_conn=True).get_tables()
         Logger().debug("Got current tables: {}".format(", ".join(tables)))
+        
+        result_tables = []
         result = {}
         for table_name in tables:
             if table_name.lower().endswith("_resultlist"):
                 host_port = table_name[:-11]
-            else:
-                continue
-            host_port_split = host_port.split("_")
+                result_tables.append(host_port)
 
+        total_target = len(result_tables)
+        if page <= 0 or (page - 1)*10 > total_target:
+            page = 1
+        result_tables = result_tables[(page-1)*10:page*10]
+
+        for host_port in result_tables:
+            host_port_split = host_port.split("_")
             host = "_".join(host_port_split[:-1])
             port = host_port_split[-1]
             result[host_port] = {
@@ -509,6 +520,9 @@ class ScannerManager(object):
 
         running_info = await self.get_running_info()
 
+        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        config_result = config_model.get_list(list(result.keys()))
+        
         for scanner_id in running_info:
             host_port = running_info[scanner_id]["host"] + "_" + str(running_info[scanner_id]["port"])
             result[host_port] = running_info[scanner_id]
@@ -525,16 +539,14 @@ class ScannerManager(object):
                 result[host_port]["scanned"] = scanned
                 result[host_port]["failed"] = failed
 
-            config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
-            target_config = config_model.get(host_port)
-            if target_config is None:
-                target_config = config_model.get("default")
-            result[host_port]["config"] = json.loads(target_config)
-
-
+            if config_result[host_port] is None:
+                result[host_port]["config"] = self.default_config
+            else:
+                result[host_port]["config"] = json.loads(config_result[host_port])
             result_list.append(result[host_port])
-        result_list.sort(key=(lambda k:k["last_time"]), reverse=True)
-        return result_list
+            
+        # result_list.sort(key=(lambda k:k["last_time"]), reverse=True)
+        return result_list, total_target
 
     async def get_report(self, host_port, page, perpage):
         """

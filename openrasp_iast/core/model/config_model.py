@@ -109,6 +109,37 @@ class ConfigModel(base_model.BaseModel):
         except Exception as e:
             Logger().critical("DB method get Fail!", exc_info=e)
             raise exceptions.DatabaseError
+    
+    def get_list(self, host_port_list):
+        """
+        获取指定主机列表的配置数据
+
+        Parameters:
+            host_port_list - list, item为目标主机的host_port格式的str
+
+        Returns:
+            dict - host_port为key, value为json字符串, 不存在时为None
+        
+        Raises:
+            exceptions.DatabaseError - 数据库错误引发此异常
+        """
+        try:
+            data = self.Config.select().where(
+                self.Config.host_port << host_port_list
+            ).execute()
+            
+            result = {}
+            for item in host_port_list:
+                result[item] = None
+            
+            for item in data:
+                result[item.host_port] = item.config_json
+
+            return result
+
+        except Exception as e:
+            Logger().critical("DB method get Fail!", exc_info=e)
+            raise exceptions.DatabaseError
 
     def delete(self, host_port):
         """
