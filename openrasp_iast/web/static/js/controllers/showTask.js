@@ -23,7 +23,6 @@ define([], function () {
         $scope.loadIcon = [];
         $scope.description = '';
         $scope.status = '';
-        $scope.count = 0;
         $scope.taskId = '';
         $scope.refreshFreq = true;
         $scope.autoStartFlag = false;
@@ -33,7 +32,7 @@ define([], function () {
         $scope.maxSize = 10;
         $scope.count = 0;
         $scope.currentPage = 1;
-        $scope.perPageRecord = 20;
+        $scope.perPageRecord = 10;
 
         //$scope.msg = "";
         $scope.modalDisplay = "modal";
@@ -47,16 +46,16 @@ define([], function () {
             $http({
                 method: 'post',
                 url: getAllUrl,
-                data: {},
+                data: {"page": $scope.currentPage},
                 headers: {'Content-Type': 'application/json'}
             })
             .then(function (response) {
                 //$scope.responseStatus = response.data['status'];
                 $scope.data = [];
                 if(status == 0){
-                    $scope.count = Object.keys(response.data['data']).length
-                    var tmp_data = response.data['data']
+                    var tmp_data = response.data['data'].result
                     $scope.data = tmp_data;
+                    $scope.count = response.data['data'].total
                     $scope.displayRecord();
                 }else{
                     alert(response.data['description'])
@@ -85,15 +84,15 @@ define([], function () {
             }
         })
 
+        $scope.$watch('currentPage',function(newVal,oldVal){
+            getAllTasks()
+        })
+
         $scope.displayRecord = function(){
             $scope.eachTask = [];
             $scope.scannerIds = [];
-            $scope.startRecordIdx = ($scope.currentPage - 1) * $scope.perPageRecord;
-            $scope.endRecordIdx = $scope.startRecordIdx + $scope.perPageRecord;
-            if($scope.endRecordIdx > $scope.count){
-                $scope.endRecordIdx = $scope.count;
-            }
-            for(var i = $scope.startRecordIdx; i < $scope.endRecordIdx; i++){
+            var cnt = $scope.data.length
+            for(var i = 0; i < cnt; i++){
                 $scope.eachTask.push(i);
                 $scope.loadIcon.push(false);
                 $scope.getTaskStatus(i);
