@@ -29,6 +29,7 @@ db_config = {
     "db_name": "ori"
 }
 
+
 def _query(sql):
     conn = pymysql.connect(
         host=db_config["host"],
@@ -44,21 +45,27 @@ def _query(sql):
     conn.close()
     return result
 
+
 def reset_db():
     sql = "DROP DATABASE IF EXISTS `{}`;".format(db_config["db_name"])
     _query(sql)
 
+
 def get_data_count(table_name):
-    sql = "SELECT count(*) FROM `{}`.`{}`;".format(db_config["db_name"], table_name)
+    sql = "SELECT count(*) FROM `{}`.`{}`;".format(
+        db_config["db_name"], table_name)
     result = _query(sql)
     return result[0][0]
+
 
 def clean_table(table_name):
     sql = "TRUNCATE TABLE `{}`.`{}`".format(db_config["db_name"], table_name)
     _query(sql)
 
+
 def execute_sql(sql):
     result = _query(sql)
+
 
 class HttpSender(object):
 

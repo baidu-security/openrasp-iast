@@ -92,7 +92,8 @@ class ScannerScheduler(object):
         """
         暂停运行当前Scanner
         """
-        self.cr_bak = Communicator().get_value("max_concurrent_request", self.module_name)
+        self.cr_bak = Communicator().get_value(
+            "max_concurrent_request", self.module_name)
         Communicator().set_value("max_concurrent_request", 0, self.module_name)
 
     def _rerun(self):
@@ -100,7 +101,7 @@ class ScannerScheduler(object):
         恢复运行当前Scanner
         """
         Communicator().set_value("max_concurrent_request", self.cr_bak, self.module_name)
-    
+
     def get_boundary_value(self):
         """
         获取动态调整扫描速率的边界值
@@ -148,7 +149,7 @@ class ScannerScheduler(object):
 
         Parameters:
             key - 要获取的变量名
-        
+
         Returns:
             变量对应的值
         """
@@ -197,7 +198,7 @@ class ScannerScheduler(object):
 
         Parameters:
             decrease - boolean, 为True时执行减少并发，False时执行增加并发
-        
+
         """
         if not decrease and self.max_performance:
             return
@@ -257,7 +258,8 @@ class ScannerScheduler(object):
 
         Communicator().set_value("max_concurrent_request", cr, self.module_name)
         Communicator().set_value("request_interval", ri, self.module_name)
-        Logger().debug("[{}]max_concurrent_request is set to {}, request_interval is set to {}ms".format(self.module_name, str(cr), str(ri)))
+        Logger().debug("[{}]max_concurrent_request is set to {}, request_interval is set to {}ms".format(
+            self.module_name, str(cr), str(ri)))
 
 
 class Monitor(base.BaseModule):
@@ -342,7 +344,7 @@ class Monitor(base.BaseModule):
         for pid in all_procs:
             if pid != 0:
                 self._kill_proc_tree(pid)
-        
+
         ppid = os.getppid()
         if ppid > 1:
             try:
@@ -377,7 +379,7 @@ class Monitor(base.BaseModule):
                 if (item[0] == 2 and
                     item[1].find(".") > 0 and
                     item[1] != '127.0.0.1' and
-                    item[2] is not None):
+                        item[2] is not None):
                     return item[1]
         return "127.0.0.1"
 
@@ -388,7 +390,7 @@ class Monitor(base.BaseModule):
 
         # 多线程开始前初始化
         RuntimeInfo()
-        
+
         if Config().get_config("cloud_api.enable"):
             self.cloud_thread = threading.Thread(
                 target=self._upload_report,
@@ -425,7 +427,7 @@ class Monitor(base.BaseModule):
         else:
             self._terminate_modules()
             sys.exit(1)
-        
+
         while True:
             try:
                 # 执行调度
@@ -444,7 +446,7 @@ class Monitor(base.BaseModule):
                     else:
                         Logger().critical("Detect Module {} down, exit!".format(self.crash_module))
                         sys.exit(1)
-                    
+
             except Exception as e:
                 Logger().critical("Monitor module crash with unknow error!", exc_info=e)
                 self._terminate_modules()

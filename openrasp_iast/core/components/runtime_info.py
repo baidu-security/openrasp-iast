@@ -148,7 +148,7 @@ class RuntimeInfo(object):
         Parameters:
             module_name - str, 获取的模块名
             key - str, 获取的变量名
-        
+
         Returns:
             变量值，int 或 String
         """
@@ -162,7 +162,7 @@ class RuntimeInfo(object):
         Parameters:
             module_name - str, 获取的模块名
             key - str, 获取的变量名
-        
+
         Returns:
             list, item为变量值，int 或 String类型，时间顺序排列
         """

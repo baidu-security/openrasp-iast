@@ -38,11 +38,11 @@ class ScanPluginBase(object):
 
     plugin_info = {
         "name": "No_name_plugin",  # 使用数字字母下划线命名, 应与文件名（不含扩展名）相同
-        "show_name": "No_show_name", # 插件在console展示时的名字, 自定义
-        "description": "No description" # 插件描述
+        "show_name": "No_show_name",  # 插件在console展示时的名字, 自定义
+        "description": "No description"  # 插件描述
     }
 
-    audit_tools = audit_tools 
+    audit_tools = audit_tools
 
     def __init__(self):
         """
@@ -50,16 +50,17 @@ class ScanPluginBase(object):
         """
         is_scanner = Communicator().get_module_name().startswith("Scanner")
         if is_scanner:
-            self.logger = Logger().get_scan_plugin_logger(self.plugin_info["name"])
+            self.logger = Logger().get_scan_plugin_logger(
+                self.plugin_info["name"])
         else:
             self.logger = Logger()
-        
-        self._enable = True # 插件是否启用
-        self._white_reg = None # 扫描url白名单
-        self._proxy_url = None # 扫描使用的代理
-        self._scan_queue = queue.Queue() # 任务队列
-        self._last_scan_id = 0 # 最近扫描完成的任务在数据库中的id
-        self._scan_num = 0 # 当前已扫描url数量
+
+        self._enable = True  # 插件是否启用
+        self._white_reg = None  # 扫描url白名单
+        self._proxy_url = None  # 扫描使用的代理
+        self._scan_queue = queue.Queue()  # 任务队列
+        self._last_scan_id = 0  # 最近扫描完成的任务在数据库中的id
+        self._scan_num = 0  # 当前已扫描url数量
         self._request_timeout = Config().get_config("scanner.request_timeout")
         self._max_concurrent_task = Config().get_config("scanner.max_concurrent_request")
 
@@ -78,7 +79,8 @@ class ScanPluginBase(object):
         self.checker = audit_tools.Checker()
 
         if is_scanner:
-            self.logger.info("Scanner plugin {} init success!".format(self.plugin_info["name"]))
+            self.logger.info("Scanner plugin {} init success!".format(
+                self.plugin_info["name"]))
 
     def get_scan_progress(self):
         """
@@ -104,7 +106,7 @@ class ScanPluginBase(object):
             is_enable - bool
         """
         self._enable = is_enable
-    
+
     def set_white_url_reg(self, reg_str):
         """
         设置扫描url白名单, 为空时设置为None
@@ -116,7 +118,7 @@ class ScanPluginBase(object):
             self._white_reg = None
         else:
             self._white_reg = re.compile(reg_str)
-    
+
     def set_scan_proxy(self, proxy_url):
         """
         设置扫描代理, 为空时设置为None
@@ -167,7 +169,8 @@ class ScanPluginBase(object):
         Parameters:
             task - RaspResult实例，要添加的任务
         """
-        self.logger.debug("Add task with id: {} to scan list.".format(task["id"]))
+        self.logger.debug(
+            "Add task with id: {} to scan list.".format(task["id"]))
         self._scan_queue.put(task)
         self._scan_queue_event.set()
 
@@ -197,7 +200,7 @@ class ScanPluginBase(object):
             rasp_result_ins - RaspResult实例, 用于初始化core.components.audit_tools.RequestData实例
             payload_seq - string, 随机字符序列，用于区分当前请求正在被测试的参数防止多次报警
             payload_feature - 用于检测payload是否成功投放的特征
-        
+
         Returns:
             创建的core.components.audit_tools.RequestData实例
         """
@@ -249,14 +252,18 @@ class ScanPluginBase(object):
         request_id = request_data.gen_scan_request_id()
         self._register_result(request_id)
         try:
-            self.logger.debug("Send scan request with id: {}, content: {}".format(request_id, request_data.get_aiohttp_param()))
+            self.logger.debug("Send scan request with id: {}, content: {}".format(
+                request_id, request_data.get_aiohttp_param()))
             response = await self._request_session.send_request(request_data, self._proxy_url)
-            self.logger.debug("Request with id: {} get response: {}".format(request_id, response))
+            self.logger.debug(
+                "Request with id: {} get response: {}".format(request_id, response))
             rasp_result_ins = await self._wait_result(request_id)
-            self.logger.debug("Request with id: {} get rasp_result: {}".format(request_id, rasp_result_ins.dump()))
+            self.logger.debug("Request with id: {} get rasp_result: {}".format(
+                request_id, rasp_result_ins.dump()))
         except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed) as e:
             self._has_failed_reuqest = True
-            self.logger.debug("Request with id {} of task id {} has failed many times, skip!".format(request_id, self._task["id"]))
+            self.logger.debug("Request with id {} of task id {} has failed many times, skip!".format(
+                request_id, self._task["id"]))
             raise e
 
         ret = {
@@ -285,24 +292,27 @@ class ScanPluginBase(object):
 
         mutant_generator = self.mutant(rasp_result_ins)
         self.logger.info("Start task with task_id: {}, request_id:{}, url:{}".format(
-                task_id,
-                rasp_result_ins.get_request_id(),
-                rasp_result_ins.get_url()
+            task_id,
+            rasp_result_ins.get_request_id(),
+            rasp_result_ins.get_url()
         ))
         self.logger.debug("request json: {}".format(rasp_result_ins.dump()))
 
         if not isinstance(mutant_generator, types.GeneratorType):
-            self.logger.error("Scan plugin error, the mutant method should return a Generator!")
+            self.logger.error(
+                "Scan plugin error, the mutant method should return a Generator!")
             return
 
         max_task = self.get_max_concureent_task()
         tasks = []
         loop = asyncio.get_event_loop()
         for i in range(max_task):
-            tasks.append(loop.create_task(self._test_mutant_task(mutant_generator)))
+            tasks.append(loop.create_task(
+                self._test_mutant_task(mutant_generator)))
         for task in tasks:
             await task
-        self.logger.info("Finish task with request_id:{}".format(rasp_result_ins.get_request_id()))
+        self.logger.info("Finish task with request_id:{}".format(
+            rasp_result_ins.get_request_id()))
 
     async def _test_mutant_task(self, mutant_generator):
         """
@@ -321,7 +331,8 @@ class ScanPluginBase(object):
                 for req_data in request_data_list:
                     ret = await self.send_request(req_data)
                     req_data.set_response(ret["response"])
-                    self.logger.debug("Send scan request: {}".format(req_data.get_aiohttp_param()))
+                    self.logger.debug("Send scan request: {}".format(
+                        req_data.get_aiohttp_param()))
                     req_data.set_rasp_result(ret["rasp_result"])
             except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed):
                 continue
@@ -329,7 +340,8 @@ class ScanPluginBase(object):
             message = self.check(request_data_list)
             if type(message) is str:
                 if await self.report(request_data_list, message):
-                    self.logger.info("Plugin {} find vuln!".format(self.plugin_info["name"]))
+                    self.logger.info("Plugin {} find vuln!".format(
+                        self.plugin_info["name"]))
 
     async def report(self, request_data_list, message=""):
         """

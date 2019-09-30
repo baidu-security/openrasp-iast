@@ -21,7 +21,7 @@ import os
 import pytest
 import time
 import psutil
-import multiprocessing 
+import multiprocessing
 
 from core.launcher import Launcher
 from core.components.config import Config
@@ -43,7 +43,8 @@ def test_launcher():
     proc.terminate()
     proc.join(5)
     if proc.is_alive():
-        raise Exception("launcher process with pid {} may not be killed success!")
+        raise Exception(
+            "launcher process with pid {} may not be killed success!")
 
     time.sleep(Config().get_config("monitor.schedule_interval") * 2)
     for child in module_procs:

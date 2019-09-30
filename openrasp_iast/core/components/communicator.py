@@ -25,6 +25,7 @@ from core.components import common
 from core.components import exceptions
 from core.components.config import Config
 
+
 class Communicator(object):
 
     def __new__(cls):
@@ -49,37 +50,37 @@ class Communicator(object):
 
     def _init_shared_mem(self):
         self.pre_http_lock = self.read_lock = multiprocessing.Lock()
-        
+
         preprocessor_keys = [
-                "pid",
-                "invalid_data",  # non-json or json format err data
-                "duplicate_request",
-                "new_request",
-                "rasp_result_request"
-            ]
-        
+            "pid",
+            "invalid_data",  # non-json or json format err data
+            "duplicate_request",
+            "new_request",
+            "rasp_result_request"
+        ]
+
         for i in range(self.pre_http_num):
             preprocessor_keys.append("http_server_pid_" + str(i))
-        
+
         monitor_keys = [
-                "pid",
-                "shared_setting_version",
-                "auto_start"
-            ]
+            "pid",
+            "shared_setting_version",
+            "auto_start"
+        ]
 
         scanner_keys = [
-                "pid",
-                "max_concurrent_request",
-                "request_interval",
-                "rasp_result_timeout",
-                "waiting_rasp_request",
-                "dropped_rasp_result",
-                "send_request",
-                "failed_request",
-                "pause",  # 扫描器暂停标识，不为0时暂停扫描
-                "cancel", # 扫描器退出标识，不为0时停止扫描
-                "config_version"
-            ]
+            "pid",
+            "max_concurrent_request",
+            "request_interval",
+            "rasp_result_timeout",
+            "waiting_rasp_request",
+            "dropped_rasp_result",
+            "send_request",
+            "failed_request",
+            "pause",  # 扫描器暂停标识，不为0时暂停扫描
+            "cancel",  # 扫描器退出标识，不为0时停止扫描
+            "config_version"
+        ]
 
         data_struct = {
             "Preprocessor": dict.fromkeys(preprocessor_keys),
@@ -101,16 +102,19 @@ class Communicator(object):
     def set_pre_http_pid(self, pid):
         with self.pre_http_lock:
             for i in range(self.pre_http_num):
-                value = self.get_value("http_server_pid_" + str(i) , "Preprocessor")
+                value = self.get_value(
+                    "http_server_pid_" + str(i), "Preprocessor")
                 if value == 0 or not self._is_pid_exists(value):
-                    self.set_value("http_server_pid_" + str(i), pid, "Preprocessor")
+                    self.set_value("http_server_pid_" +
+                                   str(i), pid, "Preprocessor")
                     return True
         return False
 
     def get_pre_http_pid(self):
         result = []
         for i in range(self.pre_http_num):
-            result.append(self.get_value("http_server_pid_" + str(i) , "Preprocessor"))
+            result.append(self.get_value(
+                "http_server_pid_" + str(i), "Preprocessor"))
         return result
 
     def _init_queues(self):
@@ -124,10 +128,10 @@ class Communicator(object):
         self.shared_setting_obj.set_obj(self.shared_setting)
 
     def _init_main_path(self):
-        file_path = os.path.abspath(__file__) 
+        file_path = os.path.abspath(__file__)
         main_path = os.path.dirname(file_path) + "/../../"
         self._main_path = os.path.realpath(main_path)
-        
+
     def get_main_path(self):
         """
         获取当前代码根目录的绝对路径
@@ -144,7 +148,7 @@ class Communicator(object):
         self.module_name = module_name
         self._reset_shared_setting()
         self.internal_shared = {}
-    
+
     def set_internal_shared(self, key, value):
         """
         设置一个模块内全局变量的值
@@ -161,7 +165,7 @@ class Communicator(object):
 
         Parameters:
             key - 变量名
-        
+
         Returns:
             对应的变量值
         """
@@ -178,7 +182,7 @@ class Communicator(object):
             当前module名，String类型
         """
         return self.module_name
-    
+
     def get_module_id(self):
         """
         获取当前module id,仅用于多实例module
@@ -300,7 +304,7 @@ class Communicator(object):
         if module_name is None:
             module_name = self.module_name
         return self.shared_mem.get_value(module_name, key)
-    
+
     def dump_shared_mem(self):
         """
         获取共享内存的一份拷贝
@@ -414,6 +418,7 @@ class OriSharedObj(object):
     """
     用于进程间传递配置信息
     """
+
     def __init__(self):
         self.lock = multiprocessing.Lock()
         self.pipe_receiver, self.pip_sender = multiprocessing.Pipe(False)

@@ -47,13 +47,13 @@ class NewRequestModel(base_model.BaseModel):
             "database": db,
             "table_name": table_prefix + "_" + "ResultList"
         }
-        
+
         meta = type("Meta", (object, ), meta_dict)
         model_dict = {
             "id": peewee.AutoField(),
             "data": self.LongTextField(),
             # utf8mb4 编码下 1 char = 4 bytes，会导致peewee创建过长的列导致MariaDB产生 1071, Specified key was too long; 错误, max_length不使用255
-            "data_hash": peewee.CharField(unique=True,  max_length=63), 
+            "data_hash": peewee.CharField(unique=True,  max_length=63),
             # scan_status含义： 未扫描：0, 已扫描：1, 正在扫描：2, 扫描中出现错误: 3
             "scan_status": peewee.IntegerField(default=0),
             "time": peewee.IntegerField(default=common.get_timestamp),
@@ -90,7 +90,8 @@ class NewRequestModel(base_model.BaseModel):
             exceptions.DatabaseError - 数据库错误引发此异常
         """
         try:
-            self.ResultList.update(scan_status = 0).where(self.ResultList.scan_status > 1).execute()
+            self.ResultList.update(scan_status=0).where(
+                self.ResultList.scan_status > 1).execute()
         except Exception as e:
             Logger().critical("Database error in reset_unscanned_item method!", exc_info=e)
             raise exceptions.DatabaseError
@@ -110,7 +111,7 @@ class NewRequestModel(base_model.BaseModel):
 
         Returns:
             插入成功返回True, 重复返回False
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
@@ -139,7 +140,7 @@ class NewRequestModel(base_model.BaseModel):
 
         Returns:
             获取的数据组成的list,每个item为一个dict, [{id:数据id, data:请求数据的json字符串} ... ]
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
@@ -198,13 +199,13 @@ class NewRequestModel(base_model.BaseModel):
         Parameters:
             last_id - 已扫描的最大id
             failed_list - 扫描中出现连接失败的url
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
         if last_id > self.start_id:
             try:
-            
+
                 # 标记失败的扫描记录
                 query = self.ResultList.update({self.ResultList.scan_status: 3}).where((
                     self.ResultList.id <= last_id) & (
@@ -243,24 +244,24 @@ class NewRequestModel(base_model.BaseModel):
 
         Returns:
             total, count 均为int类型，total为数据总数，count为已扫描条数
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
         try:
             query = self.ResultList.select(
                 peewee.fn.COUNT(self.ResultList.id)).where(
-                                self.ResultList.scan_status == 1)
+                self.ResultList.scan_status == 1)
 
             result = await peewee_async.scalar(query)
             if result is None:
                 scanned = 0
             else:
                 scanned = result
-            
+
             query = self.ResultList.select(
                 peewee.fn.COUNT(self.ResultList.id)).where(
-                                self.ResultList.scan_status == 3)
+                self.ResultList.scan_status == 3)
 
             result = await peewee_async.scalar(query)
             if result is None:
@@ -281,7 +282,7 @@ class NewRequestModel(base_model.BaseModel):
         except Exception as e:
             Logger().critical("Database error in get_scan_count method!", exc_info=e)
             raise exceptions.DatabaseError
-        
+
         return total, scanned, failed
 
     async def get_last_time(self):
@@ -290,7 +291,7 @@ class NewRequestModel(base_model.BaseModel):
 
         Returns:
             int, 时间戳
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """

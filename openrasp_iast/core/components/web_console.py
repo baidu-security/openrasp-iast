@@ -115,14 +115,14 @@ class WebConsole(object):
                 AutoStartHandler
             )
         )
-        
+
         handlers.append(
             tornado.web.url(
                 "/api/scanner/auto_start_status",
                 AutoStartStatusHandler
             )
         )
-        
+
         handlers.append(
             tornado.web.url(
                 "/api/model/get_all",
@@ -191,7 +191,7 @@ class NoCacheStaticFileHandler(tornado.web.StaticFileHandler):
 
 
 class ApiHandlerBase(tornado.web.RequestHandler):
-    
+
     # config 类请求格式定义
     config_schema = {
         "type": "object",
@@ -209,8 +209,8 @@ class ApiHandlerBase(tornado.web.RequestHandler):
                                 "show_name": {
                                     "type": "string"
                                 }
+                            }
                         }
-                    }
                 }
             },
             "scan_rate": {
@@ -330,7 +330,6 @@ class RunScannerHandler(ApiHandlerBase):
 
 class ScanConfigHandler(ApiHandlerBase):
 
-    
     config_validtor = jsonschema.Draft7Validator(ApiHandlerBase.config_schema)
 
     async def handle_request(self, data):
@@ -367,7 +366,7 @@ class ScanConfigHandler(ApiHandlerBase):
             self.config_validtor.validate(module_params["config"])
             if "white_url_reg" in module_params["config"]:
                 re.compile(module_params["config"]["white_url_reg"])
-            
+
             if "scan_proxy" in module_params["config"]:
                 proxy_url = module_params["config"]["scan_proxy"]
                 if proxy_url != "":
@@ -644,8 +643,8 @@ class AutoStartStatusHandler(ApiHandlerBase):
         ret = {
             "status": 0,
             "description": "ok",
-            "data":{
-                "status":status
+            "data": {
+                "status": status
             }
         }
         return ret
@@ -739,9 +738,3 @@ class GetReportHandler(ApiHandlerBase):
                 "data": data
             }
         return ret
-
-
-
-
-
-

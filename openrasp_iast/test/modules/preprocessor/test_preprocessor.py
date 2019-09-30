@@ -53,16 +53,16 @@ http_data = {
             "path": "/cmdo2.php",
             "parameter": {},
             "header": {
-                "host":"www.test-host.com:80",
+                "host": "www.test-host.com:80",
                 "scan-request-id": "0-34abcd"
             },
             "url": "http://localname.com:8889/cmd.php",
             "nic": [
                 {
-                    "name": "eth0", 
+                    "name": "eth0",
                     "ip": "172.17.0.2"
                 }
-            ], 
+            ],
             "hostname": "server_host_name"
         },
         "hook_info": []
@@ -90,16 +90,16 @@ http_data = {
             "path": "/cmdo2.php",
             "parameter": {},
             "header": {
-                "host":"www.test-host.com:80",
+                "host": "www.test-host.com:80",
                 "scan-request-id": "",
             },
             "url": "http://localname.com:8889/cmd.php",
             "nic": [
                 {
-                    "name": "eth0", 
+                    "name": "eth0",
                     "ip": "172.17.0.2"
                 }
-            ], 
+            ],
             "hostname": "server_host_name"
         },
         "hook_info": []
@@ -131,10 +131,10 @@ http_data = {
             "url": "http://localname.com:8889/cmd.php",
             "nic": [
                 {
-                    "name": "eth0", 
+                    "name": "eth0",
                     "ip": "172.17.0.2"
                 }
-            ], 
+            ],
             "hostname": "server_host_name"
         },
         "hook_info": []
@@ -142,8 +142,10 @@ http_data = {
 }
 
 
-http_sender = helper.HttpSender("127.0.0.1", Config().get_config("preprocessor.http_port"))
+http_sender = helper.HttpSender(
+    "127.0.0.1", Config().get_config("preprocessor.http_port"))
 api_path = Config().get_config("preprocessor.api_path")
+
 
 def test_http_server_run(preprocessor_fixture):
     r = http_sender.test_connect(api_path)
@@ -196,7 +198,8 @@ def test_send_new_request_data(preprocessor_fixture):
         assert False
     else:
         assert r1.status_code == 200 and r2.status_code == 200
-        assert json.loads(r1.text)["status"] == 0 and json.loads(r2.text)["status"] == 0
+        assert json.loads(r1.text)["status"] == 0 and json.loads(
+            r2.text)["status"] == 0
 
         assert helper.get_data_count("www.test-host.com_80_ResultList") == 2
 
@@ -212,7 +215,8 @@ def test_send_duplicate_data(preprocessor_fixture):
         assert False
     else:
         assert r1.status_code == 200 and r2.status_code == 200
-        assert json.loads(r1.text)["status"] == 0 and json.loads(r2.text)["status"] == 0
+        assert json.loads(r1.text)["status"] == 0 and json.loads(
+            r2.text)["status"] == 0
         assert helper.get_data_count("www.test-host.com_80_ResultList") == 2
 
 

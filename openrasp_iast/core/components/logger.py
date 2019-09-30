@@ -53,7 +53,7 @@ class Logger(object):
         stream_handler.setLevel(logging.ERROR)
         fmt = logging.Formatter('[!] %(message)s')
         stream_handler.setFormatter(fmt)
-        
+
         # 文件输出
         file_handler = cloghandler.ConcurrentRotatingFileHandler(
             self.log_path + "/error.log",
@@ -74,7 +74,7 @@ class Logger(object):
         error_logger.setLevel(logging.ERROR)
 
         self.error_logger = error_logger
-        
+
         self.critical = self.error_logger.critical
         self.error = self.error_logger.error
 
@@ -116,7 +116,8 @@ class Logger(object):
             access_logger.parent = root_logger
             log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = "Preprocessor.log"
-            self._set_handler(root_logger, log_suffix, log_fmt, concurrent=True)
+            self._set_handler(root_logger, log_suffix,
+                              log_fmt, concurrent=True)
 
         elif module_name == "Monitor":
             access_logger = logging.getLogger("tornado.access")
@@ -125,7 +126,8 @@ class Logger(object):
             access_logger.handlers = []
             log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = "Monitor.log"
-            self._set_handler(root_logger, log_suffix, log_fmt, concurrent=False)
+            self._set_handler(root_logger, log_suffix,
+                              log_fmt, concurrent=False)
 
         elif module_name.startswith("Scanner"):
             self.module_log_path = self.log_path + "/" + module_name
@@ -133,12 +135,14 @@ class Logger(object):
                 os.makedirs(self.module_log_path)
             log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = module_name + "/Scanner.log"
-            self._set_handler(root_logger, log_suffix, log_fmt, concurrent=False)
-        
+            self._set_handler(root_logger, log_suffix,
+                              log_fmt, concurrent=False)
+
         else:
             log_fmt = '[%(asctime)s - %(levelname)s] %(message)s [file: %(pathname)s , line %(lineno)d]'
             log_suffix = module_name + ".log"
-            self._set_handler(root_logger, log_suffix, log_fmt, concurrent=False)
+            self._set_handler(root_logger, log_suffix,
+                              log_fmt, concurrent=False)
 
         iast_logger = logging.getLogger("openrasp_iast." + module_name)
         self.warning = iast_logger.warning
@@ -190,4 +194,3 @@ class Logger(object):
 
         self._init_error_log()
         self.init_module_logger()
-        

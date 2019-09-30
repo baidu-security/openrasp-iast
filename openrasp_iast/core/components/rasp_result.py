@@ -36,7 +36,7 @@ class RaspResult(object):
     """
     schema = {
         "type": "object",
-        "required": [ "context", "hook_info"],
+        "required": ["context", "hook_info"],
         "properties": {
             "context": {
                 "type": "object",
@@ -60,7 +60,7 @@ class RaspResult(object):
         }
     }
     rasp_result_validtor = jsonschema.Draft7Validator(schema)
-    
+
     host_reg = re.compile(r'^[a-zA-Z0-9.\-]+$')
 
     def __init__(self, rasp_result_json):
@@ -99,7 +99,8 @@ class RaspResult(object):
         except KeyError:
             try:
                 self.rasp_result_dict["web_server"]["port"]
-                self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace("_", "-")
+                self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace(
+                    "_", "-")
                 if not self.host_reg.match(self.rasp_result_dict["web_server"]["host"]):
                     raise KeyError
             except KeyError:
@@ -159,7 +160,7 @@ class RaspResult(object):
             string, request_id
         """
         return self.rasp_result_dict["context"]["requestId"]
-    
+
     def get_server_hostname(self):
         """
         获取当前请求对应Server的hostname
@@ -188,7 +189,7 @@ class RaspResult(object):
 
         Returns:
             string, result_queue_id
-        
+
         Raises:
             exceptions.GetQueueIdError 无此id的请求(非扫描请求)引发此异常
         """
@@ -206,7 +207,7 @@ class RaspResult(object):
             string, scan_request_id, 不存在返回空
         """
         return self.rasp_result_dict["context"]["header"].get("scan-request-id", "")
-    
+
     def get_server_info(self):
         """
         获取服务器信息
@@ -267,7 +268,7 @@ class RaspResult(object):
             string, 获取的ip
         """
         return self.rasp_result_dict["context"].get("target", "")
-    
+
     def get_attack_source(self):
         """
         获取当前请求的发送者的ip(tcp连接的client), 不存在时返回空
@@ -276,7 +277,7 @@ class RaspResult(object):
             string, 获取的ip
         """
         return self.rasp_result_dict["context"].get("source", "")
-    
+
     def get_client_ip(self):
         """
         获取当前请求的client ip(由header中client-ip获取), 不存在时返回空
@@ -303,7 +304,7 @@ class RaspResult(object):
             string, 获取的path
         """
         return self.rasp_result_dict["context"]["path"]
-    
+
     def get_url(self):
         """
         获取当前请求的url
@@ -438,7 +439,8 @@ class RaspResult(object):
         for header_name in self.rasp_result_dict["context"]["header"]:
             if header_name.lower() == "content-length":
                 try:
-                    result = int(self.rasp_result_dict["context"]["header"][header_name])
+                    result = int(
+                        self.rasp_result_dict["context"]["header"][header_name])
                 except Exception:
                     pass
         return result

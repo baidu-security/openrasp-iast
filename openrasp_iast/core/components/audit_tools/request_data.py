@@ -70,7 +70,7 @@ class RequestData(object):
             body = rasp_result_ins.get_body()
         else:
             content_length = rasp_result_ins.get_content_length()
-            if content_length < 4*1024:
+            if content_length < 4 * 1024:
                 body = rasp_result_ins.get_body()
             else:
                 raise exceptions.UnsupportedHttpData
@@ -147,9 +147,12 @@ class RequestData(object):
 
         files = self.http_data["files"]
         for file_item in files:
-            content_type = file_item.get("content_type", 'application/octet-stream')
-            part = mpwriter.append(file_item["content"], {'CONTENT-TYPE': content_type})
-            part.set_content_disposition("form-data", filename=file_item["filename"], name=file_item["name"])
+            content_type = file_item.get(
+                "content_type", 'application/octet-stream')
+            part = mpwriter.append(file_item["content"], {
+                                   'CONTENT-TYPE': content_type})
+            part.set_content_disposition(
+                "form-data", filename=file_item["filename"], name=file_item["name"])
             part.headers.pop(aiohttp.hdrs.CONTENT_LENGTH, None)
 
         Logger().debug("Make multipart data from dict: {}".format(post_data))
@@ -165,7 +168,7 @@ class RequestData(object):
                         当para_type为json时, para_name应为一个list,包含json path每一级的key
                         当para_type为files时, para_name应为一个包含两个item的list, 第一个指定要设置的files dict的下标, 第二个指定dict key， 当设置content时，类型必须为bytes
                         例如: files: [ {"name":"file", "filename":"name.txt", "content":"xxx"} ...]  设置第一个item的filename -> [0, "filename"]
-                        
+
             value - str/, 要设置的值
 
         Raises:
@@ -267,7 +270,8 @@ class RequestData(object):
             其余value为dict类型
         """
         if param_type_list is None:
-            param_type_list = ["get", "post", "json", "headers", "cookie", "json"]
+            param_type_list = ["get", "post",
+                               "json", "headers", "cookie", "json"]
         result = {}
         if "get" in param_type_list:
             result["get"] = self.http_data["params"]
@@ -350,7 +354,7 @@ class RequestData(object):
         """
         if len(param_value) == 0:
             return False
-        
+
         hook_info = self.rasp_result_ins.get_hook_info()
         params = self.rasp_result_ins.get_parameters()
 
@@ -379,14 +383,14 @@ class RequestData(object):
                         if hook_item[key].find(str(param_value)) >= 0:
                             return True
         return False
-    
+
     def _split_str_word(self, input_str):
         """
         按照单词和符号分割字符串
-        
+
         Parameters:
             input_str - str, 待分割字符串
-        
+
         Returns:
             list - 分割后的字符串
         """
@@ -411,7 +415,7 @@ class RequestData(object):
             index += 1
         if index - start >= 3:
             split_value.append(input_str[start:])
-        
+
         return split_value
 
     def _is_token_concat(self, param_value, tokens):
@@ -468,7 +472,7 @@ class RequestData(object):
             }
         except Exception as e:
             return False
-        
+
         if len(param_value) <= 3:
             for key in url_items:
                 if url_items[key].find(param_value) != -1:
@@ -486,7 +490,6 @@ class RequestData(object):
                         elif len(part) >= len(item) and part.find(item) != -1:
                             return True
         return False
-
 
     def get_payload_info(self):
         """

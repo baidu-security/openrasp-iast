@@ -22,13 +22,14 @@ import time
 
 from core.components.logger import Logger
 
+
 class AuthPluginBase(object):
 
     plugin_info = {
         "name": "No_name_plugin",  # 使用数字字母下划线命名, 应与文件名（不含扩展名）相同
         "description": "No description"
     }
-    
+
     def __init__(self):
         """
         初始化

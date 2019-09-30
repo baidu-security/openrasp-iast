@@ -58,7 +58,7 @@ class Process(multiprocessing.Process):
         Communicator().set_value("pid", os.getpid())
         Logger().init_module_logger()
         Logger().debug("Init proc_comm success, current module_name is: " +
-                 Communicator().get_module_name())
+                       Communicator().get_module_name())
         try:
             self._run_module()
         except KeyboardInterrupt:

@@ -25,8 +25,9 @@ import dictdiffer
 
 from core.components import exceptions
 
+
 class Config(object):
-    
+
     def __new__(cls):
         """
         单例模式初始化
@@ -41,16 +42,16 @@ class Config(object):
         初始化
         """
         self._config_path_candidate = [
-                os.path.expanduser("~") + "/openrasp-iast/config.yaml",
-                "/etc/openrasp-iast/config.yaml",
-                "./config.yaml"
-            ]
+            os.path.expanduser("~") + "/openrasp-iast/config.yaml",
+            "/etc/openrasp-iast/config.yaml",
+            "./config.yaml"
+        ]
         self._default_log_path = os.path.expanduser("~") + "/openrasp-iast/log"
 
         self._config_path = None
         self.config_dict = None
-        
-        file_path = os.path.abspath(__file__) 
+
+        file_path = os.path.abspath(__file__)
         main_path = os.path.dirname(file_path) + "/../../"
         self._main_path = os.path.realpath(main_path)
 
@@ -65,14 +66,15 @@ class Config(object):
             self._tmp_path = sys_tmp + "/openrasp-iast"
 
         except Exception as e:
-            print("[!]OpenRASP-IAST init error! Please check if {} is writable".format(sys_tmp))
+            print(
+                "[!]OpenRASP-IAST init error! Please check if {} is writable".format(sys_tmp))
             traceback.print_exc()
             sys.exit(1)
 
     def get_config_path(self):
         """
         获取当前配置文件路径, 不存在返回空字符串
-        
+
         Returns
             str
         """
@@ -80,7 +82,7 @@ class Config(object):
             return ""
         else:
             return self._config_path
-        
+
     def save_config(self):
         """
         保存当前配置
@@ -98,9 +100,10 @@ class Config(object):
             print("[!] No path assigned, generate config file to default path!")
         else:
             self._config_path = path
-        
-        self._config_path = os.path.realpath(os.path.abspath(self._config_path))
-        
+
+        self._config_path = os.path.realpath(
+            os.path.abspath(self._config_path))
+
         try:
             with open(self._main_path + "/config.default.yaml", "rb") as f:
                 content = f.read()
@@ -110,10 +113,12 @@ class Config(object):
             sys.exit(1)
 
         if os.path.isdir(self._config_path):
-            print("[!] Detect config path '{}' is a directory!".format(self._config_path))
-            print("[!] Config path should be a file path, like /path/to/config.yaml, not directory!")
+            print("[!] Detect config path '{}' is a directory!".format(
+                self._config_path))
+            print(
+                "[!] Config path should be a file path, like /path/to/config.yaml, not directory!")
             sys.exit(1)
-        
+
         try:
             config_dir = os.path.dirname(self._config_path)
             if not os.path.exists(config_dir):
@@ -121,7 +126,8 @@ class Config(object):
             with open(self._config_path, "wb") as f:
                 f.write(content)
         except Exception as e:
-            print("[!] Fail to generate config, check if {} is writable!".format(self._config_path))
+            print("[!] Fail to generate config, check if {} is writable!".format(
+                self._config_path))
             traceback.print_exc()
             sys.exit(1)
 
@@ -140,7 +146,7 @@ class Config(object):
                 key = line[:line.find(":")]
                 comment = line[line.find("#"):]
                 comments[key] = comment
-        
+
         new_content = []
         lines = config_content.split("\n")
         maxlen = 0
@@ -153,10 +159,11 @@ class Config(object):
             if line.find(":") != -1:
                 key = line[:line.find(":")]
                 if key in comments:
-                    new_content.append(line + (maxlen - len(line)) * " " + comments[key])
+                    new_content.append(
+                        line + (maxlen - len(line)) * " " + comments[key])
                     continue
             new_content.append(line)
-        
+
         return "\n".join(new_content)
 
     def _check_format(self):
@@ -178,7 +185,8 @@ class Config(object):
                 # 配置只有一层，只取[0]即可
                 key = item[1][0]
                 keys.append(key)
-                print("[!] Config item {} type error, expect {}, found {}, use default value.".format(item[1], type(item[2][0]), type(item[2][1])))
+                print("[!] Config item {} type error, expect {}, found {}, use default value.".format(
+                    item[1], type(item[2][0]), type(item[2][1])))
             elif item[0] == "add":
                 for diff_item in item[2]:
                     key = diff_item[0]
@@ -192,7 +200,7 @@ class Config(object):
     def get_running_info(self):
         """
         获取运行的主进程pid和配置文件路径
-        
+
         Returns:
            pid, running_config_path - int, str pid获取失败返回0, config_path获取失败返回空
         """
@@ -201,7 +209,7 @@ class Config(object):
                 pid = int(f.read())
         except FileNotFoundError:
             pid = 0
-        
+
         try:
             with open(self._tmp_path + "/iast.config", "r") as f:
                 running_config_path = f.read()
@@ -216,7 +224,7 @@ class Config(object):
         """
         with open(self._tmp_path + "/iast.pid", "w") as f:
             f.write(str(os.getpid()))
-        
+
         with open(self._tmp_path + "/iast.config", "w") as f:
             f.write(self._config_path)
 
@@ -226,14 +234,14 @@ class Config(object):
         """
         with open(self._tmp_path + "/iast.pid", "w") as f:
             f.write("0")
-        
+
         with open(self._tmp_path + "/iast.config", "w") as f:
             f.write("")
 
     def load_config(self, path=None):
         """
         读取配置文件, 若已经读取不再重复读取
-        
+
         Parameters:
             path - 读取的目标文件路径, 为None时读取默认文件
         """
@@ -249,10 +257,12 @@ class Config(object):
         if self._config_path is None or not os.path.isfile(self._config_path):
             # cmd = "'" + sys.argv[0] + " config'"
             # print("[!] OpenRASP-IAST init error, no config file found, use {} to generate a config file!".format(cmd))
-            print ('[!] No config file found, please refer to https://rasp.baidu.com/doc/install/iast.html#config for initial setup')
+            print (
+                '[!] No config file found, please refer to https://rasp.baidu.com/doc/install/iast.html#config for initial setup')
             sys.exit(1)
 
-        self._config_path = os.path.realpath(os.path.abspath(self._config_path))
+        self._config_path = os.path.realpath(
+            os.path.abspath(self._config_path))
 
         try:
             with open(self._config_path, "r") as f:
@@ -260,9 +270,9 @@ class Config(object):
 
             print("[-] Using config file: {}".format(self._config_path))
             self._check_format()
-                    
+
             try:
-                if  self.config_dict["log.path"] == "":
+                if self.config_dict["log.path"] == "":
                     self.config_dict["log.path"] = self._default_log_path
 
                 if not os.path.exists(self.config_dict["log.path"]):
@@ -272,21 +282,23 @@ class Config(object):
                         pass
                     os.remove(self.config_dict["log.path"] + "/log.file")
             except Exception as e:
-                print("[!] OpenRASP-IAST init error, log path: {} is not writable!".format(os.path.abspath(self.config_dict["log.path"])))
+                print("[!] OpenRASP-IAST init error, log path: {} is not writable!".format(
+                    os.path.abspath(self.config_dict["log.path"])))
                 sys.exit(1)
 
         except Exception as e:
-            print("[!] OpenRASP-IAST load config error! Please check config file: {}! \n".format(self._config_path))
+            print(
+                "[!] OpenRASP-IAST load config error! Please check config file: {}! \n".format(self._config_path))
             traceback.print_exc()
             sys.exit(1)
-    
+
     def get_config(self, name):
         """
         获取配置
-        
+
         Parameters:
             name - str, 获取的配置名称
-            
+
         Returns:
             获取到的值
         """

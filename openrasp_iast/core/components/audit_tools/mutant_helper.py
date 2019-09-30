@@ -23,11 +23,12 @@ from core.components import common
 from core.components import exceptions
 from core.components.audit_tools import request_data
 
+
 class MutantHelper(object):
     """
     获取测试请求参数的工具
     """
-    
+
     def get_params_list(self, request_data_ins, param_type_list=None):
         """
         获取所有指定参数组成的列表
@@ -57,10 +58,10 @@ class MutantHelper(object):
                     if item["value"] is None:
                         continue
                     test_params.append({
-                            "type": "json",
-                            "name": item["json_path"],
-                            "value": str(item["value"])
-                        })
+                        "type": "json",
+                        "name": item["json_path"],
+                        "value": str(item["value"])
+                    })
             elif param_type == "body":
                 test_params.append({
                     "type": "body",
@@ -155,7 +156,8 @@ class MutantHelper(object):
         self.test_params = []
         # 获取所有待测试参数
         request_data_ins = request_data.RequestData(self.rasp_result_ins)
-        all_param = request_data_ins.get_all_param(self.mutant_config["param_type_list"])
+        all_param = request_data_ins.get_all_param(
+            self.mutant_config["param_type_list"])
 
         for param_type in all_param:
             if param_type == "json":
@@ -220,7 +222,8 @@ class MutantHelper(object):
         request_data_ins.set_param(param_type, param_name, payload[0])
         if param_type == "files":
             param_name[1] = "content_type"
-            request_data_ins.set_param(param_type, param_name, "application/xml")
+            request_data_ins.set_param(
+                param_type, param_name, "application/xml")
 
         request_data_list = [request_data_ins]
 

@@ -56,15 +56,16 @@ http_data = {
         "host": "127.0.0.1",
         "port": 8006,
     },
-    "get_report":{ 
+    "get_report": {
         "host": "127.0.0.1",
         "port": 8006,
         "page": 1,
-        "perpage": 10 
+        "perpage": 10
     }
 }
 
-http_sender = helper.HttpSender("127.0.0.1", Config().get_config("monitor.console_port"))
+http_sender = helper.HttpSender(
+    "127.0.0.1", Config().get_config("monitor.console_port"))
 
 
 def test_http_server_run(monitor_fixture):
@@ -159,7 +160,8 @@ def test_scheduler(monitor_fixture):
         Communicator().add_value("send_request", "Scanner_0", 30)
         time.sleep(Config().get_config("monitor.schedule_interval") * 1.5)
         max_cr = Communicator().get_value("max_concurrent_request", "Scanner_0")
-        assert max_cr > max_cr_last or max_cr == Config().get_config("scanner.max_concurrent_request")
+        assert max_cr > max_cr_last or max_cr == Config(
+        ).get_config("scanner.max_concurrent_request")
         max_cr_last = max_cr
 
     assert max_cr_last == 5
@@ -239,7 +241,7 @@ def test_clean_target(monitor_fixture):
     assert r.status_code == 200
     status = json.loads(r.text)["status"]
     assert status == 1
-    
+
     data = http_data["clean_target_0"]
     r = http_sender.send_json(data, path)
     assert r.status_code == 200

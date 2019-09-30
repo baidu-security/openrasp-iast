@@ -38,10 +38,11 @@ class RaspResultReceiver(object):
         """
         if not hasattr(cls, 'instance'):
             cls.instance = super(RaspResultReceiver, cls).__new__(cls)
-            # 以 request_id 为key ,每个item为一个list，结构为: [获取到result的event, 过期时间, 获取到的结果(未获取前为None)] 
+            # 以 request_id 为key ,每个item为一个list，结构为: [获取到result的event, 过期时间, 获取到的结果(未获取前为None)]
             # 例如 {scan_request_id_1: [event_1, expire_time1, result_dict_1] , scan_request_id_2:[event_2, expire_time2, None] ...}
             cls.instance.rasp_result_collection = collections.OrderedDict()
-            cls.instance.timeout = Config().get_config("scanner.request_timeout") * (Config().get_config("scanner.retry_times") + 1)
+            cls.instance.timeout = Config().get_config("scanner.request_timeout") * \
+                (Config().get_config("scanner.retry_times") + 1)
         return cls.instance
 
     def register_result(self, req_id):
@@ -52,7 +53,8 @@ class RaspResultReceiver(object):
             req_id - 结果的scan_request_id
         """
         expire_time = time.time() + (self.timeout * 2)
-        self.rasp_result_collection[req_id] = [asyncio.Event(), expire_time, None]
+        self.rasp_result_collection[req_id] = [
+            asyncio.Event(), expire_time, None]
 
     def add_result(self, rasp_result):
         """
@@ -87,7 +89,7 @@ class RaspResultReceiver(object):
 
         Parameters:
             req_id - str, 等待请求的scan_request_id
-        
+
         Returns:
             获取到的扫描请求结果的RaspResult实例
 
@@ -114,6 +116,7 @@ class RaspResultReceiver(object):
             Communicator().increase_value("rasp_result_timeout")
             raise exceptions.GetRaspResultFailed
         else:
-            result = self.rasp_result_collection.get(req_id, (None, None, None))[2]
+            result = self.rasp_result_collection.get(
+                req_id, (None, None, None))[2]
             Logger().debug("Got rasp result, scan-request-id: {}".format(req_id, str(result)))
             return result

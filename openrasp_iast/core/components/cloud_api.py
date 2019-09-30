@@ -31,13 +31,15 @@ from core.components.config import Config
 class CloudApi(object):
 
     def __init__(self):
-        self.server_url = Config().get_config("cloud_api.backend_url") + "/v1/agent/log/attack"
+        self.server_url = Config().get_config(
+            "cloud_api.backend_url") + "/v1/agent/log/attack"
         self.app_secret = Config().get_config("cloud_api.app_secret")
         self.app_id = Config().get_config("cloud_api.app_id")
 
     def upload_report(self):
         all_report_model = []
-        base_report_model = report_model.ReportModel(table_prefix=None, create_table=False, multiplexing_conn=True)
+        base_report_model = report_model.ReportModel(
+            table_prefix=None, create_table=False, multiplexing_conn=True)
         tables = base_report_model.get_tables()
         for table_name in tables:
             if table_name.lower().endswith("_report"):
@@ -46,7 +48,8 @@ class CloudApi(object):
         for table_name in all_report_model:
             table_prefix = table_name[:-7]
             try:
-                model_ins = report_model.ReportModel(table_prefix=table_prefix, create_table=False, multiplexing_conn=True)
+                model_ins = report_model.ReportModel(
+                    table_prefix=table_prefix, create_table=False, multiplexing_conn=True)
 
                 while True:
                     data_list = model_ins.get_upload_report(20)
@@ -83,20 +86,21 @@ class CloudApi(object):
                     attack_type = vuln_hook["hook_info"]["hook_type"]
                     stack = vuln_hook.get("stack", [])
                     stack_trace = "\n".join(stack)
-                    server_type = server_info.get("name", server_info.get("server", "None"))
+                    server_type = server_info.get(
+                        "name", server_info.get("server", "None"))
                 else:
                     Logger().warning("Report data with no vuln hook detect, skip!")
                     continue
                 cloud_format_data = {
-                    "rasp_id":"IAST",
+                    "rasp_id": "IAST",
                     "app_id": self.app_id,
                     "event_type": "attack",
                     "event_time": time.strftime("%Y-%m-%dT%H:%M:%S%z", time.localtime(scan_time)),
                     "request_id": rasp_result_ins.get_request_id(),
                     "request_method": rasp_result_ins.get_method(),
                     "intercept_state": "log",
-                    "target": rasp_result_ins.get_attack_target(), 
-                    "server_hostname": rasp_result_ins.get_server_hostname(), 
+                    "target": rasp_result_ins.get_attack_target(),
+                    "server_hostname": rasp_result_ins.get_server_hostname(),
                     "server_ip": rasp_result_ins.get_attack_source(),
                     "server_type": server_type,
                     "server_version": server_info["version"],
@@ -113,10 +117,11 @@ class CloudApi(object):
                     "plugin_algorithm": description,
                     "header": rasp_result_ins.get_headers(),
                     "stack_trace": stack_trace,
-                    "body": base64.b64encode(rasp_result_ins.get_body()).decode("ascii"), 
+                    "body": base64.b64encode(rasp_result_ins.get_body()).decode("ascii"),
                 }
                 send_data.append(cloud_format_data)
-            r = requests.post(url=self.server_url, headers=headers, json=send_data)
+            r = requests.post(url=self.server_url,
+                              headers=headers, json=send_data)
             response = json.loads(r.text)
             if response["status"] != 0:
                 Logger().warning("Upload report to cloud failed with response: {}".format(r.text))

@@ -53,11 +53,11 @@ class BaseModel(object):
             create_table为Fasle且目标数据表不存在时，引发exceptions.TableNotExist
         """
         cls.connect_para = {
-            "database":Config().get_config("database.db_name"),
-            "host":Config().get_config("database.host"),
-            "port":Config().get_config("database.port"),
-            "user":Config().get_config("database.username"),
-            "password":Config().get_config("database.password")
+            "database": Config().get_config("database.db_name"),
+            "host": Config().get_config("database.host"),
+            "port": Config().get_config("database.port"),
+            "user": Config().get_config("database.username"),
+            "password": Config().get_config("database.password")
         }
 
         if not hasattr(cls, "db_created"):
@@ -67,10 +67,10 @@ class BaseModel(object):
                 user=Config().get_config("database.username"),
                 passwd=Config().get_config("database.password")
             )
-            
+
             cursor = conn.cursor()
             cursor._defer_warnings = True
-            
+
             sql = "select @@version"
             cursor.execute(sql)
             version = cursor.fetchone()
@@ -82,7 +82,7 @@ class BaseModel(object):
                         charset = "utf8mb4"
             except Exception:
                 pass
-            
+
             sql = "CREATE DATABASE IF NOT EXISTS {dbname} default charset {charset} COLLATE {charset}_general_ci;".format(
                 dbname=Config().get_config("database.db_name"),
                 charset=charset
@@ -91,16 +91,18 @@ class BaseModel(object):
             cursor.execute(sql)
             conn.close()
             cls.db_created = True
-        
+
         if multiplexing_conn:
             with BaseModel.mul_lock:
                 if not hasattr(BaseModel, "mul_database"):
-                    BaseModel.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
+                    BaseModel.mul_database = peewee_async.MySQLDatabase(
+                        **cls.connect_para)
                     BaseModel.mul_database.connect()
                     BaseModel.mul_database_timeout = time.time() + 60
                 elif time.time() > BaseModel.mul_database_timeout:
                     BaseModel.mul_database.close()
-                    BaseModel.mul_database = peewee_async.MySQLDatabase(**cls.connect_para)
+                    BaseModel.mul_database = peewee_async.MySQLDatabase(
+                        **cls.connect_para)
                     BaseModel.mul_database.connect()
                     BaseModel.mul_database_timeout = time.time() + 60
 
@@ -130,7 +132,7 @@ class BaseModel(object):
                 else:
                     database = peewee.MySQLDatabase(**self.connect_para)
                 database.connect()
-                
+
             # table_prefix 为None则不建立数据表实例，仅用于调用基类方法
             if table_prefix is not None:
                 self._model = self._create_model(database, table_prefix)
@@ -171,7 +173,7 @@ class BaseModel(object):
         except Exception as e:
             Logger().error("Error in method drop table!", exc_info=e)
             raise exceptions.DatabaseError
-    
+
     def truncate_table(self):
         """
         清空当前实例对应的数据库表

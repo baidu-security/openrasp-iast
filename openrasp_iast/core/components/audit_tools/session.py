@@ -60,7 +60,7 @@ class Session(object):
             proxy_url - 发送请求使用的代理url, 为None时不使用代理
 
         Returns:
-            dict, 结构: 
+            dict, 结构:
             {
                 "status": http响应码,
                 "headers": http响应头的dict,
@@ -77,10 +77,10 @@ class Session(object):
         while retry_times >= 0:
             try:
                 async with context.Context():
-                    async with http_func(**request_params_dict, proxy=proxy_url ,allow_redirects=False, ssl=False) as response:
+                    async with http_func(**request_params_dict, proxy=proxy_url, allow_redirects=False, ssl=False) as response:
                         response = {
-                            "status": response.status, 
-                            "headers": response.headers, 
+                            "status": response.status,
+                            "headers": response.headers,
                             "body": await response.read()
                         }
                         break

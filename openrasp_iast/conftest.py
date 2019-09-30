@@ -29,9 +29,11 @@ Config().load_config("./config.yaml")
 # 用于支持多进程覆盖率统计
 cleanup_on_sigterm()
 
+
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: this mark slow test.")
-    config.addinivalue_line("markers", "test: mark test to run specified only.")
+    config.addinivalue_line(
+        "markers", "test: mark test to run specified only.")
+
 
 sys.path.append(os.path.dirname(__file__) + "/test")
-

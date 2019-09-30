@@ -72,14 +72,15 @@ class ReportModel(base_model.BaseModel):
 
         Returns:
             插入成功返回True, 重复返回False
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
         try:
             rasp_result_json_list = []
             for request_data in request_data_list:
-                rasp_result_json_list.append(json.loads(request_data.get_rasp_result().dump()))
+                rasp_result_json_list.append(json.loads(
+                    request_data.get_rasp_result().dump()))
             payload_seq = request_data_list[0].get_payload_info()["seq"]
             data = {
                 "plugin_name": plugin_name,
@@ -98,7 +99,7 @@ class ReportModel(base_model.BaseModel):
             raise exceptions.DatabaseError
         else:
             return True
-    
+
     async def get(self, page=1, perpage=10):
         """
         获取数据
@@ -109,7 +110,7 @@ class ReportModel(base_model.BaseModel):
 
         Returns:
             {"total":数据总条数, "data":[ RaspResult组成的list的json字符串, ...]}
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
@@ -150,7 +151,7 @@ class ReportModel(base_model.BaseModel):
                 message # str, 漏洞描述信息
                 time # int, 时间戳
             )
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
@@ -195,7 +196,8 @@ class ReportModel(base_model.BaseModel):
             count = 20
 
         try:
-            query = self.Report.update({self.Report.upload: 1}).where(self.Report.upload != 1).limit(count)
+            query = self.Report.update({self.Report.upload: 1}).where(
+                self.Report.upload != 1).limit(count)
             query.execute()
 
         except Exception as e:

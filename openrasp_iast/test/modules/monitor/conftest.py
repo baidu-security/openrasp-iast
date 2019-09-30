@@ -50,21 +50,22 @@ def _refresh_info_hook(self):
 
 
 def _wait_child(signum, frame):
-        """
-        处理进程terminate信号
-        """
-        try:
-            while True:
-                cpid, status = os.waitpid(-1, os.WNOHANG)
-                if cpid == 0:
-                    break
-                exitcode = status >> 8
-                Logger().warning("Module process {} exit with exitcode {}".format(cpid, exitcode))
-        except OSError as e:
-            if e.errno == errno.ECHILD:
-                Logger().warning('Main process has no existing unwaited-for child processes.')
-            else:
-                Logger().error("Unknow error occurred in method _wait_child!", exc_info=e)
+    """
+    处理进程terminate信号
+    """
+    try:
+        while True:
+            cpid, status = os.waitpid(-1, os.WNOHANG)
+            if cpid == 0:
+                break
+            exitcode = status >> 8
+            Logger().warning("Module process {} exit with exitcode {}".format(cpid, exitcode))
+    except OSError as e:
+        if e.errno == errno.ECHILD:
+            Logger().warning('Main process has no existing unwaited-for child processes.')
+        else:
+            Logger().error("Unknow error occurred in method _wait_child!", exc_info=e)
+
 
 def _fork_proxy():
     signal.signal(signal.SIGCHLD, _wait_child)

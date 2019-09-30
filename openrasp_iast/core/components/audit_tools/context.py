@@ -71,4 +71,3 @@ class Context(object):
             await asyncio.sleep(request_interval / 1000)
         self.request_end_event.set()
         self.current_requests_num -= 1
-

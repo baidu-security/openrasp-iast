@@ -63,15 +63,18 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         # 获取所有待测试参数
         request_data_ins = self.new_request_data(rasp_result_ins)
-        test_params = self.mutant_helper.get_params_list(request_data_ins, ["get", "post", "json", "headers", "cookies"])
+        test_params = self.mutant_helper.get_params_list(
+            request_data_ins, ["get", "post", "json", "headers", "cookies"])
 
         for param in test_params:
             if not request_data_ins.is_param_concat_in_hook("directory", param["value"].rstrip("/\\")):
                 continue
             payload_seq = self.gen_payload_seq()
             for payload in payload_list:
-                request_data_ins = self.new_request_data(rasp_result_ins, payload_seq, payload[1])
-                request_data_ins.set_param(param["type"], param["name"], payload[0])
+                request_data_ins = self.new_request_data(
+                    rasp_result_ins, payload_seq, payload[1])
+                request_data_ins.set_param(
+                    param["type"], param["name"], payload[0])
                 request_data_list = [request_data_ins]
                 yield request_data_list
 
@@ -82,7 +85,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         request_data_ins = request_data_list[0]
         feature = request_data_ins.get_payload_info()["feature"]
         rasp_result_ins = request_data_ins.get_rasp_result()
-        if self.checker.check_concat_in_hook(rasp_result_ins, "directory" , feature):
+        if self.checker.check_concat_in_hook(rasp_result_ins, "directory", feature):
             return "读取的目录可被用户输入控制"
         else:
             return None

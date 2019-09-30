@@ -24,6 +24,7 @@ import string
 import socket
 import struct
 
+
 def generate_uuid():
     """
     随机生成uuid
@@ -33,17 +34,19 @@ def generate_uuid():
     """
     return str(uuid.uuid4())
 
+
 def random_str(length=32):
     """
     随机生成包含数字和小写字母的字符串
 
     Parameters:
         length - int ,字符串长度， 默认32
-    
+
     Returns:
         str, 生成的字符串
     """
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
 
 def get_timestamp():
     """
@@ -53,6 +56,7 @@ def get_timestamp():
         int, 当前时间戳
     """
     return int(time.time())
+
 
 def bytes2human(num):
     """
@@ -74,7 +78,8 @@ def bytes2human(num):
             return '%.2f %s' % (value, s)
     return '%.2f B' % (num, )
 
-def lcs(s1, s2): 
+
+def lcs(s1, s2):
     """
     获取s1 s2的最长公共子串
 
@@ -85,17 +90,18 @@ def lcs(s1, s2):
     Returns:
         str, 最长子串
     """
-    m=[[0 for i in range(len(s2)+1)]  for j in range(len(s1)+1)]
-    mmax=0
-    p=0
+    m = [[0 for i in range(len(s2)+1)] for j in range(len(s1)+1)]
+    mmax = 0
+    p = 0
     for i in range(len(s1)):
         for j in range(len(s2)):
-            if s1[i]==s2[j]:
-                m[i+1][j+1]=m[i][j]+1
-                if m[i+1][j+1]>mmax:
-                    mmax=m[i+1][j+1]
-                    p=i+1
+            if s1[i] == s2[j]:
+                m[i+1][j+1] = m[i][j]+1
+                if m[i+1][j+1] > mmax:
+                    mmax = m[i+1][j+1]
+                    p = i+1
     return s1[p-mmax:p]
+
 
 def print_logo():
     logo = ''' :',`                          `:##:`                          `.'; 

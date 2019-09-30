@@ -90,6 +90,7 @@ def get_normal_response():
     }
     return result
 
+
 def get_vuln_response():
     response = {
         "status": "200",
@@ -174,7 +175,7 @@ def get_vuln_response():
 
 async def send_request(self, request_data):
     test_param = request_data.get_param("files", [0, "filename"])
-    
+
     if test_param is not None and test_param.find("openrasp.php") >= 0:
         return get_vuln_response()
     else:
@@ -191,7 +192,7 @@ async def report(self, request_data_list, vuln_info=""):
 
 @pytest.fixture(scope="module")
 def scan_plugin_fixture():
-    
+
     report_model = ReportModel("www.test-host.com_80")
     Communicator().set_internal_shared("report_model", report_model)
 
@@ -204,7 +205,7 @@ def scan_plugin_fixture():
 
 
 def test_normal(scan_plugin_fixture):
-    
+
     plugin_ins = scan_plugin_fixture
 
     rasp_result_json = """
@@ -283,4 +284,3 @@ def test_normal(scan_plugin_fixture):
     plugin_ins.has_report = False
     asyncio.run(plugin_ins._scan(0, rasp_result_ins))
     assert plugin_ins.has_report == True
-

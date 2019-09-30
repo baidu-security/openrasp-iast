@@ -159,10 +159,12 @@ class ForkModuleError(ScannerException, OriFatalError):
         message = "Fork new module process failed"
         super().__init__(message)
 
+
 class DataParamError(ScannerException, OriFatalError):
     def __init__(self):
         message = "Use invalid param in set/get data method!"
         super().__init__(message)
+
 
 class CheckTypeNotExist(ScannerException, OriFatalError):
     def __init__(self):

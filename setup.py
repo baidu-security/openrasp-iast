@@ -25,7 +25,7 @@ try:
 except Exception:
     install_requires = []
 
-entry_points={
+entry_points = {
     "console_scripts": [
         "openrasp-iast=openrasp_iast.main:run"
     ]
@@ -36,13 +36,13 @@ setuptools.setup(
     name='openrasp-iast',
     version='0.0.1',
     description='An IAST scanner base on OpenRASP',
-    long_description = "An IAST scanner base on OpenRASP",
+    long_description="An IAST scanner base on OpenRASP",
     author='OpenRASP',
     author_email='ext_yunfenxi@baidu.com',
     url='https://rasp.baidu.com/',
     packages=packages,
     install_requires=install_requires,
-    package_dir={"openrasp_iast":"openrasp_iast"},
+    package_dir={"openrasp_iast": "openrasp_iast"},
     include_package_data=True,
     entry_points=entry_points,
     platforms=["linux"],

@@ -58,7 +58,8 @@ class Scanner(base.BaseModule):
         self.module_id = Communicator().get_module_name().split("_")[-1]
 
         Communicator().set_value("max_concurrent_request", 1)
-        Communicator().set_value("request_interval", Config().get_config("scanner.min_request_interval"))
+        Communicator().set_value("request_interval",
+                                 Config().get_config("scanner.min_request_interval"))
 
         self._init_db()
         self._init_plugin()
@@ -69,7 +70,8 @@ class Scanner(base.BaseModule):
         """
         获取缓存的扫描配置
         """
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
         host_port = self.target_host + "_" + str(self.target_port)
         config = config_model.get(host_port)
         if config is None:
@@ -80,7 +82,8 @@ class Scanner(base.BaseModule):
         """
         存储当前扫描目标配置
         """
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
         host_port = self.target_host + "_" + str(self.target_port)
         config_model.update(host_port, json.dumps(self.scan_config))
 
@@ -88,15 +91,20 @@ class Scanner(base.BaseModule):
         """
         更新当前运行的扫描配置
         """
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=False, multiplexing_conn=True)
         host_port = self.target_host + "_" + str(self.target_port)
         self.scan_config = json.loads(config_model.get(host_port))
         for plugin_name in self.scan_config["scan_plugin_status"]:
-            self.plugin_loaded[plugin_name].set_enable(self.scan_config["scan_plugin_status"][plugin_name]["enable"])
-            self.plugin_loaded[plugin_name].set_white_url_reg(self.scan_config["white_url_reg"])
-            self.plugin_loaded[plugin_name].set_scan_proxy(self.scan_config["scan_proxy"])
-            
-        Logger().debug("Update scanner config to version {}, new config json is {}".format(self.scan_config["version"], json.dumps(self.scan_config)))
+            self.plugin_loaded[plugin_name].set_enable(
+                self.scan_config["scan_plugin_status"][plugin_name]["enable"])
+            self.plugin_loaded[plugin_name].set_white_url_reg(
+                self.scan_config["white_url_reg"])
+            self.plugin_loaded[plugin_name].set_scan_proxy(
+                self.scan_config["scan_proxy"])
+
+        Logger().debug("Update scanner config to version {}, new config json is {}".format(
+            self.scan_config["version"], json.dumps(self.scan_config)))
 
     def _init_plugin(self):
         """
@@ -130,7 +138,8 @@ class Scanner(base.BaseModule):
         初始化数据库
         """
         model_prefix = self.target_host + "_" + str(self.target_port)
-        self.new_scan_model = NewRequestModel(model_prefix, multiplexing_conn=True)
+        self.new_scan_model = NewRequestModel(
+            model_prefix, multiplexing_conn=True)
         self.new_scan_model.reset_unscanned_item()
         report_model = ReportModel(model_prefix, multiplexing_conn=True)
         Communicator().set_internal_shared("report_model", report_model)
@@ -175,7 +184,7 @@ class Scanner(base.BaseModule):
 
         # 执行获取新扫描任务
         await self._fetch_new_scan()
-        
+
         # 结束所有协程任务，reset共享内存
         task_fetch_rasp_result.cancel()
         await asyncio.wait({task_fetch_rasp_result})
@@ -268,11 +277,13 @@ class Scanner(base.BaseModule):
                     for plugin_name in self.plugin_loaded:
                         # item 格式: {"id": id, "data":rasp_result_json}
                         self.plugin_loaded[plugin_name].add_task(item)
-                    Logger().debug("Send task with id: {} to plugins.".format(item["id"]))
+                    Logger().debug(
+                        "Send task with id: {} to plugins.".format(item["id"]))
                 self.scan_queue_remaining += data_count
                 return
             else:
-                Logger().debug("No url need scan, fetch task sleep {}s".format(sleep_interval * continuously_sleep))
+                Logger().debug("No url need scan, fetch task sleep {}s".format(
+                    sleep_interval * continuously_sleep))
                 if continuously_sleep < 10:
                     continuously_sleep += 1
                 await asyncio.sleep(sleep_interval * continuously_sleep)
@@ -298,7 +309,6 @@ class Scanner(base.BaseModule):
             plugin_scan_min_num = min(scan_num_list)
             plugin_scan_min_id = min(scan_id_list)
             finish_count = plugin_scan_min_num - self.scan_num
-
 
             if sleep_count > 20:
                 # 20个sleep内未扫描完成，每次最大获取任务量减半

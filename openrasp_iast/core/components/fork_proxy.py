@@ -56,7 +56,8 @@ class ForkProxy(object):
                 Logger().error("Fork proxy error when start new module!", exc_info=e)
                 result = {"pid": 0}
             else:
-                Logger().info("Fork module {} success with pid {}!".format(process_kwargs["module_cls"].__name__, pid))
+                Logger().info("Fork module {} success with pid {}!".format(
+                    process_kwargs["module_cls"].__name__, pid))
                 result = {"pid": pid}
             self.result_queue.put(result)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from core.components.config import Config
 """
 Copyright 2017-2019 Baidu Inc.
 
@@ -31,20 +32,30 @@ main_path = os.path.abspath(__file__)
 main_path = os.path.dirname(main_path)
 sys.path.append(main_path)
 
-from core.components.config import Config
 
 def init_check():
     version = float(platform.python_version()[:3])
     if version < 3.6:
         print("[!] You must run this tool with Python 3.6 or newer version.")
         sys.exit(1)
-    
+
     if sys.platform not in ("linux", "darwin"):
         print("[!] Not support to run on platform: {}, use linux.".format(sys.platform))
         sys.exit(1)
 
     try:
-        import aiohttp, aiomysql, jsonschema, lru, peewee, peewee_async, psutil, pymysql, tornado, yaml, cloghandler, requests
+        import aiohttp
+        import aiomysql
+        import jsonschema
+        import lru
+        import peewee
+        import peewee_async
+        import psutil
+        import pymysql
+        import tornado
+        import yaml
+        import cloghandler
+        import requests
     except ModuleNotFoundError as e:
         print(e, ", use command 'pip3 install -r requirements.txt' to install dependency packages.")
         sys.exit(1)
@@ -62,7 +73,8 @@ def init_check():
         cursor.execute(sql)
         result = cursor.fetchall()
         if len(result) > 0 and int(result[0][0]) == 1:
-            print("[!] MySQL System Variable lower-case-table-names should be set to 0 or 2! ")
+            print(
+                "[!] MySQL System Variable lower-case-table-names should be set to 0 or 2! ")
             sys.exit(1)
         conn.close()
     except Exception as e:
@@ -71,7 +83,8 @@ def init_check():
 
     # 测试是否能正确连接云控
     if Config().config_dict["cloud_api.enable"]:
-        url = Config().config_dict["cloud_api.backend_url"] + "/v1/agent/rasp/auth"
+        url = Config().config_dict["cloud_api.backend_url"] + \
+            "/v1/agent/rasp/auth"
         headers = {
             "X-OpenRASP-AppSecret": Config().config_dict["cloud_api.app_secret"],
             "X-OpenRASP-AppID": Config().config_dict["cloud_api.app_id"]
@@ -81,14 +94,17 @@ def init_check():
             if r.status_code == 200:
                 response = json.loads(r.text)
                 if response["status"] != 0:
-                    print("[!] Test cloud server failed, got HTTP code: {}, response: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, r.text))
+                    print("[!] Test cloud server failed, got HTTP code: {}, response: {}, check option startswith 'cloud_api' in config file!".format(
+                        r.status_code, r.text))
                     sys.exit(1)
             else:
-                print("[!] Test cloud server failed, got HTTP code: {}, check option startswith 'cloud_api' in config file!".format(r.status_code))
+                print("[!] Test cloud server failed, got HTTP code: {}, check option startswith 'cloud_api' in config file!".format(
+                    r.status_code))
                 sys.exit(1)
         except Exception:
             print("[!] Cloud server url:{} connect failed, check option startswith 'cloud_api' in config file!".format(url))
             sys.exit(1)
+
 
 def detach_run():
     """
@@ -110,18 +126,19 @@ def detach_run():
     os.setsid()
     os.umask(0)
 
+
 def start(args):
     """
     启动
     """
     Config().load_config(args.config_path)
-    
+
     init_check()
-    
+
     real_log_path = os.path.realpath(Config().get_config("log.path"))
     log_level = Config().get_config("log.level").upper()
     print("[-] Log file will generate to {}, log level: {}".format(real_log_path, log_level))
-    
+
     from core.launcher import Launcher
 
     pid, config_path = Config().get_running_info()
@@ -137,6 +154,7 @@ def start(args):
         detach_run()
     Config().set_running_info()
     Launcher().launch()
+
 
 def stop(args):
     """
@@ -160,6 +178,7 @@ def stop(args):
         else:
             print("[!] Stop OpenRASP-IAST failed!")
 
+
 def restart(args):
     """
     重启
@@ -173,6 +192,7 @@ def restart(args):
     else:
         args.config_path = None
     start(args)
+
 
 def set_config(args):
     """
@@ -199,18 +219,24 @@ def set_config(args):
         try:
             urllib.parse.uses_netloc.append("mysql")
             url = urllib.parse.urlparse(args.mysql_url)
-            Config().config_dict["database.host"] = url.hostname if url.hostname is not None else "127.0.0.1"
-            Config().config_dict["database.port"] = int(url.port) if url.port is not None else 3306
-            Config().config_dict["database.username"] = url.username if url.username is not None else "root"
-            Config().config_dict["database.password"] = url.password if url.password is not None else ""
+            Config(
+            ).config_dict["database.host"] = url.hostname if url.hostname is not None else "127.0.0.1"
+            Config().config_dict["database.port"] = int(
+                url.port) if url.port is not None else 3306
+            Config(
+            ).config_dict["database.username"] = url.username if url.username is not None else "root"
+            Config(
+            ).config_dict["database.password"] = url.password if url.password is not None else ""
             Config().config_dict["database.db_name"] = url.path[1:]
         except Exception as e:
             print(e)
-            print("[!] Can't resolve mysql connection url: {}".format(args.mysql_url))
+            print("[!] Can't resolve mysql connection url: {}".format(
+                args.mysql_url))
             sys.exit(1)
     if args.log_level is not None:
         Config().config_dict["log.level"] = args.log_level
     Config().save_config()
+
 
 def run():
     parser = argparse.ArgumentParser(usage='%(prog)s [options]')
@@ -236,8 +262,8 @@ def run():
 
     # 输出路径
     parser_config.add_argument(
-        "-o", "--output-path", 
-        help="Assign path config file path to generate, default is /home/username/openrasp-iast/config.yaml", 
+        "-o", "--output-path",
+        help="Assign path config file path to generate, default is /home/username/openrasp-iast/config.yaml",
         type=str, default=None, nargs='?')
 
     # Preprocessor 模块
@@ -255,15 +281,14 @@ def run():
         "-b", "--app-secret", help="Assign cloud server secret key", type=str)
     parser_config.add_argument(
         "-a", "--app-id", help="Assign cloud server app_id", type=str)
-    
-    # DB 
+
+    # DB
     parser_config.add_argument(
         "-m", "--mysql-url", help="Assign Mysql connection url", type=str)
 
-    # log 
+    # log
     parser_config.add_argument(
         "-l", "--log-level", help="Assign log level", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
-
 
     args = parser.parse_args()
 
@@ -271,6 +296,7 @@ def run():
         parser.print_help()
     else:
         args.func(args)
+
 
 if __name__ == '__main__':
     run()

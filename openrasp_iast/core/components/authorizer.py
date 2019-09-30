@@ -21,6 +21,7 @@ import os
 
 from core.components.config import Config
 
+
 class Authorizer(object):
 
     def __new__(cls):

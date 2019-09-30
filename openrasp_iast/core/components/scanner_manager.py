@@ -61,12 +61,13 @@ class ScannerManager(object):
         """
         初始化扫描配置
         """
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
 
         self.plugin_loaded = {}
         plugin_path = Communicator().get_main_path() + "/plugin/scanner"
         plugin_import_path = "plugin.scanner"
-        
+
         # 需要加载插件, 提供一个假的report_model
         Communicator().set_internal_shared("report_model", None)
         Communicator().set_internal_shared("failed_task_set", None)
@@ -91,7 +92,8 @@ class ScannerManager(object):
                     Logger().debug(
                         "scanner plugin: {} preload success!".format(plugin_name))
                 else:
-                    Logger().critical("Detect scanner plugin {} not inherit class ScanPluginBase!".format(plugin_name))
+                    Logger().critical(
+                        "Detect scanner plugin {} not inherit class ScanPluginBase!".format(plugin_name))
                     sys.exit(1)
 
         plugin_status = {}
@@ -113,7 +115,7 @@ class ScannerManager(object):
             "scan_proxy": "",
             "version": 0
         }
-        
+
         # 插件列表有更新时，删除当前缓存的所有配置
         origin_default_config = config_model.get("default")
         if origin_default_config is not None:
@@ -141,7 +143,7 @@ class ScannerManager(object):
                     reset_list.append(scanner_id)
         for scanner_id in reset_list:
             self.scanner_list[scanner_id] = None
-        
+
     def _incremental_update_config(self, host_port, config):
         """
         增量更新扫描的运行时配置
@@ -151,7 +153,8 @@ class ScannerManager(object):
             config - dict, 更新的config
         """
 
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
         origin_config_json = config_model.get(host_port)
         if origin_config_json is None:
             origin_config_json = config_model.get("default")
@@ -171,7 +174,7 @@ class ScannerManager(object):
 
         if "white_url_reg" in config:
             origin_config["white_url_reg"] = config["white_url_reg"]
-        
+
         if "scan_proxy" in config:
             origin_config["scan_proxy"] = config["scan_proxy"]
 
@@ -180,10 +183,13 @@ class ScannerManager(object):
 
         for scanner_id in range(len(self.scanner_list)):
             if self.scanner_list[scanner_id] is not None:
-                running_host_port = self.scanner_list[scanner_id]["host"] + "_" + str(self.scanner_list[scanner_id]["port"])
+                running_host_port = self.scanner_list[scanner_id]["host"] + "_" + str(
+                    self.scanner_list[scanner_id]["port"])
                 if host_port == running_host_port:
-                    self.set_boundary_value(scanner_id, origin_config["scan_rate"])
-                    Communicator().set_value("config_version" , origin_config["version"], "Scanner_" + str(scanner_id))
+                    self.set_boundary_value(
+                        scanner_id, origin_config["scan_rate"])
+                    Communicator().set_value("config_version",
+                                             origin_config["version"], "Scanner_" + str(scanner_id))
                     break
 
     def new_scanner(self, module_params):
@@ -250,7 +256,8 @@ class ScannerManager(object):
             }
 
         """
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
         host_port = module_params["host"] + "_" + str(module_params["port"])
         config_json = config_model.get(host_port)
         if config_json is None:
@@ -401,7 +408,8 @@ class ScannerManager(object):
         result = {}
         for scanner_id in range(self.max_scanner):
             if self.scanner_list[scanner_id] is not None:
-                result[scanner_id] = copy.deepcopy(self.scanner_list[scanner_id])
+                result[scanner_id] = copy.deepcopy(
+                    self.scanner_list[scanner_id])
 
         for module_id in result:
             module_name = "Scanner_" + str(module_id)
@@ -414,7 +422,8 @@ class ScannerManager(object):
             except KeyError:
                 raise exceptions.InvalidScannerId
 
-            table_prefix = result[module_id]["host"] + "_" + str(result[module_id]["port"])
+            table_prefix = result[module_id]["host"] + \
+                "_" + str(result[module_id]["port"])
             total, scanned, failed = await NewRequestModel(table_prefix, multiplexing_conn=True).get_scan_count()
             result[module_id]["total"] = total
             result[module_id]["scanned"] = scanned
@@ -441,18 +450,20 @@ class ScannerManager(object):
         """
         table_prefix = host + "_" + str(port)
         if url_only:
-            NewRequestModel(table_prefix, multiplexing_conn=True).truncate_table()
+            NewRequestModel(
+                table_prefix, multiplexing_conn=True).truncate_table()
         else:
             NewRequestModel(table_prefix, multiplexing_conn=True).drop_table()
-            ReportModel(table_prefix,  multiplexing_conn=True).drop_table()
-            config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+            ReportModel(table_prefix, multiplexing_conn=True).drop_table()
+            config_model = ConfigModel(
+                table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
             config_model.delete(table_prefix)
         Communicator().set_clean_lru([table_prefix])
 
     async def get_all_target(self, page=1):
         """
         获取数据库中存在的所有目标主机的列表
-        
+
         Parameters:
             page - int, 获取的页码，每页10个主机
 
@@ -496,7 +507,7 @@ class ScannerManager(object):
         """
         tables = BaseModel(multiplexing_conn=True).get_tables()
         Logger().debug("Got current tables: {}".format(", ".join(tables)))
-        
+
         result_tables = []
         result = {}
         for table_name in tables:
@@ -505,9 +516,9 @@ class ScannerManager(object):
                 result_tables.append(host_port)
 
         total_target = len(result_tables)
-        if page <= 0 or (page - 1)*10 > total_target:
+        if page <= 0 or (page - 1) * 10 > total_target:
             page = 1
-        result_tables = result_tables[(page-1)*10:page*10]
+        result_tables = result_tables[(page - 1) * 10:page * 10]
 
         for host_port in result_tables:
             host_port_split = host_port.split("_")
@@ -520,18 +531,21 @@ class ScannerManager(object):
 
         running_info = await self.get_running_info()
 
-        config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
         config_result = config_model.get_list(list(result.keys()))
-        
+
         for scanner_id in running_info:
-            host_port = running_info[scanner_id]["host"] + "_" + str(running_info[scanner_id]["port"])
+            host_port = running_info[scanner_id]["host"] + \
+                "_" + str(running_info[scanner_id]["port"])
             result[host_port] = running_info[scanner_id]
             result[host_port]["id"] = scanner_id
-        
+
         result_list = []
 
         for host_port in result:
-            new_request_model = NewRequestModel(host_port, multiplexing_conn=True)
+            new_request_model = NewRequestModel(
+                host_port, multiplexing_conn=True)
             result[host_port]["last_time"] = await new_request_model.get_last_time()
             if result[host_port].get("id", None) is None:
                 total, scanned, failed = await new_request_model.get_scan_count()
@@ -542,9 +556,10 @@ class ScannerManager(object):
             if config_result[host_port] is None:
                 result[host_port]["config"] = self.default_config
             else:
-                result[host_port]["config"] = json.loads(config_result[host_port])
+                result[host_port]["config"] = json.loads(
+                    config_result[host_port])
             result_list.append(result[host_port])
-            
+
         # result_list.sort(key=(lambda k:k["last_time"]), reverse=True)
         return result_list, total_target
 
@@ -556,10 +571,10 @@ class ScannerManager(object):
             host_port - str, 获取的目标主机的 host + "_" + str(port) 组成
             page - int, 获取的页码
             perpage - int, 每页条数
-        
+
         Returns:
             {"total":数据总条数, "data":[ RaspResult的json字符串, ...]}
-        
+
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
@@ -567,7 +582,7 @@ class ScannerManager(object):
             model = ReportModel(
                 host_port, create_table=False, multiplexing_conn=True)
         except exceptions.TableNotExist:
-            data = {"total":0, "data":[]}
+            data = {"total": 0, "data": []}
         else:
             data = await model.get(page, perpage)
         return data
@@ -592,12 +607,14 @@ class ScannerManager(object):
 
         for plugin_name in plugin_names:
             try:
-                plugin_module = __import__(plugin_import_path, fromlist=[plugin_name])
+                plugin_module = __import__(
+                    plugin_import_path, fromlist=[plugin_name])
             except Exception as e:
                 Logger().warning("Error in import plugin: {}".format(plugin_name), exc_info=e)
             else:
                 plugin_module = getattr(plugin_module, plugin_name)
-                plugin_info = getattr(plugin_module, class_prefix + "Plugin").plugin_info
+                plugin_info = getattr(
+                    plugin_module, class_prefix + "Plugin").plugin_info
                 result.append(plugin_info)
         return result
 
@@ -621,9 +638,9 @@ class ScannerManager(object):
 
         for key in result:
             result[key] = self.get_plugin_info(result[key], key)
-        
+
         return result
-    
+
     def set_boundary_value(self, scanner_id, boundary):
         """
         配置扫描速率范围
@@ -636,7 +653,7 @@ class ScannerManager(object):
                 "max_request_interval": 1000,
                 "min_request_interval: 0
             }
-        
+
         Raises:
             exceptions.InvalidScannerId - 目标id不存在引发此异常
         """
@@ -676,4 +693,3 @@ class ScannerManager(object):
             Communicator().set_value("auto_start", 1, "Monitor")
         else:
             Communicator().set_value("auto_start", 0, "Monitor")
-

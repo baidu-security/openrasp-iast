@@ -40,13 +40,14 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         # 获取所有待测试参数
         request_data_ins = self.new_request_data(rasp_result_ins)
-        test_params = self.mutant_helper.get_params_list(request_data_ins, ["get", "post", "json", "headers", "cookies", "files", "body"])
+        test_params = self.mutant_helper.get_params_list(
+            request_data_ins, ["get", "post", "json", "headers", "cookies", "files", "body"])
         for param in test_params:
             if param["type"] == "files":
                 value = param["value"]["content"]
             else:
                 value = param["value"]
-            
+
             tag = "<?xml"
             if isinstance(value, bytes):
                 tag = tag.encode("utf-8")
@@ -55,12 +56,16 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
             payload_seq = self.gen_payload_seq()
             for payload in payload_list:
-                request_data_ins = self.new_request_data(rasp_result_ins, payload_seq, payload[1])
+                request_data_ins = self.new_request_data(
+                    rasp_result_ins, payload_seq, payload[1])
                 if param["type"] == "files":
-                    request_data_ins.set_param(param["type"], [param["name"][0], "content_type"], "application/xml")
-                    request_data_ins.set_param(param["type"], [param["name"][0], "content"], payload[0].encode("utf-8"))
+                    request_data_ins.set_param(
+                        param["type"], [param["name"][0], "content_type"], "application/xml")
+                    request_data_ins.set_param(
+                        param["type"], [param["name"][0], "content"], payload[0].encode("utf-8"))
                 else:
-                    request_data_ins.set_param(param["type"], param["name"], payload[0])
+                    request_data_ins.set_param(
+                        param["type"], param["name"], payload[0])
                 request_data_list = [request_data_ins]
                 yield request_data_list
 

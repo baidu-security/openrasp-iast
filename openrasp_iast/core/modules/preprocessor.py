@@ -48,12 +48,15 @@ class Preprocessor(base.BaseModule):
         plugin_name = Config().get_config("preprocessor.plugin_name")
         try:
             plugin_module = __import__(plugin_path, fromlist=[plugin_name])
-            self.dedup_plugin = getattr(plugin_module, plugin_name).DedupPlugin()
-            assert isinstance(self.dedup_plugin, dedup_plugin_base.DedupPluginBase)
+            self.dedup_plugin = getattr(
+                plugin_module, plugin_name).DedupPlugin()
+            assert isinstance(self.dedup_plugin,
+                              dedup_plugin_base.DedupPluginBase)
         except Exception as e:
             Logger().warning("Dedupulicate plugin {} init fail!".format(plugin_name), exc_info=e)
 
-        self.dedup_lru = DedupLru(Config().get_config("preprocessor.request_lru_size"))
+        self.dedup_lru = DedupLru(Config().get_config(
+            "preprocessor.request_lru_size"))
         self.new_request_storage = ResultStorage()
         self.app = tornado.web.Application([
             tornado.web.url(
@@ -71,7 +74,8 @@ class Preprocessor(base.BaseModule):
         """
         启动http server
         """
-        server = tornado.httpserver.HTTPServer(self.app, max_buffer_size=Config().get_config("preprocessor.max_buffer_size"))
+        server = tornado.httpserver.HTTPServer(
+            self.app, max_buffer_size=Config().get_config("preprocessor.max_buffer_size"))
         try:
             server.bind(Config().get_config("preprocessor.http_port"))
         except OSError as e:
@@ -86,7 +90,8 @@ class Preprocessor(base.BaseModule):
                 if Communicator().set_pre_http_pid(os.getpid()):
                     break
                 else:
-                    pids = ", ".join(str(x) for x in Communicator().get_pre_http_pid())
+                    pids = ", ".join(str(x)
+                                     for x in Communicator().get_pre_http_pid())
                     Logger().error("Preprocessor HTTP Server set pid failed! Running pids: {}".format(pids))
                     time.sleep(3)
             tornado.ioloop.IOLoop.current().start()
@@ -152,13 +157,15 @@ class jsonHandler(tornado.web.RequestHandler):
         self.update_setting()
         hash_str = self.dedup_plugin.get_hash(rasp_result_ins)
         if hash_str is None:
-            Logger().debug("Drop white list request with request_id: {}".format(rasp_result_ins.get_request_id()))
+            Logger().debug("Drop white list request with request_id: {}".format(
+                rasp_result_ins.get_request_id()))
             Communicator().increase_value("duplicate_request")
         else:
             host_port = rasp_result_ins.get_host_port()
             try:
                 self.dedup_lru.check(host_port, hash_str)
-                Logger().info("Drop duplicate request with request_id: {} (request in lru)".format(rasp_result_ins.get_request_id()))
+                Logger().info("Drop duplicate request with request_id: {} (request in lru)".format(
+                    rasp_result_ins.get_request_id()))
                 Communicator().increase_value("duplicate_request")
             except KeyError:
                 rasp_result_ins.set_hash(hash_str)
@@ -169,10 +176,12 @@ class jsonHandler(tornado.web.RequestHandler):
                     raise e
                 else:
                     if data_stored:
-                        Logger().info("Get new request with request_id: {}".format(rasp_result_ins.get_request_id()))
+                        Logger().info("Get new request with request_id: {}".format(
+                            rasp_result_ins.get_request_id()))
                         Communicator().increase_value("new_request")
                     else:
-                        Logger().info("Drop duplicate request with request_id: {}".format(rasp_result_ins.get_request_id()))
+                        Logger().info("Drop duplicate request with request_id: {}".format(
+                            rasp_result_ins.get_request_id()))
                         Communicator().increase_value("duplicate_request")
 
     def send_data(self, rasp_result_ins):
@@ -182,8 +191,10 @@ class jsonHandler(tornado.web.RequestHandler):
         Parameters:
             rasp_result_ins - 待发送的RaspResult实例
         """
-        queue_name = "rasp_result_queue_" + str(rasp_result_ins.get_result_queue_id())
-        Logger().info("Send scan request data with id:{} to queue:{}".format(rasp_result_ins.get_request_id(), queue_name))
+        queue_name = "rasp_result_queue_" + \
+            str(rasp_result_ins.get_result_queue_id())
+        Logger().info("Send scan request data with id:{} to queue:{}".format(
+            rasp_result_ins.get_request_id(), queue_name))
         Communicator().send_data(queue_name, rasp_result_ins)
         Communicator().increase_value("rasp_result_request")
 
@@ -235,7 +246,8 @@ class ResultStorage(object):
             获取到的NewRequestModel实例
         """
         if host_port not in self.models:
-            self.models[host_port] = new_request_model.NewRequestModel(host_port, multiplexing_conn=True)
+            self.models[host_port] = new_request_model.NewRequestModel(
+                host_port, multiplexing_conn=True)
             self._start_scanner(host_port)
         return self.models[host_port]
 
@@ -280,7 +292,7 @@ class DedupLru(object):
         Parameters:
             host_port - host + "_" + str(port) 组成的字符串，指定查找的LRU
             key - 在LRU中查找的key
-        
+
         Raises:
             KeyError - key不存在于LRU中
         """
