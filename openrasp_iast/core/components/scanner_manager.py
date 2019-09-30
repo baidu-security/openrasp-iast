@@ -531,15 +531,15 @@ class ScannerManager(object):
 
         running_info = await self.get_running_info()
 
-        config_model = ConfigModel(
-            table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
-        config_result = config_model.get_list(list(result.keys()))
-
         for scanner_id in running_info:
             host_port = running_info[scanner_id]["host"] + \
                 "_" + str(running_info[scanner_id]["port"])
             result[host_port] = running_info[scanner_id]
             result[host_port]["id"] = scanner_id
+
+        config_model = ConfigModel(
+            table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
+        config_result = config_model.get_list(list(result.keys()))
 
         result_list = []
 
