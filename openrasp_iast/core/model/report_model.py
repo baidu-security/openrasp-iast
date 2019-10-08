@@ -20,6 +20,7 @@ limitations under the License.
 import os
 import json
 import peewee
+import asyncio
 import peewee_async
 
 from core.model import base_model
@@ -121,7 +122,7 @@ class ReportModel(base_model.BaseModel):
         result = {}
 
         try:
-            query = self.Report.select().offset((page-1)*perpage).limit(perpage)
+            query = self.Report.select().offset((page - 1) * perpage).limit(perpage)
             data = await peewee_async.execute(query)
             result["total"] = len(data)
             result["data"] = []

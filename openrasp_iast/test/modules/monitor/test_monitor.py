@@ -262,7 +262,7 @@ def test_get_all_target(monitor_fixture):
     assert r.status_code == 200
     ret = json.loads(r.text)
     assert ret["status"] == 0
-    assert len(ret["data"]) == 1
+    assert ret["data"]["total"] == 1
 
 
 def test_get_report(monitor_fixture):

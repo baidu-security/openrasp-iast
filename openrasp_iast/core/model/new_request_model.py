@@ -20,6 +20,7 @@ limitations under the License.
 import os
 import time
 import peewee
+import asyncio
 import peewee_async
 
 from core.model import base_model
@@ -53,7 +54,7 @@ class NewRequestModel(base_model.BaseModel):
             "id": peewee.AutoField(),
             "data": self.LongTextField(),
             # utf8mb4 编码下 1 char = 4 bytes，会导致peewee创建过长的列导致MariaDB产生 1071, Specified key was too long; 错误, max_length不使用255
-            "data_hash": peewee.CharField(unique=True,  max_length=63),
+            "data_hash": peewee.CharField(unique=True, max_length=63),
             # scan_status含义： 未扫描：0, 已扫描：1, 正在扫描：2, 扫描中出现错误: 3
             "scan_status": peewee.IntegerField(default=0),
             "time": peewee.IntegerField(default=common.get_timestamp),
@@ -310,3 +311,52 @@ class NewRequestModel(base_model.BaseModel):
             return 0
         else:
             return data[0].time
+
+    async def get_urls(self, page=1, status=0):
+        """
+        获取指定状态的的url列表
+
+        Parameters:
+            page - int, 获取的页数，每页10条
+            status - int, url的状态 未扫描：0, 已扫描：1, 正在扫描：2, 扫描中出现错误: 3
+
+        Returns:
+            total, urls - total为数据总数, int类型，urls为已扫描的url, list类型, item形式为tuple (url对应id, url字符串)
+
+        Raises:
+            exceptions.DatabaseError - 数据库错误引发此异常
+        """
+        if page <= 0:
+            page = 1
+        try:
+            query = self.ResultList.select(
+                peewee.fn.COUNT(self.ResultList.id)).where(
+                self.ResultList.scan_status == status)
+
+            result = await peewee_async.scalar(query)
+            if result is None:
+                total = 0
+            else:
+                total = result
+
+            query = self.ResultList.select().where(
+                self.ResultList.scan_status == status
+            ).order_by(
+                self.ResultList.id
+            ).offset((page - 1) * 10).limit(10)
+
+            data = await peewee_async.execute(query)
+            urls = []
+
+            for line in data:
+                url_id = line.id
+                rasp_result_ins = rasp_result.RaspResult(line.data)
+                url = rasp_result_ins.get_url()
+                urls.append((url_id, url))
+            return total, urls
+
+        except asyncio.CancelledError as e:
+            raise e
+        except Exception as e:
+            Logger().critical("Database error in mark_result method!", exc_info=e)
+            raise exceptions.DatabaseError

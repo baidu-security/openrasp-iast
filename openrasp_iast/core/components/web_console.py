@@ -132,6 +132,13 @@ class WebConsole(object):
 
         handlers.append(
             tornado.web.url(
+                "/api/model/get_url_info",
+                GetUrlInfoHandler
+            )
+        )
+
+        handlers.append(
+            tornado.web.url(
                 "/api/model/clean_target",
                 CleanTargetHandler
             )
@@ -672,12 +679,56 @@ class GetAllTargetHandler(ApiHandlerBase):
         return ret
 
 
-class CleanTargetHandler(ApiHandlerBase):
+class GetUrlInfoHandler(ApiHandlerBase):
     async def handle_request(self, data):
         """
         请求格式：
         {
             "host":"1.2.3.4",
+            "port": 80,
+            "page": 1,
+            "status": 0 // 未扫描：0, 已扫描：1, 正在扫描：2, 扫描中出现错误: 3
+        }
+        """
+
+        try:
+            host = data["host"]
+            port = data.get("port", 80)
+            page = data.get("page", 1)
+            status = int(data["status"])
+        except (KeyError, TypeError):
+            ret = {
+                "status": 1,
+                "description": "请求json格式非法!"
+            }
+        else:
+            host_port = host + "_" + str(port)
+            try:
+                total, urls = await ScannerManager().get_urls(host_port, page, status)
+            except exceptions.TableNotExist:
+                ret = {
+                    "status": 2,
+                    "description": "target not exist",
+                }
+            else:
+                ret = {
+                    "status": 0,
+                    "description": "ok",
+                    "data": {
+                        "total": total,
+                        # urls: [(23, "http://127.0.0.1/testpage?a=1"), ...]
+                        "urls": urls
+                    }
+                }
+        return ret
+
+
+class CleanTargetHandler(ApiHandlerBase):
+    async def handle_request(self, data):
+        """
+        请求格式：
+        {
+            "host": "1.2.3.4",
             "port": 80,
             "url_only": false
         }

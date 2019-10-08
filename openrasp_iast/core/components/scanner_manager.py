@@ -694,3 +694,22 @@ class ScannerManager(object):
             Communicator().set_value("auto_start", 1, "Monitor")
         else:
             Communicator().set_value("auto_start", 0, "Monitor")
+
+    def get_urls(self, host_port, page=0, status=0):
+        """
+        获取指定状态的的url列表
+
+        Parameters:
+            page - int, 获取的页数，每页10条
+            status - int, url的状态 未扫描：0, 已扫描：1, 正在扫描：2, 扫描中出现错误: 3
+
+        Returns:
+            total, urls - total为数据总数, int类型，urls为已扫描的url, list类型, item形式为tuple (url对应id, url字符串)
+        """
+
+        try:
+            model = NewRequestModel(host_port, create_table=False, multiplexing_conn=True)
+        except exceptions.TableNotExist as e:
+            raise e
+
+        return model.get_urls(page, status)
