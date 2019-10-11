@@ -61,6 +61,7 @@ class ScanPluginBase(object):
         self._scan_queue = queue.Queue()  # 任务队列
         self._last_scan_id = 0  # 最近扫描完成的任务在数据库中的id
         self._scan_num = 0  # 当前已扫描url数量
+        self._has_failed_reuqest = False # 标记扫描中存在连接失败的请求
         self._request_timeout = Config().get_config("scanner.request_timeout")
         self._max_concurrent_task = Config().get_config("scanner.max_concurrent_request")
 
