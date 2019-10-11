@@ -81,6 +81,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         request_data_ins = request_data_list[0]
         feature = request_data_ins.get_payload_info()["feature"]
         rasp_result_ins = request_data_ins.get_rasp_result()
+        if rasp_result_ins is None:
+            return None
 
         server_language = rasp_result_ins.get_server_info()["language"]
         if server_language == "java":

@@ -87,6 +87,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         request_data_ins = request_data_list[0]
         feature = request_data_ins.get_payload_info()["feature"]
         rasp_result_ins = request_data_ins.get_rasp_result()
+        if rasp_result_ins is None:
+            return None
         if self.checker.check_concat_in_hook(rasp_result_ins, "readFile", feature):
             return "读取文件的路径可被用户输入控制"
         else:

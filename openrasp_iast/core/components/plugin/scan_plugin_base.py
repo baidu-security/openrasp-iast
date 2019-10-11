@@ -257,12 +257,17 @@ class ScanPluginBase(object):
             response = await self._request_session.send_request(request_data, self._proxy_url)
             self.logger.debug(
                 "Request with id: {} get response: {}".format(request_id, response))
-            rasp_result_ins = await self._wait_result(request_id)
-            self.logger.debug("Request with id: {} get rasp_result: {}".format(
-                request_id, rasp_result_ins.dump()))
+
+            if "X-Protected-By" not in response["headers"]:
+                rasp_result_ins = None
+                self.logger.debug("Request with id: {} not trigger rasp hook.".format(request_id))
+            else:
+                rasp_result_ins = await self._wait_result(request_id)
+                self.logger.debug("Request with id: {} get rasp_result: {}".format(
+                    request_id, rasp_result_ins.dump()))
         except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed) as e:
             self._has_failed_reuqest = True
-            self.logger.debug("Request with id {} of task id {} has failed many times, skip!".format(
+            self.logger.debug("Request with id {} of task id {} failed, skip task!".format(
                 request_id, self._task["id"]))
             raise e
 
@@ -322,6 +327,8 @@ class ScanPluginBase(object):
             mutant_generator - 测试请求序列生成器
         """
         while True:
+            if self._has_failed_reuqest:
+                break
             try:
                 request_data_list = mutant_generator.__next__()
             except StopIteration:
@@ -335,7 +342,7 @@ class ScanPluginBase(object):
                         req_data.get_aiohttp_param()))
                     req_data.set_rasp_result(ret["rasp_result"])
             except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed):
-                continue
+                break
 
             message = self.check(request_data_list)
             if type(message) is str:

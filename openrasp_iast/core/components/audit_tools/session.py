@@ -85,7 +85,7 @@ class Session(object):
                         }
                         break
             except (asyncio.TimeoutError, aiohttp.client_exceptions.ClientError) as e:
-                Logger().info("Send scan request timeout, request params:{}".format(request_params_dict))
+                Logger().warning("Send scan request timeout, request params:{}".format(request_params_dict))
                 await asyncio.sleep(1)
                 retry_times -= 1
             except asyncio.CancelledError as e:
@@ -97,4 +97,5 @@ class Session(object):
         if retry_times >= 0:
             return response
         else:
+            Logger().warning("Scan request timeout many times, skip! request params:{}".format(request_params_dict))
             raise exceptions.ScanRequestFailed

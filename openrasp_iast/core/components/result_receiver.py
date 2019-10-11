@@ -78,8 +78,9 @@ class RaspResultReceiver(object):
             except StopIteration:
                 break
             if self.rasp_result_collection[key][1] < time.time():
+                if type(self.rasp_result_collection[key][0]) is not dict:
+                    Logger().debug("Rasp result with id: {} timeout, dropped".format(key))
                 self.rasp_result_collection.popitem(False)
-                Logger().debug("Rasp result with id: {} timeout, dropped".format(key))
             else:
                 break
 
@@ -112,7 +113,7 @@ class RaspResultReceiver(object):
             Logger().debug("Start waiting rasp result, id: " + req_id)
             await asyncio.wait_for(event.wait(), timeout=timeout)
         except asyncio.TimeoutError:
-            Logger().debug("Timeout when wait rasp result, id: " + req_id)
+            Logger().warning("Timeout when wait rasp result, id: " + req_id)
             Communicator().increase_value("rasp_result_timeout")
             raise exceptions.GetRaspResultFailed
         else:
