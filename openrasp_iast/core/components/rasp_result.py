@@ -177,7 +177,7 @@ class RaspResult(object):
         Returns:
             list, 包含多个dict
             {
-                "name": "eth0", 
+                "name": "eth0",
                 "ip": "172.17.0.2"
             }
         """
@@ -218,7 +218,7 @@ class RaspResult(object):
                 'name': 'Tomcat / JBoss / Jetty',
                 'version': '8',
                 'os': 'Linux',
-                'language': 'java / php' 
+                'language': 'java / php'
              }
         """
         return self.rasp_result_dict["context"]["server"]

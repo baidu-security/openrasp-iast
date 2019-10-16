@@ -65,6 +65,7 @@ class Communicator(object):
         monitor_keys = [
             "pid",
             "shared_setting_version",
+            "target_update",
             "auto_start"
         ]
 
@@ -77,8 +78,6 @@ class Communicator(object):
             "dropped_rasp_result",
             "send_request",
             "failed_request",
-            "pause",  # 扫描器暂停标识，不为0时暂停扫描
-            "cancel",  # 扫描器退出标识，不为0时停止扫描
             "config_version"
         ]
 
@@ -100,21 +99,24 @@ class Communicator(object):
             return True
 
     def set_pre_http_pid(self, pid):
+        """
+        记录preprocessor子进程的pid
+        """
         with self.pre_http_lock:
             for i in range(self.pre_http_num):
-                value = self.get_value(
-                    "http_server_pid_" + str(i), "Preprocessor")
+                value = self.get_value("http_server_pid_" + str(i), "Preprocessor")
                 if value == 0 or not self._is_pid_exists(value):
-                    self.set_value("http_server_pid_" +
-                                   str(i), pid, "Preprocessor")
+                    self.set_value("http_server_pid_" + str(i), pid, "Preprocessor")
                     return True
         return False
 
     def get_pre_http_pid(self):
+        """
+        获取preprocessor子进程的pid
+        """
         result = []
         for i in range(self.pre_http_num):
-            result.append(self.get_value(
-                "http_server_pid_" + str(i), "Preprocessor"))
+            result.append(self.get_value("http_server_pid_" + str(i), "Preprocessor"))
         return result
 
     def _init_queues(self):
@@ -200,6 +202,18 @@ class Communicator(object):
             当前module对应的class名，String类型
         """
         return self.module_name.split("_")[0]
+
+    def update_target_list_status(self):
+        """
+        更新目标列表状态
+        """
+        self.add_value("target_update", "Monitor", 1)
+
+    def get_target_list_status(self):
+        """
+        获取目标列表状态
+        """
+        return self.get_value("target_update", "Monitor")
 
     def _reset_shared_setting(self):
         self.shared_setting = {

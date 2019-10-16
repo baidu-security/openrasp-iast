@@ -29,6 +29,7 @@ from core.components import exceptions
 from core.components import rasp_result
 from core.components.logger import Logger
 from core.components.config import Config
+from core.components.communicator import Communicator
 
 
 class NewRequestModel(base_model.BaseModel):
@@ -360,3 +361,10 @@ class NewRequestModel(base_model.BaseModel):
         except Exception as e:
             Logger().critical("Database error in mark_result method!", exc_info=e)
             raise exceptions.DatabaseError
+
+    def drop_table(self):
+        """
+        删除表时更新表状态
+        """
+        super().drop_table()
+        Communicator().update_target_list_status()

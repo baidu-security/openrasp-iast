@@ -71,7 +71,7 @@ def bytes2human(num):
     symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
     prefix = {}
     for i, s in enumerate(symbols):
-        prefix[s] = 1 << (i+1)*10
+        prefix[s] = 1 << (i + 1) * 10
     for s in reversed(symbols):
         if num >= prefix[s]:
             value = float(num) / prefix[s]
@@ -90,17 +90,47 @@ def lcs(s1, s2):
     Returns:
         str, 最长子串
     """
-    m = [[0 for i in range(len(s2)+1)] for j in range(len(s1)+1)]
+    m = [[0 for i in range(len(s2) + 1)] for j in range(len(s1) + 1)]
     mmax = 0
     p = 0
     for i in range(len(s1)):
         for j in range(len(s2)):
             if s1[i] == s2[j]:
-                m[i+1][j+1] = m[i][j]+1
-                if m[i+1][j+1] > mmax:
-                    mmax = m[i+1][j+1]
-                    p = i+1
-    return s1[p-mmax:p]
+                m[i + 1][j + 1] = m[i][j] + 1
+                if m[i + 1][j + 1] > mmax:
+                    mmax = m[i + 1][j + 1]
+                    p = i + 1
+    return s1[p - mmax:p]
+
+
+def concat_host(host, port):
+    """
+    将host和port使用 "_" 连接为字符串
+
+    Parameters:
+        host - str
+        port - int或str
+
+    Returns:
+        str
+    """
+    return host + "_" + str(port)
+
+
+def split_host(host_port):
+    """
+    将使用 "_" 连接为字符串的host、port还原
+
+    Parameters:
+        host_port - str
+
+    Returns:
+        str, int
+    """
+    host_port_split = host_port.split("_")
+    host = "_".join(host_port_split[:-1])
+    port = int(host_port_split[-1])
+    return host, port
 
 
 def print_logo():

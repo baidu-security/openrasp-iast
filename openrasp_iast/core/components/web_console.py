@@ -76,36 +76,8 @@ class WebConsole(object):
 
         handlers.append(
             tornado.web.url(
-                "/api/scanner/pause",
-                PauseScannerHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/resume",
-                ResumeScannerHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/cancel",
-                CancelScannerHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
                 "/api/scanner/kill",
                 KillScannerHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/status",
-                ScannerStatusHandler
             )
         )
 
@@ -447,99 +419,6 @@ class GetConfigHandler(ApiHandlerBase):
             return ret
 
 
-class PauseScannerHandler(ApiHandlerBase):
-    async def handle_request(self, data):
-        """
-        请求格式：
-        {
-            "scanner_id":0
-        }
-        """
-        try:
-            scanner_id = data["scanner_id"]
-        except (KeyError, TypeError):
-            ret = {
-                "status": 1,
-                "description": "请求json格式非法!"
-            }
-        else:
-            try:
-                ScannerManager().pause_scanner(scanner_id)
-            except exceptions.InvalidScannerId:
-                ret = {
-                    "status": 2,
-                    "description": "目标Scanner_id：{} 不存在!".format(scanner_id)
-                }
-            else:
-                ret = {
-                    "status": 0,
-                    "description": "ok"
-                }
-        return ret
-
-
-class ResumeScannerHandler(ApiHandlerBase):
-    async def handle_request(self, data):
-        """
-        请求格式：
-        {
-            "scanner_id":0
-        }
-        """
-        try:
-            scanner_id = data["scanner_id"]
-        except (KeyError, TypeError):
-            ret = {
-                "status": 1,
-                "description": "请求json格式非法!"
-            }
-        else:
-            try:
-                ScannerManager().resume_scanner(scanner_id)
-            except exceptions.InvalidScannerId:
-                ret = {
-                    "status": 2,
-                    "description": "目标Scanner_id：{} 不存在!".format(scanner_id)
-                }
-            else:
-                ret = {
-                    "status": 0,
-                    "description": "ok"
-                }
-        return ret
-
-
-class CancelScannerHandler(ApiHandlerBase):
-    async def handle_request(self, data):
-        """
-        请求格式：
-        {
-            "scanner_id":0
-        }
-        """
-        try:
-            scanner_id = data["scanner_id"]
-        except (KeyError, TypeError):
-            ret = {
-                "status": 1,
-                "description": "请求json格式非法!"
-            }
-        else:
-            try:
-                ScannerManager().cancel_scanner(scanner_id)
-            except exceptions.InvalidScannerId:
-                ret = {
-                    "status": 2,
-                    "description": "目标Scanner_id：{} 不存在!".format(scanner_id)
-                }
-            else:
-                ret = {
-                    "status": 0,
-                    "description": "ok"
-                }
-        return ret
-
-
 class KillScannerHandler(ApiHandlerBase):
     async def handle_request(self, data):
         """
@@ -574,45 +453,6 @@ class KillScannerHandler(ApiHandlerBase):
                         "status": 3,
                         "description": "结束scanner进程失败!"
                     }
-        return ret
-
-
-class ScannerStatusHandler(ApiHandlerBase):
-    async def handle_request(self, data):
-        """
-        请求格式：
-        {}
-
-        返回data结构：
-        {
-            "0":{
-                "pid": 64067, // 扫描进程pid
-                "host": "127.0.0.1", // 扫描的目标主机
-                "port": 8005, // 扫描的目标端口
-                "cancel": 0, // 是否正在取消
-                "pause": 0, // 是否被暂停
-                "cpu": "0.0%", // cpu占用
-                "mem": "10.51 M", // 内存占用
-                "total": 5, // 当前url总数
-                "scanned": 2, // 扫描的url数量
-                "max_concurrent_request": 10, // 最大并发数
-                "min_request_interval": 0, // 最小请求间隔
-                "max_request_interval": 1000, // 最大请求间隔
-                "concurrent_request": 10, // 当前并发数
-                "request_interval": 0, // 当前请求间隔
-            },
-            "1":{
-                ...
-            },
-        }
-        """
-        ret_data = await ScannerManager().get_running_info()
-
-        ret = {
-            "status": 0,
-            "description": "ok",
-            "data": ret_data
-        }
         return ret
 
 
@@ -743,16 +583,16 @@ class CleanTargetHandler(ApiHandlerBase):
                 "description": "请求json格式非法!"
             }
         else:
-            if ScannerManager().is_scanning(host, port):
-                ret = {
-                    "status": 2,
-                    "description": "目标主机:{}:{}正在被扫描，请先停止!".format(host, port)
-                }
-            else:
+            try:
                 ScannerManager().clean_target(host, port, url_only)
                 ret = {
                     "status": 0,
                     "description": "ok"
+                }
+            except exceptions.TargetIsScanning:
+                ret = {
+                    "status": 2,
+                    "description": "目标主机:{}:{}正在被扫描，请先停止!".format(host, port)
                 }
         return ret
 

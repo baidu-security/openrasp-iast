@@ -63,9 +63,18 @@ class Checker(object):
         }
         if hook_type in token_check_item:
             for hook_item in hook_list:
+                print(rasp_result_ins)
                 if self._is_token_injected(hook_item[token_check_item[hook_type]], feature, hook_item["tokens"]):
                     rasp_result_ins.set_vuln_hook(hook_item)
                     return True
+                if "env" in hook_item:
+                    for env_item in hook_item["env"]:
+                        env_part = env_item.split("=")
+                        for part in env_part:
+                            if str(feature).find(str(part)) >= 0:
+                                rasp_result_ins.set_vuln_hook(hook_item)
+                                return True
+
         elif hook_type in endswith_check_item:
             for hook_item in hook_list:
                 if hook_item[endswith_check_item[hook_type]].endswith(feature):
@@ -136,8 +145,7 @@ class Checker(object):
         hook_list = [
             hook_item for hook_item in hook_info if hook_item["hook_type"] == "writeFile"]
         for hook_item in hook_list:
-            if (hook_item["realpath"].find(feature) != -1 and
-                    hook_item["realpath"].startswith(web_root)):
+            if (hook_item["realpath"].find(feature) != -1 and hook_item["realpath"].startswith(web_root)):
                 rasp_result_ins.set_vuln_hook(hook_item)
                 return True
 
@@ -157,8 +165,7 @@ class Checker(object):
         hook_list = [
             hook_item for hook_item in hook_info if hook_item["hook_type"] == "fileUpload"]
         for hook_item in hook_list:
-            if (hook_item["dest_realpath"].endswith(feature) != -1 and
-                    hook_item["dest_realpath"].startswith(web_root)):
+            if (hook_item["dest_realpath"].endswith(feature) != -1 and hook_item["dest_realpath"].startswith(web_root)):
                 rasp_result_ins.set_vuln_hook(hook_item)
                 return True
 

@@ -83,9 +83,17 @@ class RequestData(object):
             for key, morsel in cookie_obj.items():
                 cookies[key] = morsel.value
 
+        headers = copy.deepcopy(rasp_result_ins.get_headers())
+        del_keys = []
+        for key in headers:
+            if key.lower() == "cookie":
+                del_keys.append(key)
+        for key in del_keys:
+            del headers[key]
+
         self.http_data = {
             "url": rasp_result_ins.get_scan_url(),
-            "headers": copy.deepcopy(rasp_result_ins.get_headers()),
+            "headers": headers,
             "params": rasp_result_ins.get_query_param_dict(),
             "data": data,
             "cookies": cookies,
@@ -164,7 +172,7 @@ class RequestData(object):
 
         Parameters:
             para_type - str, 参数类型，可选get, post, cookies, headers, json, files, body
-            para_name - str/list, 参数名或参数路径, 
+            para_name - str/list, 参数名或参数路径,
                         当para_type为json时, para_name应为一个list,包含json path每一级的key
                         当para_type为files时, para_name应为一个包含两个item的list, 第一个指定要设置的files dict的下标, 第二个指定dict key， 当设置content时，类型必须为bytes
                         例如: files: [ {"name":"file", "filename":"name.txt", "content":"xxx"} ...]  设置第一个item的filename -> [0, "filename"]
@@ -175,13 +183,13 @@ class RequestData(object):
             exceptions.DataParamError - 参数错误引发此异常
         """
         if para_type == "cookies":
-            self.http_data["cookies"][para_name] = value
+            self.http_data["cookies"][para_name] = urllib.parse.quote(value)
         elif para_type == "get":
             self.http_data["params"][para_name] = value
         elif para_type == "post":
             self.http_data["data"][para_name] = value
         elif para_type == "headers":
-            self.http_data["headers"][para_name] = value
+            self.http_data["headers"][para_name] = urllib.parse.quote(value)
         elif para_type == "json":
             # 如果para_name为空，将root节点为设为value
             if len(para_name) == 0:
@@ -279,9 +287,6 @@ class RequestData(object):
             result["post"] = self.http_data["data"]
         if "headers" in param_type_list:
             result["headers"] = copy.deepcopy(self.http_data["headers"])
-            for key in result["headers"]:
-                if key.lower() == "cookies":
-                    del result["headers"][key]
         if "json" in param_type_list and self.http_data["json"] is not None:
             result["json"] = self.http_data["json"]
         if "cookies" in param_type_list:
@@ -356,13 +361,18 @@ class RequestData(object):
             return False
 
         hook_info = self.rasp_result_ins.get_hook_info()
-        params = self.rasp_result_ins.get_parameters()
 
         for hook_item in hook_info:
             if hook_item["hook_type"] == hook_type:
                 if hook_type in ("command", "sql"):
                     if self._is_token_concat(param_value, hook_item["tokens"]):
                         return True
+                    if "env" in hook_item:
+                        for env_item in hook_item["env"]:
+                            env_part = env_item.split("=")
+                            for part in env_part:
+                                if str(param_value).find(str(part)) >= 0:
+                                    return True
                 elif hook_type in ("ssrf", "include"):
                     if self._is_url_concat(param_value, hook_item["url"]):
                         return True

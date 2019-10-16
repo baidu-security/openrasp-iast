@@ -35,9 +35,9 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         if not rasp_result_ins.has_hook_type("command"):
             return
 
-        payload_list = [("'openraspcmd'", "'openraspcmd'"),
-                        ("\"openraspcmd\"", "\"openraspcmd\""),
-                        ("; openraspcmd", "; openraspcmd")]
+        payload_list = [("'\"openrasp' cmd", "'\"openrasp' cmd"),
+                        ("a$(openrasp `cmd`)b", "a$(openrasp `cmd`)b"),
+                        ("openrasp=openxrasp", "openrasp=openxrasp")]
 
         # 获取所有待测试参数
         request_data_ins = self.new_request_data(rasp_result_ins)

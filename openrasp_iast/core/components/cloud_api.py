@@ -89,7 +89,7 @@ class CloudApi(object):
                     server_type = server_info.get(
                         "name", server_info.get("server", "None"))
                 else:
-                    Logger().warning("Report data with no vuln hook detect, skip!")
+                    Logger().warning("Report data with no vuln hook detect, skip upload!")
                     continue
                 cloud_format_data = {
                     "rasp_id": "IAST",

@@ -146,7 +146,7 @@ class ConfigModel(base_model.BaseModel):
         删除一条配置
 
         Parameters:
-            host_port - str, 删除的目标主机, 为 "all" 则删除所有配置 
+            host_port - str, 删除的目标主机, 为 "all" 则删除所有配置
 
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常

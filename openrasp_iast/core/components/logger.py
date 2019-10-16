@@ -58,7 +58,7 @@ class Logger(object):
         file_handler = cloghandler.ConcurrentRotatingFileHandler(
             self.log_path + "/error.log",
             mode='a',
-            maxBytes=Config().get_config("log.rotate_size")*1024*1024,
+            maxBytes=Config().get_config("log.rotate_size") * 1024 * 1024,
             backupCount=Config().get_config("log.rotate_num"),
             debug=False
         )
@@ -83,16 +83,21 @@ class Logger(object):
         为logger配置Handler
         """
         if concurrent is True:
-            Handler = cloghandler.ConcurrentRotatingFileHandler
+            handler = cloghandler.ConcurrentRotatingFileHandler(
+                self.log_path + "/" + suffix,
+                mode='a',
+                maxBytes=Config().get_config("log.rotate_size") * 1024 * 1024,
+                backupCount=Config().get_config("log.rotate_num"),
+                debug=False
+            )
         else:
-            Handler = logging.handlers.RotatingFileHandler
+            handler = logging.handlers.RotatingFileHandler(
+                self.log_path + "/" + suffix,
+                mode='a',
+                maxBytes=Config().get_config("log.rotate_size") * 1024 * 1024,
+                backupCount=Config().get_config("log.rotate_num"),
+            )
 
-        handler = Handler(
-            self.log_path + "/" + suffix,
-            mode='a',
-            maxBytes=Config().get_config("log.rotate_size")*1024*1024,
-            backupCount=Config().get_config("log.rotate_num")
-        )
         date_fmt = '%Y-%m-%d %H:%M:%S'
         fmt = logging.Formatter(fmt=log_fmt, datefmt=date_fmt)
         handler.setFormatter(fmt)

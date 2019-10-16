@@ -55,8 +55,6 @@ class ScannerScheduler(object):
         self.fr_last = 0
         self.sr_last = 0
 
-        self.running = True
-
     def do_schedule(self):
         """
         出现失败的扫描请求或cpu使用率过高会降低扫描速度
@@ -64,43 +62,11 @@ class ScannerScheduler(object):
         if self._get_runtime_value("pid") == 0:
             return
 
-        if self.running:
-            if self._is_pause():
-                self._halt()
-            else:
-                cpu_overused, cpu_idle = self._is_cpu_overused()
-                if self._is_fail_increasing() or cpu_overused:
-                    self._schedule_cr(decrease=True)
-                elif self._is_full_concurrency() and cpu_idle:
-                    self._schedule_cr(decrease=False)
-        elif not self._is_pause():
-            self._rerun()
-
-    def _is_pause(self):
-        """
-        判定是否暂停Scanner
-
-        Returns:
-            boolean
-        """
-        if Communicator().get_value("pause", self.module_name) == 0:
-            return False
-        else:
-            return True
-
-    def _halt(self):
-        """
-        暂停运行当前Scanner
-        """
-        self.cr_bak = Communicator().get_value(
-            "max_concurrent_request", self.module_name)
-        Communicator().set_value("max_concurrent_request", 0, self.module_name)
-
-    def _rerun(self):
-        """
-        恢复运行当前Scanner
-        """
-        Communicator().set_value("max_concurrent_request", self.cr_bak, self.module_name)
+        cpu_overused, cpu_idle = self._is_cpu_overused()
+        if self._is_fail_increasing() or cpu_overused:
+            self._schedule_cr(decrease=True)
+        elif self._is_full_concurrency() and cpu_idle:
+            self._schedule_cr(decrease=False)
 
     def get_boundary_value(self):
         """

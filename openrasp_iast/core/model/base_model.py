@@ -27,6 +27,7 @@ import threading
 from core.components import exceptions
 from core.components.logger import Logger
 from core.components.config import Config
+from core.components.communicator import Communicator
 
 
 class BaseModel(object):
@@ -89,6 +90,8 @@ class BaseModel(object):
             )
 
             cursor.execute(sql)
+            cursor.close()
+            conn.commit()
             conn.close()
             cls.db_created = True
 
@@ -136,13 +139,17 @@ class BaseModel(object):
             # table_prefix 为None则不建立数据表实例，仅用于调用基类方法
             if table_prefix is not None:
                 self._model = self._create_model(database, table_prefix)
-                if create_table:
-                    try:
-                        database.create_tables([self._model])
-                    except peewee.InternalError:
-                        pass
-                elif not self._model.table_exists():
-                    raise exceptions.TableNotExist
+                if not self._model.table_exists():
+                    if create_table:
+                        try:
+                            database.create_tables([self._model])
+                            Logger().debug("Create table {}_{}".format(table_prefix, self.__class__.__name__))
+                            if self.__class__.__name__ == "NewRequestModel":
+                                Communicator().update_target_list_status()
+                        except peewee.InternalError:
+                            pass
+                    else:
+                        raise exceptions.TableNotExist
 
             self.database = database
         except exceptions.TableNotExist as e:
@@ -207,3 +214,125 @@ class BaseModel(object):
             Logger().error("Error in method get_tables!", exc_info=e)
             raise exceptions.DatabaseError
         return result
+
+    @staticmethod
+    def _creat_conn():
+        """
+        创建mysql连接
+        """
+        if not hasattr(BaseModel, "pymysql_conn") or \
+           time.time() > BaseModel.pymysql_conn_timeout or \
+           not BaseModel.pymysql_conn.open:
+            if hasattr(BaseModel, "pymysql_conn"):
+                BaseModel.pymysql_conn.close()
+            BaseModel.pymysql_conn = pymysql.connect(
+                port=Config().config_dict["database.port"],
+                host=Config().config_dict["database.host"],
+                user=Config().config_dict["database.username"],
+                passwd=Config().config_dict["database.password"],
+                database=Config().config_dict["database.db_name"]
+            )
+            BaseModel.pymysql_conn_timeout = time.time() + 60
+
+    @staticmethod
+    def get_scan_count(target_list):
+        """
+        获取扫描进度信息
+
+        Parameters:
+            target_list - list, item为要获取的主机的host_port
+
+        Returns:
+            dict, item形式如下
+            {
+                "targethost.com_8080":{
+                    "total": 10,
+                    "scanned": 3,
+                    "failed": 5,
+                    "last_time": 1571217144
+                },
+                ...
+            }
+
+        Raises:
+            exceptions.DatabaseError - 数据库出错时引发此异常
+        """
+        try:
+            BaseModel._creat_conn()
+            conn = BaseModel.pymysql_conn
+            if len(target_list) == 0:
+                return {}
+
+            result = {}
+            sql = ""
+            for target in target_list:
+                result[target] = {
+                    "total": 0,
+                    "scanned": 0,
+                    "failed": 0
+                }
+                sql += "union all ( SELECT '{target}', scan_status, count(*) FROM `{target}_ResultList` group by scan_status) ".format(target=target)
+            sql = sql[10:]
+            cursor = conn.cursor()
+            cursor._defer_warnings = True
+            cursor.execute(sql)
+            re = cursor.fetchall()
+            conn.commit()
+
+            for item in re:
+                result[item[0]]["total"] += item[2]
+                if item[1] == 1:
+                    result[item[0]]["scanned"] = item[2]
+                elif item[1] == 3:
+                    result[item[0]]["failed"] = item[2]
+
+            return result
+        except Exception as e:
+            raise exceptions.DatabaseError
+
+    @staticmethod
+    def get_last_time(target_list):
+        """
+        获取扫描目标最近一条记录的时间戳, 无记录时返回0
+
+        Parameters:
+            target_list - list, item为要获取的主机的host_port
+
+        Returns:
+            dict, item形式如下
+            {
+                "targethost.com_8080":{
+                    "last_time": 1571217144
+                },
+                ...
+            }
+
+        Raises:
+            exceptions.DatabaseError - 数据库出错时引发此异常
+        """
+        try:
+            BaseModel._creat_conn()
+            conn = BaseModel.pymysql_conn
+            if len(target_list) == 0:
+                return {}
+
+            sql = ""
+            result = {}
+            for target in target_list:
+                result[target] = {
+                    "last_time": 0
+                }
+                sql += "union all ( SELECT '{target}', time FROM `{target}_ResultList` order by id limit 1) ".format(target=target)
+            sql = sql[10:]
+            cursor = conn.cursor()
+            cursor._defer_warnings = True
+            cursor.execute(sql)
+            re = cursor.fetchall()
+            conn.commit()
+
+            for item in re:
+                result[item[0]]["last_time"] = item[1]
+
+            return result
+        except Exception as e:
+            raise exceptions.DatabaseError

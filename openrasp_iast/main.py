@@ -62,6 +62,8 @@ def init_check():
         cursor._defer_warnings = True
         cursor.execute(sql)
         result = cursor.fetchall()
+        conn.commit()
+        cursor.close()
         if len(result) > 0 and int(result[0][0]) == 1:
             print("[!] MySQL System Variable lower-case-table-names should be set to 0 or 2! ")
             sys.exit(1)

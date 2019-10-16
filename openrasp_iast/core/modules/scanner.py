@@ -66,6 +66,8 @@ class Scanner(base.BaseModule):
         # 更新运行时配置
         self._update_scan_config()
 
+        Logger().info("Start scanning target host:{}:{}".format(self.target_host, self.target_port))
+
     def _init_scan_config(self):
         """
         获取缓存的扫描配置
@@ -219,7 +221,7 @@ class Scanner(base.BaseModule):
 
     async def _fetch_new_scan(self):
         """
-        获取非扫描请求（新扫描任务），并分发给插件，=
+        获取非扫描请求（新扫描任务），并分发给插件
         """
         # 扫描插件任务队列最大值
         scan_queue_max = 300
@@ -233,19 +235,16 @@ class Scanner(base.BaseModule):
         self.mark_id = 0
 
         while True:
-            if Communicator().get_value("cancel") == 0:
-                try:
-                    await self._fetch_task_from_db()
-                except exceptions.DatabaseError as e:
-                    Logger().error("Database error occured when fetch scan task.", exc_info=e)
-                except asyncio.CancelledError as e:
-                    raise e
-                except Exception as e:
-                    Logger().error("Unexpected error occured when fetch scan task.", exc_info=e)
-                if self.scan_queue_remaining == 0:
-                    continue
-            elif self.scan_queue_remaining == 0:
-                break
+            try:
+                await self._fetch_task_from_db()
+            except exceptions.DatabaseError as e:
+                Logger().error("Database error occured when fetch scan task.", exc_info=e)
+            except asyncio.CancelledError as e:
+                raise e
+            except Exception as e:
+                Logger().error("Unexpected error occured when fetch scan task.", exc_info=e)
+            if self.scan_queue_remaining == 0:
+                continue
 
             await self._check_scan_progress()
 
@@ -267,8 +266,6 @@ class Scanner(base.BaseModule):
         continuously_sleep = 0
 
         while True:
-            if Communicator().get_value("cancel") != 0:
-                break
             data_list = await self.new_scan_model.get_new_scan(self.fetch_count)
             data_count = len(data_list)
             Logger().debug("Fetch {} task from db.".format(data_count))
