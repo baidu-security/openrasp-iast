@@ -63,7 +63,7 @@ class ScannerManager(object):
 
         Parameters:
             module_params - dict, 结构为{
-                "host":str, 目标主机, 
+                "host":str, 目标主机,
                 "port":int, 目标端口
                 "config": dict, 配置信息
             }
@@ -155,7 +155,6 @@ class ScannerManager(object):
         if self._scanner_info.get_scanner_id(host_port) is not None:
             raise exceptions.TargetIsScanning
         if url_only:
-            print(host_port)
             NewRequestModel(host_port, multiplexing_conn=True).truncate_table()
         else:
             NewRequestModel(host_port, multiplexing_conn=True).drop_table()

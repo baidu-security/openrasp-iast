@@ -19,6 +19,7 @@ limitations under the License.
 
 import re
 import copy
+import json
 import aiohttp
 import binascii
 import urllib.parse
@@ -177,7 +178,7 @@ class RequestData(object):
                         当para_type为files时, para_name应为一个包含两个item的list, 第一个指定要设置的files dict的下标, 第二个指定dict key， 当设置content时，类型必须为bytes
                         例如: files: [ {"name":"file", "filename":"name.txt", "content":"xxx"} ...]  设置第一个item的filename -> [0, "filename"]
 
-            value - str/, 要设置的值
+            value - str, 要设置的值
 
         Raises:
             exceptions.DataParamError - 参数错误引发此异常
@@ -306,7 +307,6 @@ class RequestData(object):
         Returns:
             dict, 字典形式的参数
         """
-        # TODO make multipart data before return
         result = {
             "url": self.http_data["url"],
             "headers": self.http_data["headers"],
@@ -324,6 +324,70 @@ class RequestData(object):
         else:
             result["data"] = self.http_data["data"]
         return result
+
+    def get_aiohttp_raw(self):
+        """
+        获取调用aiphttp发送http请求时发送的raw request
+
+        Returns:
+            str - raw request
+        """
+        class Writer():
+            def __init__(self):
+                self.body = b""
+
+            async def write(self, body_str):
+                """
+                用于MultipartWriter调用
+                """
+                self.body += body_str
+
+            def get_body(self):
+                """
+                获取输出
+                """
+                return self.body
+
+        if self.content_type.startswith("application/json"):
+            body = json.dumps(self.http_data["json"])
+        elif self.content_type.startswith("multipart/form-data"):
+            body = self._make_multipart()
+            w = Writer()
+            body.write(w)
+            body = w.get_body()
+        elif self.http_data["body"] is not None:
+            body = self.http_data["body"]
+            try:
+                body = body.decode("utf-8")
+            except UnicodeDecodeError:
+                body = body.decode("latin-1")
+        else:
+            body = ""
+            for key, value in self.http_data["data"].items():
+                body += "{}={}&".format(key, value)
+            body = body[:-1]
+
+        parse_result = urllib.parse.urlparse(self.http_data["url"])
+        raw_request = []
+        raw_request.append(self.method.upper() + " " + parse_result.path + "?" + parse_result.query + " HTTP/1.1")
+        for key in self.http_data["headers"]:
+            raw_request.append(key + ": " + self.http_data["headers"][key])
+
+        if self.http_data["cookies"] is not None:
+            cookie_obj = http.cookies.SimpleCookie()
+            cookie_obj.load(self.http_data["cookies"])
+            output = cookie_obj.output().split("\r\n")
+            cookie = "Cookie: "
+            for item in output:
+                cookie += item[12:] + ";"
+            raw_request.append(cookie)
+
+        raw_request.append("")
+        raw_request.append(body)
+        raw_request = "\r\n".join(raw_request)
+        
+
+        return raw_request
 
     def get_method(self):
         """
@@ -535,7 +599,7 @@ class RequestData(object):
                 "body": b"xxxx"  # bytes, http body
             }
         """
-        return self.body
+        return self.response
 
     def set_rasp_result(self, rasp_result):
         """
@@ -554,3 +618,4 @@ class RequestData(object):
             RaspResult实例
         """
         return self.rasp_result
+

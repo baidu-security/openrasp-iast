@@ -62,6 +62,7 @@ class Session(object):
         Returns:
             dict, 结构:
             {
+                "raw_request": 完整的raw http请求包
                 "status": http响应码,
                 "headers": http响应头的dict,
                 "body": http响应body, bytes
@@ -72,7 +73,6 @@ class Session(object):
         """
         http_func = getattr(self.session, request_data_ins.get_method())
         request_params_dict = request_data_ins.get_aiohttp_param()
-        Logger().debug("Send scan request data: {}".format(request_params_dict))
         retry_times = Config().get_config("scanner.retry_times")
         while retry_times >= 0:
             try:

@@ -177,7 +177,7 @@ class RuntimeInfo(object):
         获取当前系统资源信息
 
         Returns:
-            { 
+            {
                 "cpu": int类型cpu使用率,
                 "mem": int类型内存rss使用率
             }

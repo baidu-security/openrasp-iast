@@ -587,3 +587,45 @@ class RaspResult(object):
             return self.rasp_result_dict["vuln_hook"]
         except KeyError:
             return None
+
+    def set_request(self, raw_request):
+        """
+        设置请求的raw_request
+
+        Parameters:
+            raw_request - str, 请求字符串
+        """
+        self.rasp_result_dict["raw_request"] = raw_request
+
+    def get_request(self):
+        """
+        获取请求的raw_request
+
+        Returns:
+            str
+        """
+        try:
+            return self.rasp_result_dict["raw_request"]
+        except AttributeError:
+            return ""
+
+    def set_response(self, raw_response):
+        """
+        设置请求的raw_request
+
+        Parameters:
+            raw_response - str, 请求字符串
+        """
+        self.rasp_result_dict["raw_response"] = raw_response
+
+    def get_response(self):
+        """
+        获取请求的raw_response
+
+        Returns:
+            str
+        """
+        try:
+            return self.rasp_result_dict["raw_response"]
+        except AttributeError:
+            return ""

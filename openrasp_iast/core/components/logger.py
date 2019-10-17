@@ -168,7 +168,7 @@ class Logger(object):
         handler = logging.handlers.RotatingFileHandler(
             log_path + "/plugin_" + plugin_name + ".log",
             mode='a',
-            maxBytes=Config().get_config("log.rotate_size")*1024*1024,
+            maxBytes=Config().get_config("log.rotate_size") * 1024 * 1024,
             backupCount=Config().get_config("log.rotate_num")
         )
         module_name = Communicator().get_module_name()

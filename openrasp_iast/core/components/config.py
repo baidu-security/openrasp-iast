@@ -181,7 +181,7 @@ class Config(object):
                     key = diff_item[0]
                     keys.append(key)
                     print("[!] Missing config item: {}, use default.".format(key))
-            elif item[0] == "change" and type(item[2][0]) is not type(item[2][1]):
+            elif item[0] == "change" and not isinstance(item[2][0], type(item[2][1])):
                 # 配置只有一层，只取[0]即可
                 key = item[1][0]
                 keys.append(key)
@@ -257,8 +257,7 @@ class Config(object):
         if self._config_path is None or not os.path.isfile(self._config_path):
             # cmd = "'" + sys.argv[0] + " config'"
             # print("[!] OpenRASP-IAST init error, no config file found, use {} to generate a config file!".format(cmd))
-            print (
-                '[!] No config file found, please refer to https://rasp.baidu.com/doc/install/iast.html#config for initial setup')
+            print('[!] No config file found, please refer to https://rasp.baidu.com/doc/install/iast.html#config for initial setup')
             sys.exit(1)
 
         self._config_path = os.path.realpath(

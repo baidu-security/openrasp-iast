@@ -88,6 +88,10 @@ class CloudApi(object):
                     stack_trace = "\n".join(stack)
                     server_type = server_info.get(
                         "name", server_info.get("server", "None"))
+
+                    req_and_resp = "HTTP Request:\n{}\n\n\nHTTP Response:\n{}".format(
+                        rasp_result_ins.get_request(),
+                        rasp_result_ins.get_response())
                 else:
                     Logger().warning("Report data with no vuln hook detect, skip upload!")
                     continue
@@ -117,7 +121,8 @@ class CloudApi(object):
                     "plugin_algorithm": description,
                     "header": rasp_result_ins.get_headers(),
                     "stack_trace": stack_trace,
-                    "body": base64.b64encode(rasp_result_ins.get_body()).decode("ascii"),
+                    # "body": base64.b64encode(rasp_result_ins.get_body()).decode("ascii"),
+                    "body": req_and_resp
                 }
                 send_data.append(cloud_format_data)
             r = requests.post(url=self.server_url,

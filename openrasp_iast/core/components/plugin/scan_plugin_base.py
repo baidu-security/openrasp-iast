@@ -339,8 +339,26 @@ class ScanPluginBase(object):
                 for req_data in request_data_list:
                     ret = await self.send_request(req_data)
                     req_data.set_response(ret["response"])
-                    self.logger.debug("Send scan request: {}".format(
-                        req_data.get_aiohttp_param()))
+                    raw_request = req_data.get_aiohttp_raw()
+                    self.logger.debug("Send scan request: \n{}".format(raw_request))
+
+                    raw_response = []
+                    raw_response.append("Status:" + str(ret["response"]["status"]))
+                    for key, value in ret["response"]["headers"].items():
+                        raw_response.append(key + ": " + value)
+
+                    raw_response.append("")
+
+                    try:
+                        body = ret["response"]["body"].decode("utf-8")
+                    except UnicodeDecodeError:
+                        body = ret["response"]["body"].decode("latin-1")
+
+                    raw_response.append(body)
+                    raw_response = "\r\n".join(raw_response)
+
+                    ret["rasp_result"].set_request(raw_request)
+                    ret["rasp_result"].set_response(raw_response)
                     req_data.set_rasp_result(ret["rasp_result"])
             except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed):
                 break
