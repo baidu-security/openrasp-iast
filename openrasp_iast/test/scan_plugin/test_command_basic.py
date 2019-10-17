@@ -37,49 +37,49 @@ def get_normal_response():
     rasp_result_json = """
     {
         "web_server": {
-            "host": "127.0.0.1", 
+            "host": "127.0.0.1",
             "port": 8005
-        }, 
+        },
         "context": {
-            "requestId": "php2", 
-            "json": { }, 
+            "requestId": "php2",
+            "json": { },
             "server": {
-                "language": "php", 
-                "name": "PHP", 
-                "version": "7.2.19", 
+                "language": "php",
+                "name": "PHP",
+                "version": "7.2.19",
                 "os": "Linux"
-            }, 
-            "body": "", 
-            "appBasePath": "/var/www/html", 
-            "remoteAddr": "172.17.0.1", 
-            "protocol": "http", 
-            "method": "get", 
-            "querystring": "test_param=test command", 
-            "path": "/test-file.php", 
+            },
+            "body": "",
+            "appBasePath": "/var/www/html",
+            "remoteAddr": "172.17.0.1",
+            "protocol": "http",
+            "method": "get",
+            "querystring": "test_param=test command",
+            "path": "/test-file.php",
             "parameter": {
                 "test_param": [
                     "test command"
                 ]
-            }, 
+            },
             "header": {
-                "host": "localburp.com:8005", 
-                "connection": "keep-alive", 
-                "upgrade-insecure-requests": "1", 
-                "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36", 
-                "dnt": "1", 
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
-                "accept-encoding": "gzip, deflate", 
+                "host": "localburp.com:8005",
+                "connection": "keep-alive",
+                "upgrade-insecure-requests": "1",
+                "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
+                "dnt": "1",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                "accept-encoding": "gzip, deflate",
                 "accept-language": "zh-CN,zh;q=0.9"
-            }, 
-            "url": "http://localburp.com:8005/test-file.php?test_param=test command", 
+            },
+            "url": "http://localburp.com:8005/test-file.php?test_param=test command",
             "nic": [
                 {
-                    "name": "eth0", 
+                    "name": "eth0",
                     "ip": "172.17.0.2"
                 }
-            ], 
+            ],
             "hostname": "server_host_name"
-        }, 
+        },
         "hook_info": [ ]
     }
     """
@@ -102,82 +102,62 @@ def get_vuln_response():
     rasp_result_json = """
     {
         "web_server": {
-            "host": "127.0.0.1", 
+            "host": "127.0.0.1",
             "port": 8005
-        }, 
+        },
         "context": {
-            "requestId": "vuln", 
-            "json": { }, 
+            "requestId": "vuln",
+            "json": { },
             "server": {
-                "language": "php", 
-                "name": "PHP", 
-                "version": "7.2.19", 
+                "language": "php",
+                "name": "PHP",
+                "version": "7.2.19",
                 "os": "Linux"
-            }, 
-            "body": "", 
-            "appBasePath": "/var/www/html", 
-            "remoteAddr": "172.17.0.1", 
-            "protocol": "http", 
-            "method": "get", 
-            "querystring": "test_param='openraspcmd'", 
-            "path": "/test-file.php", 
+            },
+            "body": "",
+            "appBasePath": "/var/www/html",
+            "remoteAddr": "172.17.0.1",
+            "protocol": "http",
+            "method": "get",
+            "querystring": "test_param='\\"openrasp' cmd",
+            "path": "/test-file.php",
             "parameter": {
                 "test_param": [
-                    "1'openrasp"
+                    "'\\"openrasp' cmd"
                 ]
-            }, 
+            },
             "header": {
-                "host": "localburp.com:8005", 
-                "connection": "keep-alive", 
-                "upgrade-insecure-requests": "1", 
-                "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36", 
-                "dnt": "1", 
-                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
-                "accept-encoding": "gzip, deflate", 
+                "host": "localburp.com:8005",
+                "connection": "keep-alive",
+                "upgrade-insecure-requests": "1",
+                "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
+                "dnt": "1",
+                "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+                "accept-encoding": "gzip, deflate",
                 "accept-language": "zh-CN,zh;q=0.9"
-            }, 
-            "url": "http://localburp.com:8005/test-file.php?test_param='openraspcmd'", 
+            },
+            "url": "http://localburp.com:8005/test-file.php?test_param='\\"openrasp' cmd",
             "nic": [
                 {
-                    "name": "eth0", 
+                    "name": "eth0",
                     "ip": "172.17.0.2"
                 }
-            ], 
+            ],
             "hostname": "server_host_name"
-        }, 
+        },
         "hook_info": [
             {
-                "command": "/bin/sh -c ''openraspcmd''", 
+                "command": "/bin/sh -c ''\\"openrasp' cmd'",
                 "stack": [
                     "/var/www/html/004-command-2.php@system"
-                ], 
+                ],
                 "tokens": [
-                    {
-                        "start": 0, 
-                        "stop": 7, 
-                        "text": "/bin/sh"
-                    }, 
-                    {
-                        "start": 8, 
-                        "stop": 10, 
-                        "text": "-c"
-                    }, 
-                    {
-                        "start": 11, 
-                        "stop": 13, 
-                        "text": "''"
-                    }, 
-                    {
-                        "start": 13, 
-                        "stop": 24, 
-                        "text": "openraspcmd"
-                    }, 
-                    {
-                        "start": 24, 
-                        "stop": 26, 
-                        "text": "''"
-                    }
-                ], 
+                    { "start": 0, "stop": 7, "text": "/bin/sh" },
+                    { "start": 8, "stop": 10, "text": "-c" },
+                    { "start": 11, "stop": 13, "text": "''" },
+                    { "start": 13, "stop": 14, "text": "\\"" },
+                    { "start": 14, "stop": 28, "text": "openrasp' cmd'" }
+                ],
                 "hook_type": "command"
             }
         ]
@@ -195,7 +175,7 @@ def get_vuln_response():
 async def send_request(self, request_data):
     test_param = request_data.get_param("get", "test_param")
 
-    if test_param is not None and test_param.find("'openraspcmd'") >= 0:
+    if test_param is not None and test_param.find("'\"openrasp' cmd") >= 0:
         return get_vuln_response()
     else:
         return get_normal_response()
@@ -233,25 +213,25 @@ def test_normal(scan_plugin_fixture):
     rasp_result_json = """
     {
     "web_server": {
-        "host": "127.0.0.1", 
+        "host": "127.0.0.1",
         "port": 8005
-    }, 
+    },
     "context": {
         "requestId": "php2",
-        "json": { }, 
+        "json": { },
         "server": {
-            "language": "php", 
-            "name": "PHP", 
-            "version": "7.2.19", 
+            "language": "php",
+            "name": "PHP",
+            "version": "7.2.19",
             "os": "Linux"
-        }, 
-        "body": "", 
-        "appBasePath": "/var/www/html", 
-        "remoteAddr": "172.17.0.1", 
-        "protocol": "http", 
-        "method": "get", 
-        "querystring": "test_param=test command", 
-        "path": "/test-file.php", 
+        },
+        "body": "",
+        "appBasePath": "/var/www/html",
+        "remoteAddr": "172.17.0.1",
+        "protocol": "http",
+        "method": "get",
+        "querystring": "test_param=test command",
+        "path": "/test-file.php",
         "parameter": {
             "test_param": [
                 "test command"
@@ -259,49 +239,49 @@ def test_normal(scan_plugin_fixture):
             "normal_param": [
                 "test command"
             ]
-        }, 
+        },
         "header": {
-            "host": "localburp.com:8005", 
-            "connection": "keep-alive", 
-            "upgrade-insecure-requests": "1", 
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36", 
-            "dnt": "1", 
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3", 
-            "accept-encoding": "gzip, deflate", 
+            "host": "localburp.com:8005",
+            "connection": "keep-alive",
+            "upgrade-insecure-requests": "1",
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
+            "dnt": "1",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+            "accept-encoding": "gzip, deflate",
             "accept-language": "zh-CN,zh;q=0.9"
-        }, 
+        },
         "url": "http://localburp.com:8005/test-file.php?test_param=test command",
         "nic": [
             {
-                "name": "eth0", 
+                "name": "eth0",
                 "ip": "172.17.0.2"
             }
-        ], 
+        ],
         "hostname": "server_host_name"
-    }, 
+    },
     "hook_info": [
             {
-                "command": "/bin/sh -c 'test command'", 
+                "command": "/bin/sh -c 'test command'",
                 "stack": [
                     "/var/www/html/004-command-2.php@system"
-                ], 
+                ],
                 "tokens": [
                     {
-                        "start": 0, 
-                        "stop": 7, 
+                        "start": 0,
+                        "stop": 7,
                         "text": "/bin/sh"
-                    }, 
+                    },
                     {
-                        "start": 8, 
-                        "stop": 10, 
+                        "start": 8,
+                        "stop": 10,
                         "text": "-c"
-                    }, 
+                    },
                     {
-                        "start": 11, 
-                        "stop": 25, 
+                        "start": 11,
+                        "stop": 25,
                         "text": "'test command'"
                     }
-                ], 
+                ],
                 "hook_type": "command"
             }
         ]
@@ -311,4 +291,4 @@ def test_normal(scan_plugin_fixture):
 
     plugin_ins.has_report = False
     asyncio.run(plugin_ins._scan(0, rasp_result_ins))
-    assert plugin_ins.has_report == True
+    assert plugin_ins.has_report is True

@@ -22,6 +22,7 @@ import time
 import pytest
 
 import helper
+
 from core.components.config import Config
 from core.components.communicator import Communicator
 
@@ -42,7 +43,13 @@ http_data = {
         "auth_plugin": "default",
         "scan_plugin_list": []
     },
-    "cancel_scanner_0": {
+    "start_scanner_2": {
+        "host": "127.0.0.1",
+        "port": 8007,
+        "auth_plugin": "default",
+        "scan_plugin_list": []
+    },
+    "kill_scanner_0": {
         "scanner_id": 0
     },
     "kill_scanner_1": {
@@ -85,7 +92,7 @@ def test_send_invalid_data(monitor_fixture):
         status_code = http_sender.send_data(
             json_data, "/api/model/get_report").status_code
     except Exception as e:
-        assert False == e
+        assert False
     else:
         assert status_code == 415
 
@@ -120,6 +127,7 @@ def test_start_scanner(monitor_fixture):
     status = json.loads(r.text)["status"]
     assert status == 0
 
+    data = http_data["start_scanner_2"]
     # scanner数量达到上限
     r = http_sender.send_json(data, path)
     assert r.status_code == 200
@@ -137,21 +145,13 @@ def test_start_scanner(monitor_fixture):
 
     # 验证启动结果
     data = {}
-    path = "/api/scanner/status"
+    path = "/api/model/get_all"
     r = http_sender.send_json(data, path)
     assert r.status_code == 200
     status = json.loads(r.text)["status"]
     assert status == 0
-    try:
-        data = json.loads(r.text)
-        data["data"]["0"]
-        data["data"]["1"]
-    except KeyError:
-        assert False
-    try:
-        data["data"]["2"]
-    except KeyError:
-        assert True
+    data = json.loads(r.text)
+    assert data["data"]["total"] == 2
 
 
 def test_scheduler(monitor_fixture):
@@ -196,15 +196,15 @@ def test_scheduler(monitor_fixture):
     assert max_cr > 1
 
 
-def test_cancel_scanner(monitor_fixture):
+def test_kill_scanner_0(monitor_fixture):
     data = http_data["invalid"]
-    path = "/api/scanner/cancel"
+    path = "/api/scanner/kill"
     r = http_sender.send_json(data, path)
     assert r.status_code == 200
     status = json.loads(r.text)["status"]
     assert status == 1
 
-    data = http_data["cancel_scanner_0"]
+    data = http_data["kill_scanner_0"]
     r = http_sender.send_json(data, path)
     assert r.status_code == 200
     status = json.loads(r.text)["status"]
@@ -212,22 +212,22 @@ def test_cancel_scanner(monitor_fixture):
     canceled = False
     for i in range(20):
         data = {}
-        path = "/api/scanner/status"
+        path = "/api/model/get_all"
         r = http_sender.send_json(data, path)
         assert r.status_code == 200
-        try:
-            data = json.loads(r.text)
-            data["data"]["0"]
-        except KeyError:
-            canceled = True
-            break
+        data = json.loads(r.text)
+        for item in data["data"]["result"]:
+            if item["host"] == "127.0.0.1" and item["port"] == 8005:
+                if id not in item:
+                    canceled = True
+                    break
         else:
             time.sleep(2)
     assert canceled
 
     # 测试cancel 不存在的scanner
-    data = http_data["cancel_scanner_0"]
-    path = "/api/scanner/cancel"
+    data = http_data["kill_scanner_0"]
+    path = "/api/scanner/kill"
     r = http_sender.send_json(data, path)
     assert r.status_code == 200
     status = json.loads(r.text)["status"]
@@ -297,18 +297,16 @@ def test_kill_scanner(monitor_fixture):
     assert r.status_code == 200
 
     data = {}
-    path = "/api/scanner/status"
+    path = "/api/model/get_all"
     r = http_sender.send_json(data, path)
     assert r.status_code == 200
     status = json.loads(r.text)["status"]
     assert status == 0
-    try:
-        data = json.loads(r.text)
-        data["data"]["1"]
-    except KeyError:
-        pass
-    else:
-        assert False
+
+    data = json.loads(r.text)
+    for item in data["data"]["result"]:
+        if item["host"] == "127.0.0.1" and item["port"] == 8006:
+            assert id not in item
 
     data = http_data["kill_scanner_1"]
     path = "/api/scanner/kill"
