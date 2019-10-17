@@ -1,2 +1,4 @@
 volumes/openrasp-iast/logs
 volumes/apache-php7.2/rasp
+volumes/testfiles/test
+volumes/testfiles/result

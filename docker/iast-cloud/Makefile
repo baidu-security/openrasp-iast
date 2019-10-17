@@ -1,9 +1,5 @@
-name="openrasp/iast-test-env"
 
-default: build run
+default: run
 
-build:
-	docker build -t $(name) .
-
-run: build
-	docker run --rm -it $(name) /bin/bash
+run: 
+	docker-compose up -d

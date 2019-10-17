@@ -3,13 +3,14 @@ FROM python:3.7.4-slim-stretch
 LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
 RUN apt-get update && \
-    apt-get install -y wget curl gcc netcat
+    apt-get install -y wget curl gcc netcat procps
 
 COPY requirements.txt /root/
 RUN cd /root/ && pip3 install -r requirements.txt
 RUN ln -s /usr/local/bin/pytest /usr/local/bin/pytest3
 
-COPY start.sh /root/start.sh
+COPY test-iast.sh /root/
+COPY start.sh /root
 
 ENTRYPOINT ["/bin/bash", "/root/start.sh"]
 EXPOSE 80

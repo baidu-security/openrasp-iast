@@ -2,6 +2,8 @@ FROM php:7.2-apache
 
 LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
+ARG RASP_VERSION
+
 RUN apt-get update && \
     apt-get install -y wget
 
@@ -14,7 +16,7 @@ COPY config/ports.conf /etc/apache2/ports.conf
 
 # 安装OpenRASP 1.2
 RUN cd /root && \
-	wget https://packages.baidu.com/app/openrasp/release/1.2.0/rasp-php-linux.tar.bz2 && \
+	wget https://packages.baidu.com/app/openrasp/release/${RASP_VERSION}/rasp-php-linux.tar.bz2 && \
 	tar -jxf rasp-php-linux.tar.bz2 && \
     rm -rf rasp-php-linux.tar.bz2 && \
     mv rasp-php-* rasp-php && \
@@ -29,4 +31,3 @@ RUN sed -i "s/openrasp.heartbeat_interval=180/openrasp.heartbeat_interval=10/" /
 COPY start.sh /root/
 
 ENTRYPOINT ["/bin/bash", "/root/start.sh"]
-EXPOSE 80

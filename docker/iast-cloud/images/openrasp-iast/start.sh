@@ -15,9 +15,11 @@ do
 done
 
 echo '[-] starting OpenRASP-IAST ...'
-
-python3 /root/openrasp-iast-code/main.py start
-
+if [ -f /testfiles/test ]; then
+    python3 /root/openrasp-iast-code/main.py start -c /root/openrasp-iast/test-config.yaml
+else
+    python3 /root/openrasp-iast-code/main.py start
+fi
 echo '[-] OpenRASP-IAST started'
 
 /bin/bash

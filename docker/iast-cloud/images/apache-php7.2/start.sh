@@ -2,10 +2,10 @@
 
 cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
 
-echo '[-] Waiting rasp-cloud'
+echo '[-] Waiting openrasp-iast start...'
 while true
 do
-    curl rasp-cloud:8086 &>/dev/null && break
+    curl openrasp-iast:25931 &>/dev/null && break
     sleep 1
 done
 

@@ -3,8 +3,12 @@ services:
     apache-php7.2:
         build:
             context: ./images/apache-php7.2
+            args: 
+                - RASP_VERSION
         image: openrasp/iast-cloud/apache-php:7.2
         hostname: apache-php7.2
+        depends_on:
+            - rasp-cloud
         ports:
             - "18662:18662"
         volumes:
@@ -22,6 +26,8 @@ services:
     rasp-cloud:
         build:
             context: ./images/rasp-cloud
+            args: 
+                - RASP_VERSION
         image: openrasp/iast-cloud/rasp-cloud
         hostname: rasp-cloud
         ports: 
@@ -56,8 +62,29 @@ services:
         hostname: openrasp-iast
         ports: 
             - "18661:18664"
+        depends_on:
+            - mysql5.6
+            - rasp-cloud
+            - owasp-benchmark
+            - apache-php7.2
         volumes:
             - "../../openrasp_iast:/root/openrasp-iast-code"
             - "./volumes/openrasp-iast/config/:/root/openrasp-iast/"
             - "./volumes/openrasp-iast/logs/:/root/openrasp-iast-logs/"
+            - "./volumes/testfiles/:/testfiles"
+        tty: true
+
+    owasp-benchmark:
+        build:
+            context: ./images/owasp-benchmark
+            args: 
+                - RASP_VERSION
+        image: openrasp/iast-cloud/owasp-benchmark
+        hostname: owasp-benchmark
+        ports: 
+            - "8443:8443"
+        depends_on:
+            - rasp-cloud
+        volumes: 
+            - "./volumes/testfiles/:/testfiles"
         tty: true
