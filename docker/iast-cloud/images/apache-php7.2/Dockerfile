@@ -5,14 +5,16 @@ LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 ARG RASP_VERSION
 
 RUN apt-get update && \
-    apt-get install -y wget
+    apt-get install -y wget unzip libpng-dev mysql-server 
 
 RUN docker-php-source extract \
-    && docker-php-ext-install mysqli \
+    && docker-php-ext-install mysqli gd pdo_mysql \
     && docker-php-source delete
 
 COPY config/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY config/ports.conf /etc/apache2/ports.conf
+
+COPY config/php.ini /usr/local/etc/php/php.ini
 
 # 安装OpenRASP 1.2
 RUN cd /root && \
@@ -27,6 +29,8 @@ RUN cd /root && \
         --backend-url http://rasp-cloud:8086
 
 RUN sed -i "s/openrasp.heartbeat_interval=180/openrasp.heartbeat_interval=10/" /usr/local/etc/php/conf.d/z_openrasp.ini
+
+COPY dvwa/db.sql /root/db.sql
 
 COPY start.sh /root/
 

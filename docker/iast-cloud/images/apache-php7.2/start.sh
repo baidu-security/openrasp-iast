@@ -1,6 +1,18 @@
 #!/bin/bash
 
-cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
+/etc/init.d/mysql start
+
+echo '[-] Waiting mysql start...'
+while true
+do
+    curl localhost:3306 &>/dev/null && break
+    sleep 1
+done
+
+if [ -f /root/db.sql ]; then
+    mysql -uroot < /root/db.sql
+    rm -rf /root/db.sql
+fi
 
 echo '[-] Waiting openrasp-iast start...'
 while true
