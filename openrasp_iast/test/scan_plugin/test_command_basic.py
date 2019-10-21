@@ -205,7 +205,6 @@ def scan_plugin_fixture():
     yield plugin_ins
 
 
-@pytest.mark.test
 def test_normal(scan_plugin_fixture):
 
     plugin_ins = scan_plugin_fixture

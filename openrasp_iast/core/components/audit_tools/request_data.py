@@ -325,7 +325,7 @@ class RequestData(object):
             result["data"] = self.http_data["data"]
         return result
 
-    def get_aiohttp_raw(self):
+    async def get_aiohttp_raw(self):
         """
         获取调用aiphttp发送http请求时发送的raw request
 
@@ -353,8 +353,12 @@ class RequestData(object):
         elif self.content_type.startswith("multipart/form-data"):
             body = self._make_multipart()
             w = Writer()
-            body.write(w)
+            await body.write(w)
             body = w.get_body()
+            try:
+                body = body.decode("utf-8")
+            except UnicodeDecodeError:
+                body = body.decode("latin-1")
         elif self.http_data["body"] is not None:
             body = self.http_data["body"]
             try:
@@ -385,8 +389,6 @@ class RequestData(object):
         raw_request.append("")
         raw_request.append(body)
         raw_request = "\r\n".join(raw_request)
-        
-
         return raw_request
 
     def get_method(self):
@@ -504,25 +506,23 @@ class RequestData(object):
             Boolean
         """
         param_value = param_value.strip()
-        if len(param_value) <= 3:
-            for token in tokens:
-                if len(token["text"]) >= len(param_value) and token["text"].find(param_value) != -1:
-                    return True
-        else:
-            split_value = self._split_str_word(param_value)
+        for token in tokens:
+            if len(token["text"]) >= len(param_value) and token["text"].find(param_value) != -1:
+                return True
 
-            for token in tokens:
-                for item in split_value:
-                    if len(token["text"]) * len(item) < 10000:
-                        if len(token["text"]) <= 3:
-                            if param_value.find(token["text"]) != -1:
-                                return True
-                        else:
-                            cs = common.lcs(token["text"], item)
-                            if len(cs) > 3:
-                                return True
-                    elif len(token["text"]) >= len(item) and token["text"].find(item) != -1:
-                        return True
+        split_value = self._split_str_word(param_value)
+        for token in tokens:
+            for item in split_value:
+                if len(token["text"]) * len(item) < 10000:
+                    if len(token["text"]) <= 3:
+                        if param_value.find(token["text"]) != -1:
+                            return True
+                    else:
+                        cs = common.lcs(token["text"], item)
+                        if len(cs) > 3:
+                            return True
+                elif len(token["text"]) >= len(item) and token["text"].find(item) != -1:
+                    return True
         return False
 
     def _is_url_concat(self, param_value, url):

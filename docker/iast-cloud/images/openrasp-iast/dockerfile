@@ -5,7 +5,7 @@ LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 RUN apt-get update && \
     apt-get install -y wget curl gcc netcat procps
 
-COPY requirements.txt /root/
+COPY requirements.txt /root
 RUN cd /root/ && pip3 install -r requirements.txt
 RUN ln -s /usr/local/bin/pytest /usr/local/bin/pytest3
 

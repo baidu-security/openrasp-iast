@@ -189,6 +189,7 @@ def scan_plugin_fixture():
 
     report_model = ReportModel("www.test-host.com_80")
     Communicator().set_internal_shared("report_model", report_model)
+    Communicator().set_internal_shared("failed_task_set", set())
 
     plugin_ins = ssrf_basic.ScanPlugin()
 
@@ -267,4 +268,4 @@ def test_normal(scan_plugin_fixture):
 
     plugin_ins.has_report = False
     asyncio.run(plugin_ins._scan(0, rasp_result_ins))
-    assert plugin_ins.has_report == True
+    assert plugin_ins.has_report is True

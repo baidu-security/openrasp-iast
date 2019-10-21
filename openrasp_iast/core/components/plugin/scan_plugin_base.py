@@ -339,7 +339,7 @@ class ScanPluginBase(object):
                 for req_data in request_data_list:
                     ret = await self.send_request(req_data)
                     req_data.set_response(ret["response"])
-                    raw_request = req_data.get_aiohttp_raw()
+                    raw_request = await req_data.get_aiohttp_raw()
                     self.logger.debug("Send scan request: \n{}".format(raw_request))
 
                     raw_response = []

@@ -2,3 +2,4 @@ volumes/openrasp-iast/logs
 volumes/apache-php7.2/rasp
 volumes/testfiles/test
 volumes/testfiles/result
+/volumes/apache-php7.2/html/DVWA-1.9/hackable/uploads

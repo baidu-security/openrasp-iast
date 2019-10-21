@@ -32,7 +32,6 @@ from core.components.communicator import Communicator
 #     pass
 
 
-@pytest.mark.slow
 def test_launcher():
     proc = multiprocessing.Process(target=Launcher().launch)
     proc.start()

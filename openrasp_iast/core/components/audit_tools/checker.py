@@ -63,7 +63,6 @@ class Checker(object):
         }
         if hook_type in token_check_item:
             for hook_item in hook_list:
-                print(rasp_result_ins)
                 if self._is_token_injected(hook_item[token_check_item[hook_type]], feature, hook_item["tokens"]):
                     rasp_result_ins.set_vuln_hook(hook_item)
                     return True

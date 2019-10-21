@@ -27,7 +27,7 @@ from testtools import iast_api
 
 
 def run():
-    benchmark_host = _scan()
+    benchmark_host = iast_api.run_task(8443, 100)
     # benchmark_host = "192.168.96.6"
     _get_result(benchmark_host)
 
@@ -123,6 +123,8 @@ def _get_result(benchmark_host):
     with open("./result/benchmark_result.csv", "w") as f:
         f.write("\n".join(result))
 
+    print("Benchmark scan result is generated to {}/result/benchmark_result.csv".format(os.getcwd()))
+
     with open("./result/benchmark_statistics.csv", "w") as f:
         f.write("用例类型,漏洞检出,漏洞样本,检出率,漏洞误报,无漏洞样本,误报率,总计正确检测,总计样本,正确率\n")
         for vul_type in statistics:
@@ -139,41 +141,5 @@ def _get_result(benchmark_host):
                 "{:.2f}%".format(statistics[vul_type]["checkout"] / statistics[vul_type]["total"] * 100)
             ))
 
+    print("Benchmark result statistics is generated to {}/result/benchmark_statistics.csv".format(os.getcwd()))
 
-def _scan():
-    crawled = 0
-    benchmark_host = ""
-    print("Check if Benchmark has been crawled.")
-    while True:
-        time.sleep(5)
-        hosts = iast_api.get_all()
-        for host in hosts:
-            if int(host["port"]) == 8443:
-                crawled = host["total"]
-                break
-
-        print("Benchmark has been crawled {} urls.".format(crawled))
-        if crawled > 100:
-            benchmark_host = host["host"]
-            break
-
-    print("Start scan Benchmark.")
-    iast_api.new_scan(benchmark_host, 8443)
-
-    while True:
-        time.sleep(5)
-        hosts = iast_api.get_all()
-        for host in hosts:
-            if int(host["port"]) == 8443:
-                sid = host["id"]
-                total = host["total"]
-                scanned = host["scanned"] + host["failed"]
-                break
-
-        print("Benchmark scanning {}/{}".format(scanned, total))
-        if total == scanned:
-            break
-
-    print("Benchmark scan complete.")
-    iast_api.kill_scan(sid)
-    return benchmark_host

@@ -19,6 +19,7 @@ limitations under the License.
 
 
 import json
+import time
 import requests
 
 from testtools import config
@@ -68,3 +69,52 @@ def kill_scan(sid):
     }
     path = "/api/scanner/kill"
     _make_request(path, json_data)
+
+
+def run_task(target_port, crawled_url):
+    """
+    扫描指定port的主机, 完成后返回主机host
+
+    Parameters:
+        target_port - 目标port
+        crawled_url - 开始扫描时最小爬取的url数
+
+    Return:
+        str, host
+    """
+    crawled = 0
+    tartget_host = ""
+    print("Check if target has been crawled.")
+    while True:
+        time.sleep(5)
+        hosts = get_all()
+        for host in hosts:
+            if int(host["port"]) == target_port:
+                crawled = host["total"]
+                break
+
+        print("Target has been crawled {} urls.".format(crawled))
+        if crawled > crawled_url:
+            tartget_host = host["host"]
+            break
+
+    print("Start scan task")
+    new_scan(tartget_host, target_port)
+
+    while True:
+        time.sleep(5)
+        hosts = get_all()
+        for host in hosts:
+            if int(host["port"]) == target_port:
+                sid = host["id"]
+                total = host["total"]
+                scanned = host["scanned"] + host["failed"]
+                break
+
+        print("Scanning progress {}/{}".format(scanned, total))
+        if total == scanned:
+            break
+
+    print("Scan task complete.")
+    kill_scan(sid)
+    return tartget_host
