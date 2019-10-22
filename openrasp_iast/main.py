@@ -108,8 +108,8 @@ def check_start():
             if r.status_code == 405:
                 return True
             break
-        except requests.exceptions.Timeout:
-            pass
+        except Exception:
+            time.sleep(2)
     return False
 
 
@@ -123,8 +123,10 @@ def detach_run():
             print("[!] Openrasp IAST start error, fork failed!")
         elif not check_start():
             print("[!] Openrasp IAST start error, check logs/error.log for more info!")
+        else:
+            print("[-] OpenRASP-IAST start success!")
         os._exit(0)
-    print("[-] OpenRASP-IAST is Starting...!")
+    print("[-] OpenRASP-IAST is Starting...")
     os.close(0)
     sys.stdin = open('/dev/null')
     os.close(1)
