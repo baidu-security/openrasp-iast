@@ -106,11 +106,11 @@ class DvwaCrawler(object):
     def crawl(self):
         self._login()
         self._craw_exec()
-        # self._craw_lfi()
-        # self._craw_upfile()
-        # self._craw_sqli()
-        # self._craw_xss_r()
-        # self._craw_xss_s()
+        self._craw_lfi()
+        self._craw_upfile()
+        self._craw_sqli()
+        self._craw_xss_r()
+        self._craw_xss_s()
 
 
 def run():

@@ -511,18 +511,19 @@ class RequestData(object):
                 return True
 
         split_value = self._split_str_word(param_value)
-        for token in tokens:
-            for item in split_value:
-                if len(token["text"]) * len(item) < 10000:
-                    if len(token["text"]) <= 3:
-                        if param_value.find(token["text"]) != -1:
-                            return True
-                    else:
-                        cs = common.lcs(token["text"], item)
-                        if len(cs) > 3:
-                            return True
-                elif len(token["text"]) >= len(item) and token["text"].find(item) != -1:
-                    return True
+        if len(param_value) > 3:
+            for token in tokens:
+                for item in split_value:
+                    if len(token["text"]) * len(item) < 10000:
+                        if len(token["text"]) <= 3:
+                            if param_value.find(token["text"]) != -1:
+                                return True
+                        else:
+                            cs = common.lcs(token["text"], item)
+                            if len(cs) > 3:
+                                return True
+                    elif len(token["text"]) >= len(item) and token["text"].find(item) != -1:
+                        return True
         return False
 
     def _is_url_concat(self, param_value, url):
@@ -547,11 +548,11 @@ class RequestData(object):
         except Exception as e:
             return False
 
-        if len(param_value) <= 3:
-            for key in url_items:
-                if url_items[key].find(param_value) != -1:
-                    return True
-        else:
+        for key in url_items:
+            if url_items[key].find(param_value) != -1:
+                return True
+
+        if len(param_value) > 3:
             for key in url_items:
                 path_part = url_items[key].replace("\\", "/").split("/")
                 split_value = self._split_str_word(param_value)

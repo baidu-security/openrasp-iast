@@ -94,6 +94,25 @@ def init_check():
             sys.exit(1)
 
 
+def check_start():
+    """
+    检测后台启动是否成功
+    """
+    import requests
+    port = Config().get_config("preprocessor.http_port")
+    path = Config().get_config("preprocessor.api_path")
+    url = "http://127.0.0.1:{}{}".format(port, path)
+    for i in range(15):
+        try:
+            r = requests.get(url=url, timeout=2)
+            if r.status_code == 405:
+                return True
+            break
+        except requests.exceptions.Timeout:
+            pass
+    return False
+
+
 def detach_run():
     """
     后台运行
@@ -102,9 +121,10 @@ def detach_run():
     if pid != 0:
         if pid < 0:
             print("[!] Openrasp IAST start error, fork failed!")
-        else:
-            print("[-] OpenRASP-IAST is Started!")
+        elif not check_start():
+            print("[!] Openrasp IAST start error, check logs/error.log for more info!")
         os._exit(0)
+    print("[-] OpenRASP-IAST is Starting...!")
     os.close(0)
     sys.stdin = open('/dev/null')
     os.close(1)
