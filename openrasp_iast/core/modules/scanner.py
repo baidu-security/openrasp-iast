@@ -145,6 +145,8 @@ class Scanner(base.BaseModule):
         self.new_scan_model.reset_unscanned_item()
         report_model = ReportModel(model_prefix, multiplexing_conn=True)
         Communicator().set_internal_shared("report_model", report_model)
+        Communicator().set_internal_shared("failed_task_set", set())
+        
 
     def _exit(self, signame, loop):
         loop.stop()

@@ -16,6 +16,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from testtools import benchmark_scan
 
-benchmark_scan.run()
+from testtools import benchmark_scan
+from testtools import dvwa_scan
+
+# benchmark_scan.run()
+dvwa_scan.run()
