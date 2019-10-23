@@ -13,7 +13,6 @@ services:
             - "18662:18662"
         volumes:
             - "./volumes/apache-php7.2/html:/var/www/html"
-            - "./volumes/apache-php7.2/rasp:/rasp"
         tty: true
 
     mysql5.6:
@@ -87,4 +86,17 @@ services:
             - rasp-cloud
         volumes: 
             - "./volumes/testfiles/:/testfiles"
+        tty: true
+
+    webgoat:
+        build:
+            context: ./images/webgoat
+            args: 
+                - RASP_VERSION
+        image: openrasp/iast-cloud/webgoat
+        hostname: webgoat
+        ports: 
+            - "8444:8444"
+        depends_on:
+            - rasp-cloud
         tty: true

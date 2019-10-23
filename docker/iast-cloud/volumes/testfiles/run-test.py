@@ -17,8 +17,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from testtools import benchmark_scan
 from testtools import dvwa_scan
+from testtools import webgoat_scan
+from testtools import benchmark_scan
 
+# test accessible
 # benchmark_scan.run()
-dvwa_scan.run()
+# dvwa_scan.run()
+webgoat_scan.run()

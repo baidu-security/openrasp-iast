@@ -61,7 +61,7 @@ class ScanPluginBase(object):
         self._scan_queue = queue.Queue()  # 任务队列
         self._last_scan_id = 0  # 最近扫描完成的任务在数据库中的id
         self._scan_num = 0  # 当前已扫描url数量
-        self._has_failed_reuqest = False # 标记扫描中存在连接失败的请求
+        self._has_failed_reuqest = False  # 标记扫描中存在连接失败的请求
         self._request_timeout = Config().get_config("scanner.request_timeout")
         self._max_concurrent_task = Config().get_config("scanner.max_concurrent_request")
 
@@ -357,9 +357,10 @@ class ScanPluginBase(object):
                     raw_response.append(body)
                     raw_response = "\r\n".join(raw_response)
 
-                    ret["rasp_result"].set_request(raw_request)
-                    ret["rasp_result"].set_response(raw_response)
-                    req_data.set_rasp_result(ret["rasp_result"])
+                    if ret["rasp_result"] is not None:
+                        ret["rasp_result"].set_request(raw_request)
+                        ret["rasp_result"].set_response(raw_response)
+                        req_data.set_rasp_result(ret["rasp_result"])
             except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed):
                 break
 

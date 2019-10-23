@@ -174,7 +174,7 @@ def test_send_rasp_result_data(preprocessor_fixture):
     try:
         r = http_sender.send_json(json_data, api_path)
     except Exception as e:
-        assert False == e
+        assert False
     else:
         assert r.status_code == 200
         assert json.loads(r.text)["status"] == 0
@@ -183,7 +183,7 @@ def test_send_rasp_result_data(preprocessor_fixture):
             try:
                 data = Communicator().get_data_nowait("rasp_result_queue_0")
             except Exception:
-                time.sleep(0.5)
+                time.sleep(1)
         assert data.get_request_id() == json_data["context"]["requestId"]
 
 

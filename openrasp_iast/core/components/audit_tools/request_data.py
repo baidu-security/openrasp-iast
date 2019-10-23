@@ -36,7 +36,7 @@ class RequestData(object):
     用于构造一个http测试请求信息的类
     """
 
-    http_methods = ["get", "post", "head",
+    http_methods = ["get", "post", "head", "put",
                     "push", "delete", "options", "patch"]
 
     def __init__(self, rasp_result_ins, payload_seq=None, payload_feature=None):
@@ -52,7 +52,9 @@ class RequestData(object):
         url = rasp_result_ins.get_scan_url()
         self.method = rasp_result_ins.get_method().lower()
         if not self._is_valid_method(self.method):
-            raise exceptions.UnsupportedHttpData
+            Logger().error("Found invalid http method {}".format(self.method))
+            self.method = "post"
+            # raise exceptions.UnsupportedHttpData
 
         data = {}
         json = None
@@ -71,10 +73,7 @@ class RequestData(object):
             body = rasp_result_ins.get_body()
         else:
             content_length = rasp_result_ins.get_content_length()
-            if content_length < 4 * 1024:
-                body = rasp_result_ins.get_body()
-            else:
-                raise exceptions.UnsupportedHttpData
+            body = rasp_result_ins.get_body()
 
         raw_cookie = rasp_result_ins.get_cookies()
         if raw_cookie is not None:
@@ -361,10 +360,11 @@ class RequestData(object):
                 body = body.decode("latin-1")
         elif self.http_data["body"] is not None:
             body = self.http_data["body"]
-            try:
-                body = body.decode("utf-8")
-            except UnicodeDecodeError:
-                body = body.decode("latin-1")
+            if isinstance(body, bytes):
+                try:
+                    body = body.decode("utf-8")
+                except UnicodeDecodeError:
+                    body = body.decode("latin-1")
         else:
             body = ""
             for key, value in self.http_data["data"].items():
@@ -619,4 +619,3 @@ class RequestData(object):
             RaspResult实例
         """
         return self.rasp_result
-
