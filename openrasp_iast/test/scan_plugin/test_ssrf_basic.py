@@ -87,6 +87,7 @@ def get_normal_response():
     rasp_result_ins = rasp_result.RaspResult(rasp_result_json)
 
     result = {
+        "scan_req_id": "0-a71e0906-88f6-412a-8bbe-efa94737e5c9",
         "response": response,
         "rasp_result": rasp_result_ins
     }
@@ -161,6 +162,7 @@ def get_vuln_response():
     rasp_result_ins = rasp_result.RaspResult(rasp_result_json)
 
     result = {
+        "scan_req_id": "0-a71e0906-88f6-412a-8bbe-efa94737e5c9",
         "response": response,
         "rasp_result": rasp_result_ins
     }
