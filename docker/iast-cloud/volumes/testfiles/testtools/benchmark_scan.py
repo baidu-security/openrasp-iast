@@ -21,7 +21,6 @@ import re
 import os
 import json
 import time
-import pymysql
 
 from testtools import iast_api
 
@@ -32,32 +31,15 @@ def run():
     _get_result(benchmark_host)
 
 
-def _query(sql):
-    conn = pymysql.connect(
-        host="mysql5.6",
-        port=3306,
-        user="rasp",
-        passwd="rasp123"
-    )
-    cursor = conn.cursor()
-    cursor._defer_warnings = True
-    cursor.execute(sql)
-    result = cursor.fetchall()
-    cursor.close()
-    conn.commit()
-    conn.close()
-    return result
-
-
 def _get_result(benchmark_host):
     sql = "select rasp_result_list from openrasp.`{}_8443_Report`".format(benchmark_host)
-    result = _query(sql)
+    result = iast_api._query(sql)
     vul_num_list = []
     for item in result:
         item_data = json.loads(item[0])[0]
         url = item_data["context"]["url"]
         task_num = re.findall(r'/(BenchmarkTest\d+)', url, re.I)
-        if not len(task_num) == 0:
+        if len(task_num) != 0:
             vul_num_list.append(task_num[0])
 
     assert os.path.isfile("benchmark-expected.csv")
@@ -142,4 +124,3 @@ def _get_result(benchmark_host):
             ))
 
     print("Benchmark result statistics is generated to {}/result/benchmark_statistics.csv".format(os.getcwd()))
-

@@ -20,9 +20,27 @@ limitations under the License.
 
 import json
 import time
+import pymysql
 import requests
 
 from testtools import config
+
+
+def _query(sql):
+    conn = pymysql.connect(
+        host="mysql5.6",
+        port=3306,
+        user="rasp",
+        passwd="rasp123"
+    )
+    cursor = conn.cursor()
+    cursor._defer_warnings = True
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    cursor.close()
+    conn.commit()
+    conn.close()
+    return result
 
 
 def _make_request(path, json_data):

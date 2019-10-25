@@ -546,10 +546,15 @@ class RequestData(object):
                 "query": parse_result.query
             }
         except Exception as e:
+            Logger().warning("Invalid url found in url concat, url: {}".format(url))
             return False
 
-        for key in url_items:
-            if url_items[key].find(param_value) != -1:
+        for key, value in url_items.items():
+            if len(value) == 0:
+                continue
+            if len(value) >= len(param_value) and value.find(param_value) != -1:
+                return True
+            if len(value) < len(param_value) and param_value.find(value) != -1:
                 return True
 
         if len(param_value) > 3:

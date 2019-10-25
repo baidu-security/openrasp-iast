@@ -273,6 +273,7 @@ class ScanPluginBase(object):
             raise e
 
         ret = {
+            "scan_req_id": request_id,
             "response": response,
             "rasp_result": rasp_result_ins
         }
@@ -340,7 +341,7 @@ class ScanPluginBase(object):
                     ret = await self.send_request(req_data)
                     req_data.set_response(ret["response"])
                     raw_request = await req_data.get_aiohttp_raw()
-                    self.logger.debug("Send scan request: \n{}".format(raw_request))
+                    self.logger.debug("Send scan request: \n{}\n".format(raw_request))
 
                     raw_response = []
                     raw_response.append("Status:" + str(ret["response"]["status"]))
@@ -348,7 +349,6 @@ class ScanPluginBase(object):
                         raw_response.append(key + ": " + value)
 
                     raw_response.append("")
-
                     try:
                         body = ret["response"]["body"].decode("utf-8")
                     except UnicodeDecodeError:
@@ -356,8 +356,10 @@ class ScanPluginBase(object):
 
                     raw_response.append(body)
                     raw_response = "\r\n".join(raw_response)
+                    self.logger.debug("Scan request with id: {}, got response:\n {}\n".format(ret["scan_req_id"], raw_response))
 
                     if ret["rasp_result"] is not None:
+                        self.logger.debug("Scan request with id: {}, got rasp_result: {}".format(ret["scan_req_id"], ret["rasp_result"]))
                         ret["rasp_result"].set_request(raw_request)
                         ret["rasp_result"].set_response(raw_response)
                         req_data.set_rasp_result(ret["rasp_result"])

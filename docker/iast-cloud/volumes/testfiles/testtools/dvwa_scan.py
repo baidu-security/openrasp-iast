@@ -17,12 +17,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
 import json
 import socket
 import requests
 from lxml import etree
 
 from testtools import iast_api
+
+dvwa_port = 18662
 
 
 class DvwaCrawler(object):
@@ -113,9 +116,46 @@ class DvwaCrawler(object):
         self._craw_xss_s()
 
 
+def _get_result(host):
+    sql = "select rasp_result_list from openrasp.`{}_{}_Report`".format(host, dvwa_port)
+    result = iast_api._query(sql)
+    vul_url_list = []
+    for item in result:
+        item_data = json.loads(item[0])[0]
+        url = item_data["context"]["url"]
+        vul_url_list.append(url)
+
+    known_vuln_url = [
+        '/DVWA-1.9/vulnerabilities/exec/',
+        '/DVWA-1.9/vulnerabilities/upload/',
+        "/DVWA-1.9/vulnerabilities/sqli/",
+        "/DVWA-1.9/vulnerabilities/sqli_blind/",
+        "/DVWA-1.9/vulnerabilities/fi/",
+        "/DVWA-1.9/vulnerabilities/xss_r/",
+        "/DVWA-1.9/vulnerabilities/xss_s/",
+    ]
+
+    result = ["测试用例,检测结果"]
+
+    for vuln_url in known_vuln_url:
+        item = [vuln_url, "漏报"]
+        for url in vul_url_list:
+            if url.find(vuln_url) != -1:
+                item[1] = "OK"
+                break
+        result.append(",".join(item))
+
+    with open("./result/dvwa_result.csv", "w") as f:
+        f.write("\n".join(result))
+
+    print("DVWA scan result is generated to {}/result/dvwa_result.csv".format(os.getcwd()))
+
+
 def run():
     ip = socket.gethostbyname("apache-php7.2")
-    dc = DvwaCrawler("http://{}:18662/DVWA-1.9".format(ip))
+    dc = DvwaCrawler("http://{}:{}/DVWA-1.9".format(ip, dvwa_port))
     print("Crawling DVWA...")
     dc.crawl()
     print("DVWA crawling complete...")
+    host = iast_api.run_task(dvwa_port, 5)
+    _get_result(host)

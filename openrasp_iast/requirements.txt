@@ -12,4 +12,3 @@ ConcurrentLogHandler==0.9.1
 PyYAML==5.1.1
 dictdiffer==0.8.0
 requests==2.21.0
-lxml==4.4.1

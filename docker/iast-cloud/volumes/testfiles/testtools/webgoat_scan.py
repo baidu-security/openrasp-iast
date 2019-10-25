@@ -17,12 +17,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
 import json
 import socket
 import requests
 from lxml import etree
 
 from testtools import iast_api
+
+webgoat_port = 8444
 
 
 class WebGoatCrawler(object):
@@ -38,8 +41,7 @@ class WebGoatCrawler(object):
 
     def _post(self, path, data, headers={}):
         url = self.base_url + path
-        proxies = {"http": "http://127.0.0.1:8080", "https": "http://127.0.0.1:8080"}
-        r = self.session.post(url=url, data=data, headers=headers, proxies=proxies, allow_redirects=False)
+        r = self.session.post(url=url, data=data, headers=headers, allow_redirects=False)
         return r
 
     def _put(self, path, data):
@@ -85,9 +87,6 @@ class WebGoatCrawler(object):
         path = "/SqlInjection/attack4"
         self._post(path, data)
 
-        path = "/SqlInjection/attack5"
-        self._post(path, data)
-
         path = "/SqlInjection/assignment5a"
         data = {
             "account": "Smith",
@@ -130,12 +129,6 @@ class WebGoatCrawler(object):
         }
         self._post(path, data)
 
-        path = "/SqlInjection/attack6b"
-        data = {
-            "userid_6b": "123456"
-        }
-        self._post(path, data)
-
         path = "/SqlInjection/challenge"
         data = {
             "username_reg": "admin",
@@ -166,19 +159,6 @@ class WebGoatCrawler(object):
         data = '{"text":"xsss"}'
         self._post(path, data, headers)
 
-    def _craw_ssrf(self):
-        path = "/SSRF/task1"
-        data = {
-            "url": "images/tom.png"
-        }
-        self._post(path, data)
-
-        path = "/SSRF/task2"
-        data = {
-            "url": "images/cat.png"
-        }
-        self._post(path, data)
-
     def crawl(self):
         self._login()
         self._craw_sqli_intro()
@@ -186,13 +166,56 @@ class WebGoatCrawler(object):
         self._craw_xxe()
         self._craw_xss_r()
         self._craw_xss_s()
-        self._craw_ssrf()
+
+
+def _get_result(host):
+    sql = "select rasp_result_list from openrasp.`{}_{}_Report`".format(host, webgoat_port)
+    result = iast_api._query(sql)
+    vul_url_list = []
+    for item in result:
+        item_data = json.loads(item[0])[0]
+        url = item_data["context"]["url"]
+        vul_url_list.append(url)
+
+    print(vul_url_list)
+    known_vuln_url = [
+        "/WebGoat/SqlInjection/attack2",
+        "/WebGoat/SqlInjection/attack3",
+        "/WebGoat/SqlInjection/attack4",
+        "/WebGoat/SqlInjection/attack6a",
+        "/WebGoat/SqlInjection/attack8",
+        "/WebGoat/SqlInjection/attack9",
+        "/WebGoat/SqlInjection/attack10",
+        "/WebGoat/SqlInjection/assignment5a",
+        "/WebGoat/SqlInjection/assignment5b",
+        "/WebGoat/SqlInjection/challenge",
+        "/WebGoat/xxe/simple",
+        "/WebGoat/xxe/blind",
+        "/WebGoat/CrossSiteScripting/attack5a"
+        "/WebGoat/CrossSiteScripting/stored-xss"
+    ]
+
+    result = ["测试用例,检测结果"]
+
+    for vuln_url in known_vuln_url:
+        item = [vuln_url, "漏报"]
+        for url in vul_url_list:
+            if url.find(vuln_url) != -1:
+                item[1] = "OK"
+                break
+        result.append(",".join(item))
+
+    with open("./result/webgoat_result.csv", "w") as f:
+        f.write("\n".join(result))
+
+    print("webgoat scan result is generated to {}/result/webgoat_result.csv".format(os.getcwd()))
 
 
 def run():
-    # ip = socket.gethostbyname("webgoat")
-    ip = "127.0.0.1"
-    wgc = WebGoatCrawler("http://{}:8444/WebGoat".format(ip))
+    ip = socket.gethostbyname("webgoat")
+    wgc = WebGoatCrawler("http://{}:{}/WebGoat".format(ip, webgoat_port))
     print("Crawling WebGoat...")
     wgc.crawl()
     print("WebGoat crawling complete...")
+    host = iast_api.run_task(webgoat_port, 5)
+    _get_result(host)
