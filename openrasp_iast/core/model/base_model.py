@@ -224,7 +224,10 @@ class BaseModel(object):
            time.time() > BaseModel.pymysql_conn_timeout or \
            not BaseModel.pymysql_conn.open:
             if hasattr(BaseModel, "pymysql_conn"):
-                BaseModel.pymysql_conn.close()
+                try:
+                    BaseModel.pymysql_conn.close()
+                except Exception:
+                    pass
             BaseModel.pymysql_conn = pymysql.connect(
                 port=Config().config_dict["database.port"],
                 host=Config().config_dict["database.host"],
