@@ -30,7 +30,15 @@ RUN cd /root && \
 
 RUN sed -i "s/openrasp.heartbeat_interval=180/openrasp.heartbeat_interval=10/" /usr/local/etc/php/conf.d/z_openrasp.ini
 
-COPY dvwa/db.sql /root/db.sql
+RUN cd /root && \
+    wget https://github.com/webpwnized/mutillidae/archive/v2.7.11.zip && \
+    unzip v2.7.11.zip && \
+    rm -rf v2.7.11.zip
+
+COPY mutillidae/.htaccess /root/mutillidae-2.7.11/.htaccess
+COPY mutillidae/database-config.inc /root/mutillidae-2.7.11/includes
+
+COPY db.sql /root/db.sql
 
 COPY start.sh /root/
 

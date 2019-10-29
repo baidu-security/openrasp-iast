@@ -1,0 +1,13 @@
+ErrorDocument 403 "By default, Mutillidae only allows access from localhost (127.*.*.*). Edit the .htaccess file to change this behavior (not recommended on a public network)."
+Order Deny,Allow
+
+## The following section disables PHP magic quoting feature.
+## Turning these on will cause issues with Mutillidae.
+## Note: Turning these on should NEVER be relied on as a method for securing against injection attemps.
+## As of PHP 6 these options will be removed for exactley that reason.
+
+## Donated by Kenny Kurtz
+
+php_flag magic_quotes_gpc off
+php_flag magic_quotes_sybase off
+php_flag magic_quotes_runtime off

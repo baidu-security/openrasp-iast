@@ -92,6 +92,8 @@ class CloudApi(object):
                     req_and_resp = "HTTP Request:\n{}\n\n\nHTTP Response:\n{}".format(
                         rasp_result_ins.get_request(),
                         rasp_result_ins.get_response())
+                    if len(req_and_resp) > 2 * 1024 * 1024:
+                        req_and_resp = req_and_resp[:2 * 1024 * 1024] + "\n... {} more chars ...".format(len(req_and_resp) - 2 * 1024 * 1024)
                 else:
                     Logger().warning("Report data with no vuln hook detect, skip upload!")
                     continue
@@ -125,13 +127,16 @@ class CloudApi(object):
                     "body": req_and_resp
                 }
                 send_data.append(cloud_format_data)
+
+            send_data = json.dumps(send_data)
             r = requests.post(url=self.server_url,
-                              headers=headers, json=send_data)
+                              headers=headers, data=send_data)
             response = json.loads(r.text)
             if response["status"] != 0:
                 Logger().warning("Upload report to cloud failed with response: {}".format(r.text))
                 return False
             else:
+                Logger().debug("Upload report {}!".format(send_data))
                 Logger().info("Upload report to cloud success!")
                 return True
         except Exception as e:
