@@ -17,6 +17,8 @@ COPY app.conf /root/rasp-cloud/conf/app.conf
 
 COPY rasp-cloud.sh /etc/init.d/rasp-cloud.sh
 
+RUN chmod +x /etc/init.d/rasp-cloud.sh
+
 COPY start.sh /root
 
 ENTRYPOINT ["/bin/bash", "/root/start.sh"]

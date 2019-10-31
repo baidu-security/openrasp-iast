@@ -48,9 +48,11 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
             else:
                 value = param["value"]
 
-            tag = "<?xml"
             if isinstance(value, bytes):
-                tag = tag.encode("utf-8")
+                tag = b"<?xml"
+            else:
+                tag = "<?xml"
+
             if value.find(tag, 0, 20) < 0:
                 continue
 

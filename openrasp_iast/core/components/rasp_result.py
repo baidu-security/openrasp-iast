@@ -99,8 +99,7 @@ class RaspResult(object):
         except KeyError:
             try:
                 self.rasp_result_dict["web_server"]["port"]
-                self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace(
-                    "_", "-")
+                self.rasp_result_dict["web_server"]["host"] = self.rasp_result_dict["web_server"]["host"].replace("_", "-")
                 if not self.host_reg.match(self.rasp_result_dict["web_server"]["host"]):
                     raise KeyError
             except KeyError:

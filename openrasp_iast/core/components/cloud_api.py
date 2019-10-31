@@ -79,8 +79,6 @@ class CloudApi(object):
                 server_info = rasp_result_ins.get_server_info()
                 vuln_hook = rasp_result_ins.get_vuln_hook()
                 url = rasp_result_ins.get_url()
-                if rasp_result_ins.get_query_string() != "":
-                    url = url + "?" + rasp_result_ins.get_query_string()
                 if vuln_hook is not None:
                     hook_info = vuln_hook["hook_info"]
                     attack_type = vuln_hook["hook_info"]["hook_type"]

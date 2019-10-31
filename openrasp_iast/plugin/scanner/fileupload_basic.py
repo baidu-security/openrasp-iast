@@ -41,15 +41,19 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         elif server_language == "java" and not rasp_result_ins.has_hook_type("writeFile"):
             return
 
+        web_root = rasp_result_ins.get_app_base_path()
         java_payloads = [
+            ("openrasp.jsp", "openrasp.jsp"),
             ("openrasp.jsp", "openrasp.jsp"),
             ("../../openrasp.jsp", "openrasp.jsp"),
             ("openrasp.jpg.jsp", "openrasp.jpg.jsp"),
-            ("openrasp.jspx", "openrasp.jspx")]
+            ("openrasp.jspx", "openrasp.jspx"),
+        ]
 
         php_payloads = [
             ("openrasp.php", ".php"),
-            ("../../openrasp.php", ".php")]
+            ("../../openrasp.php", ".php"),
+        ]
 
         if server_language == "java":
             payload_list = java_payloads

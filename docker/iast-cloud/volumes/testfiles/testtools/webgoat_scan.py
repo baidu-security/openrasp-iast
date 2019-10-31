@@ -21,7 +21,6 @@ import os
 import json
 import socket
 import requests
-from lxml import etree
 
 from testtools import iast_api
 
@@ -161,11 +160,9 @@ class WebGoatCrawler(object):
 
     def crawl(self):
         self._login()
-        self._craw_sqli_intro()
-        self._craw_sqli_adv()
-        self._craw_xxe()
-        self._craw_xss_r()
-        self._craw_xss_s()
+        for method in self.__dir__():
+            if method.startswith("_craw_"):
+                getattr(self, method)()
 
 
 def _get_result(host):

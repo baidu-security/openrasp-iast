@@ -43,6 +43,7 @@ hooks.ignore: http_output
 #
 cloud.enable: true
 cloud.backend_url: http://rasp-cloud:8086
+cloud.rasp_id: 0000000000000002
 cloud.app_id: 192d1cb737394b74b640dc9de66fc7b0b49e1423
 cloud.app_secret: HUL1Z0zy1BuSFOWI2lHWqzzZ2Yrq12DJDeyHFDxcEAk 
 cloud.heartbeat_interval: 10
