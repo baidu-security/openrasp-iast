@@ -69,10 +69,7 @@ class RequestData(object):
         elif self.content_type.startswith("multipart/form-data"):
             data = rasp_result_ins.get_post_data_dict()
             files = rasp_result_ins.get_upload_files()
-        elif self.content_type.startswith("text/xml"):
-            body = rasp_result_ins.get_body()
         else:
-            content_length = rasp_result_ins.get_content_length()
             body = rasp_result_ins.get_body()
 
         raw_cookie = rasp_result_ins.get_cookies()

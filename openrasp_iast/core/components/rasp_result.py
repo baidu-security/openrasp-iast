@@ -19,6 +19,7 @@ limitations under the License.
 
 import re
 import json
+import copy
 import pickle
 import hashlib
 import binascii
@@ -108,9 +109,18 @@ class RaspResult(object):
 
     def __str__(self):
         """
-        用于序列化
+        用于输出日志，隐藏堆栈
         """
-        return json.dumps(self.rasp_result_dict)
+        if not hasattr(self, "_hook_info"):
+            self._hook_info = self.rasp_result_dict["hook_info"]
+            self._no_stack_hook_info = copy.deepcopy(self._hook_info)
+            for item in self._no_stack_hook_info:
+                item["stack"] = "..."
+
+        self.rasp_result_dict["hook_info"] = self._no_stack_hook_info
+        ret = json.dumps(self.rasp_result_dict)
+        self.rasp_result_dict["hook_info"] = self._hook_info
+        return ret
 
     def __getitem__(self, attr):
         return self.rasp_result_dict[attr]

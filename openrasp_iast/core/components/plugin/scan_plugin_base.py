@@ -264,8 +264,7 @@ class ScanPluginBase(object):
                 self.logger.debug("Request with id: {} not trigger rasp hook.".format(request_id))
             else:
                 rasp_result_ins = await self._wait_result(request_id)
-                self.logger.debug("Request with id: {} get rasp_result: {}".format(
-                    request_id, rasp_result_ins.dump()))
+                self.logger.debug("Request with id: {} get rasp_result: {}".format(request_id, rasp_result_ins))
         except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed) as e:
             self._has_failed_reuqest = True
             self.logger.debug("Request with id {} of task id {} failed, skip task!".format(
@@ -303,7 +302,7 @@ class ScanPluginBase(object):
             rasp_result_ins.get_request_id(),
             rasp_result_ins.get_url()
         ))
-        self.logger.debug("request json: {}".format(rasp_result_ins.dump()))
+        self.logger.debug("request json: {}".format(rasp_result_ins))
 
         if not isinstance(mutant_generator, types.GeneratorType):
             self.logger.error(
