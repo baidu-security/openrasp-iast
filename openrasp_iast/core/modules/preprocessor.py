@@ -126,8 +126,8 @@ class jsonHandler(tornado.web.RequestHandler):
             content_type = self.request.headers.get("Content-Type", "None")
             if not content_type.startswith("application/json"):
                 raise exceptions.ContentTypeInvalid
-            Logger().info(b"Received request data: " + data)
             rasp_result_ins = rasp_result.RaspResult(data)
+            Logger().info("Received request data: " + str(rasp_result_ins))
             if rasp_result_ins.is_scan_result():
                 self.send_data(rasp_result_ins)
             else:

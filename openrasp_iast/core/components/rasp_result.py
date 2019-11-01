@@ -116,7 +116,6 @@ class RaspResult(object):
             self._no_stack_hook_info = copy.deepcopy(self._hook_info)
             for item in self._no_stack_hook_info:
                 item["stack"] = "..."
-
         self.rasp_result_dict["hook_info"] = self._no_stack_hook_info
         ret = json.dumps(self.rasp_result_dict)
         self.rasp_result_dict["hook_info"] = self._hook_info
