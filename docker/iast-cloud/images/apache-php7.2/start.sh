@@ -14,10 +14,6 @@ if [ -f /root/db.sql ]; then
     rm -rf /root/db.sql
 fi
 
-if [ -d /root/mutillidae-2.7.11 ]; then
-    mv /root/mutillidae-2.7.11 /var/www/html/
-fi
-
 echo '[-] Waiting openrasp-iast start...'
 while true
 do

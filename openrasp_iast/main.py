@@ -62,11 +62,21 @@ def init_check():
         cursor._defer_warnings = True
         cursor.execute(sql)
         result = cursor.fetchall()
-        conn.commit()
-        cursor.close()
+
         if len(result) > 0 and int(result[0][0]) == 1:
             print("[!] MySQL System Variable lower-case-table-names should be set to 0 or 2! ")
             sys.exit(1)
+
+        sql = "show variables like 'max_connections';"
+        cursor = conn.cursor()
+        cursor._defer_warnings = True
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        print(result)
+        if len(result) > 0 and int(result[0][1]) <= 200:
+            print("[!] Warning: MySQL max_connections is set to {}, this may limit maximum number of concurrent scanner.".format(result[0][1]))
+
+        cursor.close()
         conn.close()
     except Exception as e:
         print("[!] MySQL connection fail, check database config! ", e)

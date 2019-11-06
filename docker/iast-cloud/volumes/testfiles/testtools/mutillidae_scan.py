@@ -219,6 +219,7 @@ def _get_result(host):
 
 
 def run():
+    print("Starting test Mutillidae...")
     ip = socket.gethostbyname("apache-php7.2")
     # ip = "127.0.0.1"
     dc = MutillidaeCrawler("http://{}:{}/mutillidae".format(ip, mutillidae_port))

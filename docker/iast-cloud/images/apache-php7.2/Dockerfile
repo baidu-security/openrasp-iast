@@ -37,8 +37,7 @@ RUN cd /root && \
     rm -rf v2.7.11.zip && \
     mv mutillidae* mutillidae
 
-COPY mutillidae/.htaccess /root/mutillidae-2.7.11/.htaccess
-COPY mutillidae/database-config.inc /root/mutillidae-2.7.11/includes
+COPY mutillidae/.htaccess /root/mutillidae/.htaccess
 
 COPY db.sql /root/db.sql
 

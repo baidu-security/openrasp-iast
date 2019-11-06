@@ -174,7 +174,6 @@ def _get_result(host):
         url = item_data["context"]["url"]
         vul_url_list.append(url)
 
-    print(vul_url_list)
     known_vuln_url = [
         "/WebGoat/SqlInjection/attack2",
         "/WebGoat/SqlInjection/attack3",
@@ -209,6 +208,7 @@ def _get_result(host):
 
 
 def run():
+    print("Starting test WebGoat...")
     ip = socket.gethostbyname("webgoat")
     wgc = WebGoatCrawler("http://{}:{}/WebGoat".format(ip, webgoat_port))
     print("Crawling WebGoat...")

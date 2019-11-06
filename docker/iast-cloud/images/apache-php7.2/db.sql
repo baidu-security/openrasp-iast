@@ -118,6 +118,10 @@ UNLOCK TABLES;
 -- Table structure for table `accounts`
 --
 
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `mutillidae` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+grant all on mutillidae.* to mutillidae@localhost identified by 'mutillidae';
+flush privileges;
+
 DROP TABLE IF EXISTS `accounts`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;

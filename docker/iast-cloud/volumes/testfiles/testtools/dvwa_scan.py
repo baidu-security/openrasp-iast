@@ -149,6 +149,7 @@ def _get_result(host):
 
 
 def run():
+    print("Starting test DVWA...")
     ip = socket.gethostbyname("apache-php7.2")
     dc = DvwaCrawler("http://{}:{}/DVWA-1.9".format(ip, dvwa_port))
     print("Crawling DVWA...")

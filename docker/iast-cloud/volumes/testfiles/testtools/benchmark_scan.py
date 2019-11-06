@@ -26,8 +26,8 @@ from testtools import iast_api
 
 
 def run():
-    benchmark_host = iast_api.run_task(8443, 100)
-    # benchmark_host = "192.168.96.6"
+    print("Starting test benchmark...")
+    benchmark_host = iast_api.run_task(8443, 1200)
     _get_result(benchmark_host)
 
 
