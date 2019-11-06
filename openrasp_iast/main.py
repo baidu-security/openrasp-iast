@@ -72,7 +72,6 @@ def init_check():
         cursor._defer_warnings = True
         cursor.execute(sql)
         result = cursor.fetchall()
-        print(result)
         if len(result) > 0 and int(result[0][1]) <= 200:
             print("[!] Warning: MySQL max_connections is set to {}, this may limit maximum number of concurrent scanner.".format(result[0][1]))
 
