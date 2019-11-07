@@ -130,11 +130,19 @@ def detach_run():
     if pid != 0:
         if pid < 0:
             print("[!] Openrasp IAST start error, fork failed!")
+            os._exit(0)
         elif not check_start():
             print("[!] Openrasp IAST start error, check logs/error.log for more info!")
+            os._exit(0)
+
+        if hasattr(sys, "_MEIPASS"):
+            # pyinstaller运行时，防止tmp目录被删除
+            print("[-] OpenRASP-IAST start success, front process will be killed!")
+            os.kill(os.getpid(), 9)
         else:
             print("[-] OpenRASP-IAST start success!")
-        os._exit(0)
+            os._exit(0)
+
     print("[-] OpenRASP-IAST is Starting...")
     os.close(0)
     sys.stdin = open(os.devnull, "r")
@@ -158,8 +166,6 @@ def start(args):
     log_level = Config().get_config("log.level").upper()
     print("[-] Log file will generate to {}, log level: {}".format(real_log_path, log_level))
 
-    from core.launcher import Launcher
-
     pid, config_path = Config().get_running_info()
     if pid != 0:
         try:
@@ -169,8 +175,12 @@ def start(args):
         else:
             print("[!] OpenRASP-IAST is already Running!")
             return
+
+    from core.launcher import Launcher
+
     if not args.foreground:
         detach_run()
+
     Config().set_running_info()
     Launcher().launch()
 

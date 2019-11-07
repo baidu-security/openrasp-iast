@@ -83,7 +83,10 @@ class RequestData(object):
         headers = copy.deepcopy(rasp_result_ins.get_headers())
         del_keys = []
         for key in headers:
-            if key.lower() == "cookie":
+            lkey = key.lower()
+            if lkey in ("cookie", "content-length"):
+                del_keys.append(key)
+            if lkey.startswith("x-forwarded"):
                 del_keys.append(key)
         for key in del_keys:
             del headers[key]
@@ -98,10 +101,6 @@ class RequestData(object):
             "body": body,
             "files": files
         }
-        keys = list(self.http_data["headers"].keys())
-        for key in keys:
-            if key.lower() == "content-length":
-                del self.http_data["headers"][key]
 
         try:
             self.queue_id = Communicator().get_module_id()
@@ -262,7 +261,7 @@ class RequestData(object):
 
     def get_all_param(self, param_type_list=None):
         """
-        获取当前http请求的所有变量
+        获取当前http请求的所有变量, 结果会过滤部分与扫描无关的请求头
 
         Parameters:
             param_type_list - list, 获取的参数类型列表，可以包含"get"、"post"、"json"、"headers"、"cookies"、"files"、"body"
@@ -284,6 +283,41 @@ class RequestData(object):
             result["post"] = self.http_data["data"]
         if "headers" in param_type_list:
             result["headers"] = copy.deepcopy(self.http_data["headers"])
+            del_keys = []
+            for key in result["headers"]:
+                if key.lower() in (
+                    "accept",
+                    "accept-charset",
+                    "accept-encoding",
+                    "accept-language",
+                    "accept-datetime",
+                    "cache-control",
+                    "connection",
+                    "date",
+                    "content-type",
+                    "upgrade-insecure-requests",
+                    "expect",
+                    "if-match",
+                    "if-modified-since",
+                    "if-none-match",
+                    "if-range",
+                    "if-unmodified-since",
+                    "max-forwards",
+                    "origin",
+                    "pragma",
+                    "range",
+                    "sec-fetch-site",
+                    "sec-fetch-mode",
+                    "te",
+                    "trailer",
+                    "transfer-encoding",
+                    "upgrade",
+                    "via",
+                    "x-requested-with"
+                ):
+                    del_keys.append(key)
+            for key in del_keys:
+                del result["headers"][key]
         if "json" in param_type_list and self.http_data["json"] is not None:
             result["json"] = self.http_data["json"]
         if "cookies" in param_type_list:

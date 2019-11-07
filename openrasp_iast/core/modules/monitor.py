@@ -21,6 +21,7 @@ import os
 import sys
 import time
 import psutil
+import shutil
 import threading
 
 from core.modules import base
@@ -349,6 +350,16 @@ class Monitor(base.BaseModule):
                     return item[1]
         return "127.0.0.1"
 
+    def _clean_mei(self):
+        """
+        清理pyinstaller运行时的临时文件
+        """
+        if hasattr(sys, "_MEIPASS"):
+            try:
+                shutil.rmtree(sys._MEIPASS)
+            except Exception as e:
+                Logger().error("Clean pyinstaller temp path {} failed".format(sys._MEIPASS), exc_info=e)
+
     def run(self):
         """
         Monitor 主函数
@@ -408,12 +419,15 @@ class Monitor(base.BaseModule):
                     if self.crash_module == "main":
                         Logger().info("OpenRASP-IAST exit!")
                         print("[!] OpenRASP-IAST exit!")
+                        self._clean_mei()
                         sys.exit(0)
                     else:
                         Logger().critical("Detect Module {} down, exit!".format(self.crash_module))
+                        self._clean_mei()
                         sys.exit(1)
 
             except Exception as e:
                 Logger().critical("Monitor module crash with unknow error!", exc_info=e)
                 self._terminate_modules()
+                self._clean_mei()
                 sys.exit(2)
