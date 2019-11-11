@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 services:
     apache-php7.2:
         build:
@@ -75,6 +75,7 @@ services:
 
     owasp-benchmark:
         build:
+            # network: host
             context: ./images/owasp-benchmark
             args: 
                 - RASP_VERSION
