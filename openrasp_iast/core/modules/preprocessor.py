@@ -20,6 +20,7 @@ limitations under the License.
 import os
 import lru
 import sys
+import zlib
 import time
 import asyncio
 import logging
@@ -126,6 +127,13 @@ class jsonHandler(tornado.web.RequestHandler):
             content_type = self.request.headers.get("Content-Type", "None")
             if not content_type.startswith("application/json"):
                 raise exceptions.ContentTypeInvalid
+            content_encoding = self.request.headers.get("Content-Encoding", "None")
+            if content_encoding == "deflate":
+                try:
+                    data = zlib.decompress(data)
+                except Exception as e:
+                    Logger().warning("Deflated data decode error!", exc_info=e)
+                    raise exceptions.ContentTypeInvalid
             rasp_result_ins = rasp_result.RaspResult(data)
             Logger().info("Received request data: " + str(rasp_result_ins))
             if rasp_result_ins.is_scan_result():

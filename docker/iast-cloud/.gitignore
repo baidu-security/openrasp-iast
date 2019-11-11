@@ -2,6 +2,7 @@ volumes/openrasp-iast/logs
 volumes/*/rasp
 volumes/testfiles/test
 volumes/testfiles/result
+volumes/testfiles/benchmark-expected.csv
 /volumes/apache-php7.2/html/DVWA-1.9/hackable/uploads
 /volumes/apache-php7.2/html/test
 /volumes/apache-php7.2/html/mutillidae*
