@@ -104,7 +104,6 @@ def run_task(target_port, crawled_url):
     tartget_host = ""
     print("Check if target has been crawled.")
     while True:
-        time.sleep(5)
         hosts = get_all()
         for host in hosts:
             if int(host["port"]) == target_port:
@@ -115,6 +114,8 @@ def run_task(target_port, crawled_url):
         if crawled > crawled_url:
             tartget_host = host["host"]
             break
+
+        time.sleep(5)
 
     print("Start scan task")
     new_scan(tartget_host, target_port)

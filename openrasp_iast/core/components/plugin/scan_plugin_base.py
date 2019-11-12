@@ -256,8 +256,7 @@ class ScanPluginBase(object):
             self.logger.debug("Send scan request with id: {}, content: {}".format(
                 request_id, request_data.get_aiohttp_param()))
             response = await self._request_session.send_request(request_data, self._proxy_url)
-            self.logger.debug(
-                "Request with id: {} get response: {}".format(request_id, response))
+            self.logger.debug("Request with id: {} get response: {}".format(request_id, response))
 
             if "X-Protected-By" not in response["headers"]:
                 rasp_result_ins = None
@@ -267,8 +266,7 @@ class ScanPluginBase(object):
                 self.logger.debug("Request with id: {} get rasp_result: {}".format(request_id, rasp_result_ins))
         except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed) as e:
             self._has_failed_reuqest = True
-            self.logger.debug("Request with id {} of task id {} failed, skip task!".format(
-                request_id, self._task["id"]))
+            self.logger.debug("Request with id {} of task id {} failed, skip task!".format(request_id, self._task["id"]))
             raise e
 
         ret = {
