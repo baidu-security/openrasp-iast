@@ -160,7 +160,7 @@ def test_send_invalid_data(preprocessor_fixture):
     try:
         r = http_sender.send_data(json_data, api_path)
     except Exception as e:
-        assert False == e
+        assert e is False
     else:
         assert r.status_code == 200
         assert json.loads(r.text)["status"] == 1
@@ -209,7 +209,7 @@ def test_send_duplicate_data(preprocessor_fixture):
     测试重复的new_request类json处理
     """
     try:
-        r2 = http_sender.send_json(http_data["new_request_2"], api_path)
+        r2 = http_sender.send_json(http_data["new_request_2"], api_path, compress=True)
         r1 = http_sender.send_json(http_data["new_request_1"], api_path)
     except Exception as e:
         assert False

@@ -17,7 +17,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import zlib
 import time
+import json
 import pymysql
 import requests
 
@@ -72,9 +74,19 @@ class HttpSender(object):
     def __init__(self, host, port):
         self.url = "http://{host}:{port}".format(host=host, port=port)
 
-    def send_json(self, json, path):
+    def send_json(self, json_data, path, compress=False):
         url = self.url + path
-        r = requests.post(url=url, json=json)
+        if compress:
+            headers = {
+                "Content-Encoding": "deflate",
+                "Content-Type": "application/json"
+            }
+            if isinstance(json_data, dict):
+                json_data = json.dumps(json_data)
+            json_data = zlib.compress(json_data.encode("utf-8"))
+            r = requests.post(url=url, headers=headers, data=json_data)
+        else:
+            r = requests.post(url=url, json=json_data)
         return r
 
     def send_data(self, data, path):
