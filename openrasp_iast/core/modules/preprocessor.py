@@ -127,7 +127,7 @@ class jsonHandler(tornado.web.RequestHandler):
             if not content_type.startswith("application/json"):
                 raise exceptions.ContentTypeInvalid
             content_encoding = self.request.headers.get("Content-Encoding", "None")
-            if content_encoding == "deflate" and False:
+            if content_encoding == "deflate":
                 try:
                     data = zlib.decompress(data)
                 except Exception as e:
