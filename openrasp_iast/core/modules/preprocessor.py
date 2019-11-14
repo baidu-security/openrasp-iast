@@ -56,8 +56,7 @@ class Preprocessor(base.BaseModule):
         except Exception as e:
             Logger().warning("Dedupulicate plugin {} init fail!".format(plugin_name), exc_info=e)
 
-        self.dedup_lru = DedupLru(Config().get_config(
-            "preprocessor.request_lru_size"))
+        self.dedup_lru = DedupLru(Config().get_config("preprocessor.request_lru_size"))
         self.new_request_storage = ResultStorage()
         self.app = tornado.web.Application([
             tornado.web.url(
@@ -128,7 +127,7 @@ class jsonHandler(tornado.web.RequestHandler):
             if not content_type.startswith("application/json"):
                 raise exceptions.ContentTypeInvalid
             content_encoding = self.request.headers.get("Content-Encoding", "None")
-            if content_encoding == "deflate":
+            if content_encoding == "deflate" and False:
                 try:
                     data = zlib.decompress(data)
                 except Exception as e:
@@ -255,7 +254,7 @@ class ResultStorage(object):
         """
         if host_port not in self.models:
             self.models[host_port] = new_request_model.NewRequestModel(
-                host_port, multiplexing_conn=True)
+                host_port, multiplexing_conn=30)
             self._start_scanner(host_port)
         return self.models[host_port]
 
@@ -269,7 +268,7 @@ class ResultStorage(object):
         if host_port in self.models:
             del self.models[host_port]
 
-    def put(self, rasp_result_ins):
+    async def put(self, rasp_result_ins):
         """
         将RaspResult实例插入对应的数据表
 
@@ -278,7 +277,7 @@ class ResultStorage(object):
         """
         host_port = rasp_result_ins.get_host_port()
         model = self._get_model(host_port)
-        return model.put(rasp_result_ins)
+        return await model.put(rasp_result_ins)
 
 
 class DedupLru(object):

@@ -15,8 +15,8 @@ monitor.min_cpu: 50                                   # cpu使用率低于该值
 monitor.console_port: 18664                           # 管理后台端口
 
 # 扫描配置
-scanner.max_concurrent_request: 5                    # 最大扫描并发线程数
-scanner.min_request_interval: 20                       # 每个线程最小扫描请求间隔(ms)
+scanner.max_concurrent_request: 1                    # 最大扫描并发线程数
+scanner.min_request_interval: 20                     # 每个线程最小扫描请求间隔(ms)
 scanner.max_request_interval: 1000                    # 每个线程最大扫描请求间隔(ms)
 scanner.request_timeout: 5                            # 扫描请求超时时间(s)
 scanner.retry_times: 3                                # 扫描请求失败重试次数
@@ -33,7 +33,7 @@ affinity.enable: false                                # 是否以绑定CPU核心
 affinity.core_num: 2                                  # 绑定的核心数量
 
 # 日志配置
-log.level: DEBUG                                       # log级别，可选: DEBUG INFO WARNING ERROR CRITICAL
+log.level: WARNING                                       # log级别，可选: DEBUG INFO WARNING ERROR CRITICAL
 log.path: "/root/openrasp-iast-logs/"                                       # log文件路径, 为空时使用 /home/user/openrasp-iast/log
 log.rotate_size: 5                                    # 触发rotate的日志大小，单位MB
 log.rotate_num: 2                                     # rotate文件最多保存份数不包括当前日志文件

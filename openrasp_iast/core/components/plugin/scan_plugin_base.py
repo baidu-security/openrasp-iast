@@ -253,17 +253,16 @@ class ScanPluginBase(object):
         request_id = request_data.gen_scan_request_id()
         self._register_result(request_id)
         try:
-            self.logger.debug("Send scan request with id: {}, content: {}".format(
-                request_id, request_data.get_aiohttp_param()))
+            # self.logger.debug("Send scan request with id: {}, content: {}".format(request_id, request_data.get_aiohttp_param()))
             response = await self._request_session.send_request(request_data, self._proxy_url)
-            self.logger.debug("Request with id: {} get response: {}".format(request_id, response))
+            # self.logger.debug("Request with id: {} get response: {}".format(request_id, response))
 
             if "X-Protected-By" not in response["headers"]:
                 rasp_result_ins = None
                 self.logger.debug("Request with id: {} not trigger rasp hook.".format(request_id))
             else:
                 rasp_result_ins = await self._wait_result(request_id)
-                self.logger.debug("Request with id: {} get rasp_result: {}".format(request_id, rasp_result_ins))
+                # self.logger.debug("Request with id: {} get rasp_result: {}".format(request_id, rasp_result_ins))
         except (exceptions.ScanRequestFailed, exceptions.GetRaspResultFailed) as e:
             self._has_failed_reuqest = True
             self.logger.debug("Request with id {} of task id {} failed, skip task!".format(request_id, self._task["id"]))
@@ -366,8 +365,8 @@ class ScanPluginBase(object):
             message = self.check(request_data_list)
             if type(message) is str:
                 if await self.report(request_data_list, message):
-                    self.logger.info("Plugin {} find vuln!".format(
-                        self.plugin_info["name"]))
+                    self.logger.info("Plugin find vuln after request {}!".format(request_data_list[0].get_aiohttp_param()["url"]))
+                    # self.logger.info("Plugin find vuln after request {}!".format(ret["scan_req_id"]))
 
     async def report(self, request_data_list, message=""):
         """

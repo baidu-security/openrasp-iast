@@ -95,7 +95,7 @@ class BaseModel(object):
             conn.close()
             cls.db_created = True
 
-        if multiplexing_conn:
+        if multiplexing_conn is True:
             with BaseModel.mul_lock:
                 if not hasattr(BaseModel, "mul_database"):
                     BaseModel.mul_database = peewee_async.MySQLDatabase(
@@ -108,6 +108,13 @@ class BaseModel(object):
                         **cls.connect_para)
                     BaseModel.mul_database.connect()
                     BaseModel.mul_database_timeout = time.time() + 60
+        elif isinstance(multiplexing_conn, int):
+            with BaseModel.mul_lock:
+                if not hasattr(BaseModel, "mul_database"):
+                    BaseModel.mul_database = peewee_async.PooledMySQLDatabase(
+                        **cls.connect_para,
+                        max_connections=multiplexing_conn
+                    )
 
         instance = super(BaseModel, cls).__new__(cls)
         return instance
@@ -120,7 +127,7 @@ class BaseModel(object):
             table_prefix - 表名前缀，由扫描目标的 host + "_" + str(port) 组成
             use_async - 是否开启数据库连接的异步查询功能，默认为True
             create_table - 数据表不存在时是否创建，默认为True
-            multiplexing_conn - 是否复用连接，为True时，相同的Model的实例会使用同一个连接，默认为False
+            multiplexing_conn - 是否复用连接，为True时，相同的Model的实例会使用同一个连接, 为int时使用该int大小的连接池, 默认为False
 
         Raises:
             create_table为Fasle且目标数据表不存在时，引发exceptions.TableNotExist

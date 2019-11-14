@@ -24,8 +24,8 @@ from testtools import benchmark_scan
 from testtools import mutillidae_scan
 
 # test accessible
-vulns_scan.run()
+# vulns_scan.run()
 # dvwa_scan.run()
-# webgoat_scan.run()
+webgoat_scan.run()
 # mutillidae_scan.run()
 # benchmark_scan.run()

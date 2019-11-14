@@ -15,7 +15,7 @@ monitor.min_cpu: 85                                   # cpu使用率低于该值
 monitor.console_port: 18664                           # 管理后台端口
 
 # 扫描配置
-scanner.max_concurrent_request: 20                    # 最大扫描并发线程数
+scanner.max_concurrent_request: 10                    # 最大扫描并发线程数
 scanner.min_request_interval: 0                       # 每个线程最小扫描请求间隔(ms)
 scanner.max_request_interval: 1000                    # 每个线程最大扫描请求间隔(ms)
 scanner.request_timeout: 5                            # 扫描请求超时时间(s)
