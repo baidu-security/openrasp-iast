@@ -25,6 +25,7 @@ done
 
 while true
 do
+    sleep 1
     curl localhost:80 &>/dev/null && break
 done
 
