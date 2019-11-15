@@ -5,8 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenRASP 官方测试用例集合</title>
-  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" media="screen">
-  <script src="https://cdn.bootcss.com/angular.js/1.6.3/angular.min.js" charset="utf-8"></script>
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" media="screen">
+  <script src="assets/js/angular.min.js" charset="utf-8"></script>
   <style media="screen">
 	thead tr td {
 		background-color: #f1f1f1
@@ -61,6 +61,9 @@
 			{"name": "014 - WebShell - 中国菜刀", "path": "014-webshell-eval.php"},
 			{"name": "015 - WebShell - 文件上传小马", "path": "015-webshell-dropper.php"},
 			{"name": "016 - WebShell - 文件包含方式", "path": "016-webshell-include.php"},
+			{"name": "017 - XSS - 反射型XSS", "path": "017-xss.php"},
+			{"name": "018 - EVAL 代码执行测试", "path": "018-eval.php"},
+			{"name": "018 - ASSERT 代码执行测试", "path": "018-assert.php"},
         ]
 
       }

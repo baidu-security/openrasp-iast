@@ -33,7 +33,7 @@ affinity.enable: false                                # 是否以绑定CPU核心
 affinity.core_num: 2                                  # 绑定的核心数量
 
 # 日志配置
-log.level: INFO                                       # log级别，可选: DEBUG INFO WARNING ERROR CRITICAL
+log.level: DEBUG                                       # log级别，可选: DEBUG INFO WARNING ERROR CRITICAL
 log.path: "/root/openrasp-iast-logs/"                                       # log文件路径, 为空时使用 /home/user/openrasp-iast/log
 log.rotate_size: 5                                    # 触发rotate的日志大小，单位MB
 log.rotate_num: 2                                     # rotate文件最多保存份数不包括当前日志文件

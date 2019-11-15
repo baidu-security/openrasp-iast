@@ -1,6 +1,9 @@
 <?php
-	$linux1 = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?file=/etc/hosts';
-	$linux2 = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?file=file:///etc/hosts';
+    error_reporting(E_ALL);
+    ini_set("display_errors", 1);
+    
+	$linux1 = 'http://' . $_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?file=/etc/hosts';
+	$linux2 = 'http://' . $_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?file=file:///etc/hosts';
 ?>
 
 <html>
@@ -14,11 +17,11 @@
 	<h1>016 - WebShell - 文件包含方式</h1>
 
 	<p>不正常调用</p>
-	<pre>curl '<a href="<?php echo $linux1 ?>" target="_blank"><?php echo $linux1 ?></a>'</pre>
+	<pre>curl -g '<a href="<?php echo $linux1 ?>" target="_blank"><?php echo $linux1 ?></a>'</pre>
 	<br>
 	
 	<p>不正常调用 - 带协议</p>
-	<pre>curl '<a href="<?php echo $linux2 ?>" target="_blank"><?php echo $linux2 ?></a>'</pre>
+	<pre>curl -g '<a href="<?php echo $linux2 ?>" target="_blank"><?php echo $linux2 ?></a>'</pre>
 
 	<br>
 	<p>包含内容</p>

