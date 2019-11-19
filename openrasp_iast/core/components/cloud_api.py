@@ -21,11 +21,25 @@ import json
 import time
 import base64
 import requests
+import asyncio
+import logging
+
+from aiowebsocket.converses import AioWebSocket
+from urllib.parse import urlparse
 
 from core.model import report_model
 from core.components import rasp_result
 from core.components.logger import Logger
 from core.components.config import Config
+from core.components.cloud_console import GetAllTargetHandler
+from core.components.cloud_console import KillScannerHandler
+from core.components.cloud_console import CleanTargetHandler
+from core.components.cloud_console import RunScannerHandler
+from core.components.cloud_console import AutoStartHandler
+from core.components.cloud_console import AutoStartStatusHandler
+from core.components.cloud_console import GetConfigHandler
+from core.components.cloud_console import ScanConfigHandler
+
 
 
 class CloudApi(object):
@@ -140,3 +154,93 @@ class CloudApi(object):
         except Exception as e:
             Logger().warning("Upload report to cloud failed!", exc_info=e)
             return False
+
+
+class Transaction(object):
+
+    def __init__(self):
+        self.server_url = Config().get_config("cloud_api.backend_url")
+        self.app_secret = Config().get_config("cloud_api.app_secret")
+        self.app_id = Config().get_config("cloud_api.app_id")
+        self.user = Config().get_config("cloud_api.user")
+        self.password = Config().get_config("cloud_api.password")
+        self.monitor_port = str(Config().config_dict["monitor.console_port"])
+        self.monitor_url = urlparse(self.server_url).hostname + ":" + self.monitor_port
+        self.message_bucket = []
+
+    def login(self):
+        login_url = self.server_url + "/v1/user/login"
+        login_data = {
+            "username": self.user,
+            "password": self.password
+        }
+        return requests.post(url=login_url, data=json.dumps(login_data))
+
+    def get_one_message(self):
+        if len(self.message_bucket) == 0:
+            return
+        else:
+            message = self.message_bucket.pop()
+            return message
+
+    async def start(self, uri, union_header):
+        async with AioWebSocket(uri, union_header=union_header) as aws:
+            converse = aws.manipulator
+            # 客户端给服务端发送消息
+            await converse.send("startup")
+            while True:
+                mes = await converse.receive()
+                # print('{time}-Client receive: {rec}'
+                #       .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
+                message_str = str(mes, encoding="utf-8")
+                if "order" in message_str:
+                    self.message_bucket.append(message_str)
+                elif "heartbeat" not in message_str:
+                    Logger().error("unknown message:", message_str)
+                res = self.parse_message(union_header)
+                if isinstance(res, str):
+                    await converse.send(res)
+
+    def parse_message(self, header):
+        message_str = self.get_one_message()
+        ret = ''
+        if message_str:
+            message_json = json.loads(message_str)
+            header['Content-Type'] = 'application/json'
+            order = message_json["order"]
+            if order == "getAllTasks":
+                ret = GetAllTargetHandler().handle_request(message_json["data"])
+            elif order == 'stopTask':
+                ret = KillScannerHandler().handle_request(message_json["data"])
+            elif order == 'cleanTask':
+                ret = CleanTargetHandler().handle_request(message_json["data"])
+            elif order == 'startTask':
+                ret = RunScannerHandler().handle_request(message_json["data"])
+            elif order == 'autoStartTask':
+                ret = AutoStartHandler().handle_request(message_json["data"])
+            elif order == 'autoStartStatus':
+                ret = AutoStartStatusHandler().handle_request(message_json["data"])
+            elif order == 'getConfig':
+                ret = GetConfigHandler().handle_request(message_json["data"])
+            elif order == 'setConfig':
+                ret = ScanConfigHandler().handle_request(message_json["data"])
+            if isinstance(ret, dict):
+                return json.dumps(ret)
+        return
+
+    def run(self):
+        remote = self.server_url.replace("https", "wss").replace("http", "ws") + '/v1/api/iast'
+        response = self.login()
+        if response.json()["status"] == 0:
+            Logger().info("Login success!")
+            cookie = response.headers.get('Set-Cookie')
+            union_header = {"Cookie": cookie}
+            try:
+                asyncio.set_event_loop(asyncio.new_event_loop())
+                transaction_loop = asyncio.get_event_loop()
+                res = transaction_loop.run_until_complete(self.start(remote, union_header))
+                transaction_loop.close()
+            except Exception as e:
+                logging.info('Quit.')
+        else:
+            Logger().error("Login error!")

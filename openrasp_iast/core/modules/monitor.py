@@ -29,6 +29,7 @@ from core.components import common
 from core.components.logger import Logger
 from core.components.config import Config
 from core.components.cloud_api import CloudApi
+from core.components.cloud_api import Transaction
 from core.components.web_console import WebConsole
 from core.components.runtime_info import RuntimeInfo
 from core.components.communicator import Communicator
@@ -404,6 +405,15 @@ class Monitor(base.BaseModule):
         else:
             self._terminate_modules()
             sys.exit(1)
+
+        # 向云控后台发送心跳，用于建立ws连接
+        transaction = Transaction()
+        self.transaction_thread = threading.Thread(
+            target=transaction.run,
+            name="ws_thread",
+            daemon=True
+        )
+        self.transaction_thread.start()
 
         while True:
             try:
