@@ -12,7 +12,7 @@ test:
 
 clean:
 	rm -rf log
-	cd openrasp_iast && rm -rf log .coverage .coverage.* htmlcov .pytest_cache 
+	cd openrasp_iast && rm -rf log build dist .coverage .coverage.* htmlcov .pytest_cache 
 	find ./openrasp_iast -name __pycache__ | xargs rm -rf
 	find ./openrasp_iast -name '*.pyc' | xargs rm -rf
 	rm -rf build dist *.egg-info
