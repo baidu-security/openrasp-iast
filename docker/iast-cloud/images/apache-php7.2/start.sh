@@ -21,12 +21,12 @@ do
     sleep 1
 done
 
-/bin/bash /etc/init.d/apache2 start
+/usr/sbin/apachectl start
 
 while true
 do
     sleep 1
-    curl localhost:80 &>/dev/null && break
+    curl localhost:18662 &>/dev/null && break
 done
 
 echo '[-] apache start success!'
