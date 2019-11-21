@@ -5,7 +5,7 @@
 echo '[-] Waiting mysql start...'
 while true
 do
-    curl localhost:3306 &>/dev/null && break
+    nc -z mysql5.6 3306 && break
     sleep 1
 done
 

@@ -5,7 +5,7 @@ LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 ARG RASP_VERSION
 
 RUN apt-get update && \
-    apt-get install -y wget unzip libpng-dev mariadb-server curl
+    apt-get install -y wget unzip libpng-dev mariadb-server curl netcat
 
 RUN docker-php-source extract \
     && docker-php-ext-install mysqli gd pdo_mysql \
