@@ -180,9 +180,9 @@ class Transaction(object):
             await converse.send("startup")
             while True:
                 mes = await converse.receive()
-                from datetime import datetime
-                print('{time}-Client receive: {rec}'
-                      .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
+                # from datetime import datetime
+                # print('{time}-Client receive: {rec}'
+                #       .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
                 message_str = str(mes, encoding="utf-8")
                 if "order" in message_str:
                     self.message_bucket.append(message_str)
