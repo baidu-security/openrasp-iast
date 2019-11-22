@@ -19,7 +19,7 @@ limitations under the License.
 
 import json
 import time
-import base64
+import sys
 import requests
 import asyncio
 import logging
@@ -162,19 +162,9 @@ class Transaction(object):
         self.server_url = Config().get_config("cloud_api.backend_url")
         self.app_secret = Config().get_config("cloud_api.app_secret")
         self.app_id = Config().get_config("cloud_api.app_id")
-        self.user = Config().get_config("cloud_api.user")
-        self.password = Config().get_config("cloud_api.password")
         self.monitor_port = str(Config().config_dict["monitor.console_port"])
         self.monitor_url = urlparse(self.server_url).hostname + ":" + self.monitor_port
         self.message_bucket = []
-
-    def login(self):
-        login_url = self.server_url + "/v1/user/login"
-        login_data = {
-            "username": self.user,
-            "password": self.password
-        }
-        return requests.post(url=login_url, data=json.dumps(login_data))
 
     def get_one_message(self):
         if len(self.message_bucket) == 0:
@@ -190,23 +180,23 @@ class Transaction(object):
             await converse.send("startup")
             while True:
                 mes = await converse.receive()
-                # print('{time}-Client receive: {rec}'
-                #       .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
+                from datetime import datetime
+                print('{time}-Client receive: {rec}'
+                      .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
                 message_str = str(mes, encoding="utf-8")
                 if "order" in message_str:
                     self.message_bucket.append(message_str)
                 elif "heartbeat" not in message_str:
                     Logger().error("unknown message:", message_str)
-                res = self.parse_message(union_header)
+                res = self.parse_message()
                 if isinstance(res, str):
                     await converse.send(res)
 
-    def parse_message(self, header):
+    def parse_message(self):
         message_str = self.get_one_message()
         ret = ''
         if message_str:
             message_json = json.loads(message_str)
-            header['Content-Type'] = 'application/json'
             order = message_json["order"]
             if order == "getAllTasks":
                 ret = GetAllTargetHandler().handle_request(message_json["data"])
@@ -229,18 +219,15 @@ class Transaction(object):
         return
 
     def run(self):
-        remote = self.server_url.replace("https", "wss").replace("http", "ws") + '/v1/api/iast'
-        response = self.login()
-        if response.json()["status"] == 0:
-            Logger().info("Login success!")
-            cookie = response.headers.get('Set-Cookie')
-            union_header = {"Cookie": cookie}
-            try:
-                asyncio.set_event_loop(asyncio.new_event_loop())
-                transaction_loop = asyncio.get_event_loop()
-                res = transaction_loop.run_until_complete(self.start(remote, union_header))
-                transaction_loop.close()
-            except Exception as e:
-                logging.info('Quit.')
-        else:
-            Logger().error("Login error!")
+        remote = self.server_url.replace("https", "wss").replace("http", "ws") + '/v1/agent/iast'
+        union_header = {
+            "X-OpenRASP-AppSecret": Config().config_dict["cloud_api.app_secret"],
+            "X-OpenRASP-AppID": Config().config_dict["cloud_api.app_id"]
+        }
+        try:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            transaction_loop = asyncio.get_event_loop()
+            res = transaction_loop.run_until_complete(self.start(remote, union_header))
+            transaction_loop.close()
+        except Exception as e:
+            logging.info('Quit.')
