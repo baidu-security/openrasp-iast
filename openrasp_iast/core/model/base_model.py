@@ -58,7 +58,8 @@ class BaseModel(object):
             "host": Config().get_config("database.host"),
             "port": Config().get_config("database.port"),
             "user": Config().get_config("database.username"),
-            "password": Config().get_config("database.password")
+            "password": Config().get_config("database.password"),
+            "charset": "utf8mb4"
         }
 
         if not hasattr(cls, "db_created"):
@@ -66,7 +67,8 @@ class BaseModel(object):
                 host=Config().get_config("database.host"),
                 port=Config().get_config("database.port"),
                 user=Config().get_config("database.username"),
-                passwd=Config().get_config("database.password")
+                passwd=Config().get_config("database.password"),
+                charset="utf8mb4"
             )
 
             cursor = conn.cursor()
