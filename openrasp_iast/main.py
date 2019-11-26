@@ -67,9 +67,18 @@ def init_check():
             print("[!] MySQL System Variable lower-case-table-names should be set to 0 or 2! ")
             sys.exit(1)
 
+        sql = "select @@version"
+        cursor.execute(sql)
+        version = cursor.fetchone()
+        try:
+            if version is not None:
+                version = version[0].split(".")
+                if int(version[0]) > 5 or (int(version[0]) == 5 and int(version[1]) > 5):
+                    print("[!] Warning: MySQL version not support, use mysql version >= 5.5.3".format(result[0][1]))
+        except Exception:
+            pass
+
         sql = "show variables like 'max_connections';"
-        cursor = conn.cursor()
-        cursor._defer_warnings = True
         cursor.execute(sql)
         result = cursor.fetchall()
         if len(result) > 0 and int(result[0][1]) <= 200:

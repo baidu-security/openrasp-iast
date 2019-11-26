@@ -74,21 +74,9 @@ class BaseModel(object):
             cursor = conn.cursor()
             cursor._defer_warnings = True
 
-            sql = "select @@version"
-            cursor.execute(sql)
-            version = cursor.fetchone()
-            charset = "utf8"
-            try:
-                if version is not None:
-                    version = version[0].split(".")
-                    if int(version[0]) > 5 or (int(version[0]) == 5 and int(version[1]) > 5):
-                        charset = "utf8mb4"
-            except Exception:
-                pass
-
             sql = "CREATE DATABASE IF NOT EXISTS {dbname} default charset {charset} COLLATE {charset}_general_ci;".format(
                 dbname=Config().get_config("database.db_name"),
-                charset=charset
+                charset="utf8mb4"
             )
 
             cursor.execute(sql)
