@@ -2,6 +2,7 @@
 .AppleDouble
 .LSOverride
 .idea
+.vscode
 *.pyc
 __pycache__
 .pytest_cache
