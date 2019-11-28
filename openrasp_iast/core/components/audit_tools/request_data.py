@@ -185,7 +185,7 @@ class RequestData(object):
         elif para_type == "post":
             self.http_data["data"][para_name] = value
         elif para_type == "headers":
-            self.http_data["headers"][para_name] = urllib.parse.quote(value)
+            self.http_data["headers"][para_name] = value
         elif para_type == "json":
             # 如果para_name为空，将root节点为设为value
             if len(para_name) == 0:

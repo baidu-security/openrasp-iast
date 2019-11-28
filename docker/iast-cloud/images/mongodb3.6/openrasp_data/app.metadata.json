@@ -1,1 +1,1 @@
-{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"openrasp.app"},{"v":2,"unique":true,"key":{"name":1},"name":"app_name","background":true,"ns":"openrasp.app"}],"uuid":"335ff508708547da81c07ed2904ac02a"}
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"openrasp.app"},{"v":2,"unique":true,"key":{"name":1},"name":"app_name","ns":"openrasp.app","background":true}],"uuid":"df964fd4d11b45b4a007753dbb98c4df"}

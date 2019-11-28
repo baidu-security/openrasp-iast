@@ -24,8 +24,8 @@ RUN cd /root && \
     mv rasp-php-* rasp-php && \
 	cd rasp-php && \
     php install.php -d /opt/rasp \
-        --app-id 192d1cb737394b74b640dc9de66fc7b0b49e1423 \
-        --app-secret HUL1Z0zy1BuSFOWI2lHWqzzZ2Yrq12DJDeyHFDxcEAk \
+        --app-id 6f00ed51e1b2c7a16dadd8aec673a9e8d91b8011 \
+        --app-secret Z3cKrtbqZrqbpYICaBzObiZiOyFPPbvoLh75hyKpsgB \
         --backend-url http://rasp-cloud:8086 \
         --rasp-id 0000000000000001
 

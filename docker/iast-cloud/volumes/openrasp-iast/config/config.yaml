@@ -25,8 +25,8 @@ scanner.max_module_instance: 16                       # 最大扫描任务数量
 # 云控配置
 cloud_api.enable: True                                # 是否上传结果到云控
 cloud_api.backend_url: "http://rasp-cloud:8086"             # 云控地址
-cloud_api.app_secret: "vqxSEmNq81z1M9kSfEmJGS5vLMMqyWdfOkioXY4lgbo"                        # 云控secret_key
-cloud_api.app_id: "e0aba6ee81472031d3a6f8d3acea508e83aa044e"                                # 云控app_id
+cloud_api.app_secret: "PKkNIxQrr2tgUqwlDI5sCE1b1HYDgZqvOlzVr9GolcF"                        # 云控secret_key
+cloud_api.app_id: "8ec2c3b91f4062130fbe7f362478f026c3b3e52d"                                # 云控app_id
 
 # 绑定核心(仅支持linux)
 affinity.enable: false                                # 是否以绑定CPU核心的方式运行
