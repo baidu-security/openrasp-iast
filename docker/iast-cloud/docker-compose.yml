@@ -15,6 +15,19 @@ services:
             - "./volumes/apache-php7.2/html:/var/www/html"
         tty: true
 
+    tomcat-8.5:
+        build:
+            context: ./images/tomcat-8.5
+            args: 
+                - RASP_VERSION
+        image: openrasp/iast-cloud/tomcat-8.5
+        hostname: tomcat-8.5
+        ports: 
+            - "18663:18663"
+        depends_on:
+            - rasp-cloud
+        tty: true
+
     mysql5.6:
         build:
             context: ./images/mysql5.6
