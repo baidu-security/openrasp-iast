@@ -46,6 +46,6 @@ setuptools.setup(
     include_package_data=True,
     entry_points=entry_points,
     platforms=["linux"],
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     license="Apache-2.0"
 )
