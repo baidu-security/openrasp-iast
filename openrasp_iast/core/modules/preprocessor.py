@@ -282,7 +282,7 @@ class ResultStorage(object):
 
 class DedupLru(object):
     """
-    非扫描请求入库前的去重LRU集合，每个扫描目标（host + port）对应一个独立的LRU
+    非扫描请求入库前的去重LRU集合
     """
 
     def __init__(self, max_size):

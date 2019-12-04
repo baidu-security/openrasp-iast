@@ -120,11 +120,11 @@ def get_vuln_response():
             "remoteAddr": "172.17.0.1", 
             "protocol": "http", 
             "method": "get", 
-            "querystring": "test_param=123456", 
+            "querystring": "test_param[a]=123456", 
             "path": "/test-file.php", 
             "parameter": {
                 "test_param": [
-                    "1'openrasp"
+                    {"a": "1'openrasp"}
                 ]
             }, 
             "header": {
@@ -137,7 +137,7 @@ def get_vuln_response():
                 "accept-encoding": "gzip, deflate", 
                 "accept-language": "zh-CN,zh;q=0.9"
             }, 
-            "url": "http://localburp.com:8005/test-file.php?test_param=123456", 
+            "url": "http://localburp.com:8005/test-file.php?test_param[a]=123456", 
             "nic": [
                 {
                     "name": "eth0", 
@@ -228,8 +228,8 @@ def get_vuln_response():
 
 
 async def send_request(self, request_data):
-    test_param = request_data.get_param("get", "test_param")
-
+    test_param = request_data.get_param("get", "test_param[a]")
+    print(test_param)
     if test_param is not None and test_param.find("1'openrasp") >= 0:
         return get_vuln_response()
     else:
@@ -283,11 +283,11 @@ def test_normal(scan_plugin_fixture):
         "remoteAddr": "172.17.0.1", 
         "protocol": "http", 
         "method": "get", 
-        "querystring": "test_param=123456", 
+        "querystring": "test_param[a]=123456", 
         "path": "/test-file.php", 
         "parameter": {
             "test_param": [
-                "123456"
+               {"a":"123456"}
             ],
             "normal_param": [
                 "123456"
@@ -303,7 +303,7 @@ def test_normal(scan_plugin_fixture):
             "accept-encoding": "gzip, deflate", 
             "accept-language": "zh-CN,zh;q=0.9"
         }, 
-        "url": "http://localburp.com:8005/test-file.php?test_param=123456", 
+        "url": "http://localburp.com:8005/test-file.php?test_param[a]=123456", 
         "nic": [
             {
                 "name": "eth0", 
