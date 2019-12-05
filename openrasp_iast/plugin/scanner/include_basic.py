@@ -43,8 +43,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         windows_payload_list = [
             ("..\\..\\..\\..\\..\\..\\..\\..\\..\\Windows\\system.ini",
-             "c:\\Windows\\system.ini"),
-            ("..\\..\\..\\Windows\\system.ini", "c:\\Windows\\system.ini"),
+             ":\\Windows\\system.ini"),
+            ("..\\..\\..\\Windows\\system.ini", ":\\Windows\\system.ini"),
             ("file://c:\\Windows\\system.ini", "c:\\Windows\\system.ini")
         ]
 

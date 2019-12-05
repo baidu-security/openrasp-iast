@@ -43,8 +43,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         ]
 
         windows_payload_list = [
-            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\opeanrasp.test", "c:\\opeanrasp.test"),
-            ("..\\..\\..\\opeanrasp.test", "c:\\opeanrasp.test"),
+            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\opeanrasp.test", ":\\opeanrasp.test"),
+            ("..\\..\\..\\opeanrasp.test", ":\\opeanrasp.test"),
             ("file://c:\\opeanrasp.test", "c:\\opeanrasp.test")
         ]
 
