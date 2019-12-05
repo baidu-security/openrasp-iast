@@ -240,7 +240,8 @@ class ResultStorage(object):
         if Communicator().get_value("auto_start", "Monitor") == 1:
             host = "".join(host_port.split("_")[:-1])
             port = int(host_port.split("_")[-1])
-            asyncio.create_task(self._send_start_request(host, port))
+            loop = asyncio.get_event_loop()
+            loop.create_task(self._send_start_request(host, port))
 
     def _get_model(self, host_port):
         """
