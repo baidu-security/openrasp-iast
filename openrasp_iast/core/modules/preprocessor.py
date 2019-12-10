@@ -224,6 +224,7 @@ class ResultStorage(object):
         初始化
         """
         self.models = {}
+        self.known_hosts = {}
 
     async def _send_start_request(self, host, port):
         data = {
@@ -253,11 +254,25 @@ class ResultStorage(object):
         Returns:
             获取到的NewRequestModel实例
         """
-        if host_port not in self.models:
-            self.models[host_port] = new_request_model.NewRequestModel(
-                host_port, multiplexing_conn=30)
-            self._start_scanner(host_port)
-        return self.models[host_port]
+        now_time = time.time()
+        if host_port not in self.models or self.models[host_port][1] < now_time:
+            self.models[host_port] = [
+                new_request_model.NewRequestModel(host_port, multiplexing_conn=False),
+                time.time() + 60
+            ]
+            del_host = []
+            for host, model in self.models.items():
+                if model[1] < now_time:
+                    del_host.append(host)
+
+            for host in del_host:
+                del self.models[host]
+
+            if host_port not in self.known_hosts:
+                self.known_hosts[host_port] = None
+                self._start_scanner(host_port)
+
+        return self.models[host_port][0]
 
     def reset(self, host_port):
         """
@@ -268,6 +283,7 @@ class ResultStorage(object):
         """
         if host_port in self.models:
             del self.models[host_port]
+            del self.known_hosts[host_port]
 
     async def put(self, rasp_result_ins):
         """
