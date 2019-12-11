@@ -81,8 +81,8 @@ def init_check():
         sql = "show variables like 'max_connections';"
         cursor.execute(sql)
         result = cursor.fetchall()
-        if len(result) > 0 and int(result[0][1]) <= 200:
-            print("[!] Warning: MySQL max_connections is set to {}, this may limit maximum number of concurrent scan task.".format(result[0][1]))
+        if len(result) > 0 and int(result[0][1]) < 1000:
+            print("[!] Warning: MySQL max_connections is set to {}, this may limit maximum number of concurrent scan task, set max_connections at least to 1000 if you have large number of concurrent scan task.".format(result[0][1]))
 
         cursor.close()
         conn.close()
@@ -92,20 +92,31 @@ def init_check():
 
     # 测试是否能正确连接云控
     if Config().config_dict["cloud_api.enable"]:
-        url = Config().config_dict["cloud_api.backend_url"] + "/v1/agent/rasp/auth"
+        cloud_config = {
+            "backend_url": Config().config_dict["cloud_api.backend_url"],
+            "app_secret": Config().config_dict["cloud_api.app_secret"],
+            "app_id": Config().config_dict["cloud_api.app_id"]
+        }
+
+        for k, v in cloud_config.items():
+            if v == "":
+                print("[!] Config item cloud_api.{} is empty, refer to rasp cloud page to configure this option!".format(k))
+                sys.exit(1)
+
+        url = cloud_config["backend_url"] + "/v1/agent/rasp/auth"
         headers = {
-            "X-OpenRASP-AppSecret": Config().config_dict["cloud_api.app_secret"],
-            "X-OpenRASP-AppID": Config().config_dict["cloud_api.app_id"]
+            "X-OpenRASP-AppSecret": cloud_config["app_secret"],
+            "X-OpenRASP-AppID": cloud_config["app_id"]
         }
         try:
             r = requests.post(url=url, headers=headers, json=[], timeout=3)
             if r.status_code == 200:
                 response = json.loads(r.text)
                 if response["status"] != 0:
-                    print("[!] Test cloud server failed, got HTTP code: {}, response: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, r.text))
+                    print("[!] Test cloud server failed, got HTTP code: {} with response: {} from cloud server: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, r.text, url))
                     sys.exit(1)
             else:
-                print("[!] Test cloud server failed, got HTTP code: {}, check option startswith 'cloud_api' in config file!".format(r.status_code))
+                print("[!] Test cloud server failed, got HTTP code: {} from cloud server: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, url))
                 sys.exit(1)
         except Exception:
             print("[!] Cloud server url:{} connect failed, check option startswith 'cloud_api' in config file!".format(url))
