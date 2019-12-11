@@ -242,7 +242,10 @@ class RaspResult(object):
 
     def get_host(self):
         """
-        获取当前请求的host
+        获取当前请求扫描目标的host
+        注意:
+            这里获取的是扫描请求发送的目标ip/域名， 如果希望获取header中的host字段
+            请使用 get_headers 函数获取headers再提取host字段
 
         Returns:
             string, 获取的host
@@ -251,7 +254,10 @@ class RaspResult(object):
 
     def get_port(self):
         """
-        获取当前请求的port
+        获取当前请求扫描目标的host
+        注意:
+            这里获取的是扫描请求发送的目标ip/域名的port， 如果希望获取header中的host字段的port
+            请使用 get_headers 函数获取headers再提取host字段获取
 
         Returns:
             int, 请求的port
@@ -260,7 +266,10 @@ class RaspResult(object):
 
     def get_host_port(self):
         """
-        获取当前请求的host_port
+        获取当前请求的host_port，使用host + "_" port 格式返回字符串
+        注意:
+            这里获取的是扫描请求发送的目标 ip/域名 和 port， 如果希望获取header中的host字段的port
+            请使用 get_headers 函数获取headers再提取host字段获取
 
         Returns:
             string, 获取的host_port

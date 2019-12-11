@@ -77,8 +77,7 @@ class NewRequestModel(base_model.BaseModel):
         try:
             result = query.scalar()
         except Exception as e:
-            Logger().critical("Database error in _init_start_id method!", exc_info=e)
-            raise exceptions.DatabaseError
+            Logger().critical("DB error in method _init_start_id!", exc_info=e)
         if result is None:
             self.start_id = 0
         else:
@@ -95,8 +94,7 @@ class NewRequestModel(base_model.BaseModel):
             self.ResultList.update(scan_status=0).where(
                 self.ResultList.scan_status > 1).execute()
         except Exception as e:
-            Logger().critical("Database error in reset_unscanned_item method!", exc_info=e)
-            raise exceptions.DatabaseError
+            Logger().critical("DB error in method reset_unscanned_item!", exc_info=e)
 
     def get_start_id(self):
         """
@@ -128,8 +126,7 @@ class NewRequestModel(base_model.BaseModel):
         except asyncio.CancelledError as e:
             raise e
         except Exception as e:
-            Logger().critical("Database error in put method!", exc_info=e)
-            raise exceptions.DatabaseError
+            Logger().critical("DB error in method put!", exc_info=e)
         else:
             return True
 
@@ -191,8 +188,7 @@ class NewRequestModel(base_model.BaseModel):
         except asyncio.CancelledError as e:
             raise e
         except Exception as e:
-            Logger().critical("Database error in get_new_scan method!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_new_scan!", e)
 
     async def mark_result(self, last_id, failed_list):
         """
@@ -234,8 +230,7 @@ class NewRequestModel(base_model.BaseModel):
             except asyncio.CancelledError as e:
                 raise e
             except Exception as e:
-                Logger().critical("Database error in mark_result method!", exc_info=e)
-                raise exceptions.DatabaseError
+                self._handle_exception("DB error in method mark_result!", e)
 
             if result is not None:
                 self.start_id = result
@@ -282,8 +277,7 @@ class NewRequestModel(base_model.BaseModel):
         except asyncio.CancelledError as e:
             raise e
         except Exception as e:
-            Logger().critical("Database error in get_scan_count method!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_scan_count!", e)
 
         return total, scanned, failed
 
@@ -305,8 +299,7 @@ class NewRequestModel(base_model.BaseModel):
         except asyncio.CancelledError as e:
             raise e
         except Exception as e:
-            Logger().critical("Database error in get_last_time method!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_last_time!", e)
 
         if len(data) == 0:
             return 0
@@ -359,8 +352,7 @@ class NewRequestModel(base_model.BaseModel):
         except asyncio.CancelledError as e:
             raise e
         except Exception as e:
-            Logger().critical("Database error in mark_result method!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_urls!", e)
 
     def drop_table(self):
         """

@@ -53,58 +53,61 @@ class BaseModel(object):
         Raises:
             create_table为Fasle且目标数据表不存在时，引发exceptions.TableNotExist
         """
-        cls.connect_para = {
-            "database": Config().get_config("database.db_name"),
-            "host": Config().get_config("database.host"),
-            "port": Config().get_config("database.port"),
-            "user": Config().get_config("database.username"),
-            "password": Config().get_config("database.password"),
-            "charset": "utf8mb4"
-        }
+        try:
+            cls.connect_para = {
+                "database": Config().get_config("database.db_name"),
+                "host": Config().get_config("database.host"),
+                "port": Config().get_config("database.port"),
+                "user": Config().get_config("database.username"),
+                "password": Config().get_config("database.password"),
+                "charset": "utf8mb4"
+            }
 
-        if not hasattr(cls, "db_created"):
-            conn = pymysql.connect(
-                host=Config().get_config("database.host"),
-                port=Config().get_config("database.port"),
-                user=Config().get_config("database.username"),
-                passwd=Config().get_config("database.password"),
-                charset="utf8mb4"
-            )
+            if not hasattr(cls, "db_created"):
+                conn = pymysql.connect(
+                    host=Config().get_config("database.host"),
+                    port=Config().get_config("database.port"),
+                    user=Config().get_config("database.username"),
+                    passwd=Config().get_config("database.password"),
+                    charset="utf8mb4"
+                )
 
-            cursor = conn.cursor()
-            cursor._defer_warnings = True
+                cursor = conn.cursor()
+                cursor._defer_warnings = True
 
-            sql = "CREATE DATABASE IF NOT EXISTS {dbname} default charset {charset} COLLATE {charset}_general_ci;".format(
-                dbname=Config().get_config("database.db_name"),
-                charset="utf8mb4"
-            )
+                sql = "CREATE DATABASE IF NOT EXISTS {dbname} default charset {charset} COLLATE {charset}_general_ci;".format(
+                    dbname=Config().get_config("database.db_name"),
+                    charset="utf8mb4"
+                )
 
-            cursor.execute(sql)
-            cursor.close()
-            conn.commit()
-            conn.close()
-            cls.db_created = True
+                cursor.execute(sql)
+                cursor.close()
+                conn.commit()
+                conn.close()
+                cls.db_created = True
 
-        if multiplexing_conn is True:
-            with BaseModel.mul_lock:
-                if not hasattr(BaseModel, "mul_database"):
-                    BaseModel.mul_database = peewee_async.MySQLDatabase(
-                        **cls.connect_para)
-                    BaseModel.mul_database.connect()
-                    BaseModel.mul_database_timeout = time.time() + 60
-                elif time.time() > BaseModel.mul_database_timeout:
-                    BaseModel.mul_database.close()
-                    BaseModel.mul_database = peewee_async.MySQLDatabase(
-                        **cls.connect_para)
-                    BaseModel.mul_database.connect()
-                    BaseModel.mul_database_timeout = time.time() + 60
-        elif isinstance(multiplexing_conn, int):
-            with BaseModel.mul_lock:
-                if not hasattr(BaseModel, "mul_database"):
-                    BaseModel.mul_database = peewee_async.PooledMySQLDatabase(
-                        **cls.connect_para,
-                        max_connections=multiplexing_conn
-                    )
+            if multiplexing_conn is True:
+                with BaseModel.mul_lock:
+                    if not hasattr(BaseModel, "mul_database"):
+                        BaseModel.mul_database = peewee_async.MySQLDatabase(
+                            **cls.connect_para)
+                        BaseModel.mul_database.connect()
+                        BaseModel.mul_database_timeout = time.time() + 60
+                    elif time.time() > BaseModel.mul_database_timeout:
+                        BaseModel.mul_database.close()
+                        BaseModel.mul_database = peewee_async.MySQLDatabase(
+                            **cls.connect_para)
+                        BaseModel.mul_database.connect()
+                        BaseModel.mul_database_timeout = time.time() + 60
+            elif isinstance(multiplexing_conn, int):
+                with BaseModel.mul_lock:
+                    if not hasattr(BaseModel, "mul_database"):
+                        BaseModel.mul_database = peewee_async.PooledMySQLDatabase(
+                            **cls.connect_para,
+                            max_connections=multiplexing_conn
+                        )
+        except Exception as e:
+            cls._handle_exception("Mysql Connection Fail!", e)
 
         instance = super(BaseModel, cls).__new__(cls)
         return instance
@@ -150,10 +153,9 @@ class BaseModel(object):
 
             self.database = database
         except exceptions.TableNotExist as e:
-            raise e
+            self._handle_exception("Table with prefix {} not found!".format(table_prefix), e)
         except Exception as e:
-            Logger().critical("Mysql Connection Fail!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("Mysql Connection Fail!", e)
 
     def _create_model(self, db, table_prefix):
         """
@@ -171,12 +173,10 @@ class BaseModel(object):
         try:
             schema_manager = peewee.SchemaManager(self._model)
             schema_manager.drop_table()
-        except AttributeError:
-            Logger().error("Can not call drop table in base model!")
-            raise exceptions.DatabaseError
+        except AttributeError as e:
+            self._handle_exception("Can not call drop table in base model!", e)
         except Exception as e:
-            Logger().error("Error in method drop table!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method drop table!", e)
 
     def truncate_table(self):
         """
@@ -189,11 +189,9 @@ class BaseModel(object):
             schema_manager = peewee.SchemaManager(self._model)
             schema_manager.truncate_table()
         except AttributeError:
-            Logger().error("Can not call truncate table in base model!")
-            raise exceptions.DatabaseError
+            self._handle_exception("Can not call truncate table in base model!", e)
         except Exception as e:
-            Logger().error("Error in method truncate table!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method truncate table!", e)
 
     def get_tables(self):
         """
@@ -208,9 +206,15 @@ class BaseModel(object):
         try:
             result = self.database.get_tables()
         except Exception as e:
-            Logger().error("Error in method get_tables!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_tables!", e)
         return result
+
+    @staticmethod
+    def _handle_exception(msg, e):
+        if (str(e).find("Too many connections")):
+            msg = "Mysql connection limit exceeded, try to increase max_connections to solve this problem."
+        Logger().error(msg, exc_info=e)
+        raise exceptions.DatabaseError
 
     @staticmethod
     def _creat_conn():
@@ -288,7 +292,7 @@ class BaseModel(object):
 
             return result
         except Exception as e:
-            raise exceptions.DatabaseError
+            BaseModel._handle_exception("DB error in method get_scan_count!", e)
 
     @staticmethod
     def get_last_time(target_list):
@@ -335,4 +339,4 @@ class BaseModel(object):
 
             return result
         except Exception as e:
-            raise exceptions.DatabaseError
+            BaseModel._handle_exception("DB error in method get_last_time!", e)

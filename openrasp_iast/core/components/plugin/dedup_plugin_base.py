@@ -60,6 +60,7 @@ class DedupPluginBase(object):
         Returns:
             str, 32位md5字符串
         """
+        host_str = rasp_result_ins.get_host_port()
         path_str = rasp_result_ins.get_path()
         stack_hash = rasp_result_ins.get_all_stack_hash()
         param_keys = "".join(sorted(rasp_result_ins.get_parameters().keys()))
@@ -72,6 +73,6 @@ class DedupPluginBase(object):
             file_names.append(file_item["name"])
         file_keys = "".join(sorted(file_names))
 
-        contact_str = "".join([path_str, stack_hash, param_keys,
+        contact_str = "".join([host_str, path_str, stack_hash, param_keys,
                                json_struct, query_keys, file_keys]).encode("utf-8")
         return hashlib.md5(contact_str).hexdigest()

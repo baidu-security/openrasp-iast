@@ -96,8 +96,7 @@ class ReportModel(base_model.BaseModel):
         except asyncio.CancelledError as e:
             raise e
         except Exception as e:
-            Logger().critical("Database error in put method!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method put!", e)
         else:
             return True
 
@@ -176,11 +175,8 @@ class ReportModel(base_model.BaseModel):
                 )
             return result
 
-        except asyncio.CancelledError as e:
-            raise e
         except Exception as e:
-            Logger().critical("DB method get_new_scan Fail!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_new_scan!", e)
 
     def mark_report(self, count=20):
         """
@@ -202,5 +198,4 @@ class ReportModel(base_model.BaseModel):
             query.execute()
 
         except Exception as e:
-            Logger().critical("DB method get_new_scan Fail!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method mark_report!", e)

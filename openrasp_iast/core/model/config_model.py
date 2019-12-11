@@ -82,8 +82,7 @@ class ConfigModel(base_model.BaseModel):
                 self.Config.host_port_hash == host_port_hash
             ).execute()
         except Exception as e:
-            Logger().critical("Database error in update method!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method update!", e)
 
     def get(self, host_port):
         """
@@ -107,8 +106,7 @@ class ConfigModel(base_model.BaseModel):
             else:
                 return None
         except Exception as e:
-            Logger().critical("DB method get Fail!", exc_info=e)
-            raise exceptions.DatabaseError
+            Logger().critical("DB error in method get!", exc_info=e)
 
     def get_list(self, host_port_list):
         """
@@ -138,8 +136,7 @@ class ConfigModel(base_model.BaseModel):
             return result
 
         except Exception as e:
-            Logger().critical("DB method get Fail!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method get_list!", e)
 
     def delete(self, host_port):
         """
@@ -159,5 +156,4 @@ class ConfigModel(base_model.BaseModel):
             else:
                 self.Config.delete().execute()
         except Exception as e:
-            Logger().critical("DB method delete Fail!", exc_info=e)
-            raise exceptions.DatabaseError
+            self._handle_exception("DB error in method delete!", e)
