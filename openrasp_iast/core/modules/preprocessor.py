@@ -90,8 +90,7 @@ class Preprocessor(base.BaseModule):
                 if Communicator().set_pre_http_pid(os.getpid()):
                     break
                 else:
-                    pids = ", ".join(str(x)
-                                     for x in Communicator().get_pre_http_pid())
+                    pids = ", ".join(str(x) for x in Communicator().get_pre_http_pid())
                     Logger().error("Preprocessor HTTP Server set pid failed! Running pids: {}".format(pids))
                     time.sleep(3)
             tornado.ioloop.IOLoop.current().start()
@@ -114,7 +113,11 @@ class jsonHandler(tornado.web.RequestHandler):
         """
         处理GET请求
         """
-        self.send_error(405)
+        msg = """
+        OpenRASP IAST Server is running ... </br>\n
+        This interface is used by the OpenRASP Agent to communicate with IAST, and should not be accessed with browser...
+        """
+        self.write(msg)
 
     async def post(self):
         """
