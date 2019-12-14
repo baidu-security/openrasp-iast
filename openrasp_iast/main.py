@@ -83,7 +83,7 @@ def init_check():
 
     # 测试是否能正确连接云控
     if Config().config_dict["cloud_api.enable"]:
-        url = Config().config_dict["cloud_api.backend_url"] + "/v1/agent/rasp/auth"
+        url = Config().config_dict["cloud_api.backend_url"] + "/v1/iast/auth"
         headers = {
             "X-OpenRASP-AppSecret": Config().config_dict["cloud_api.app_secret"],
             "X-OpenRASP-AppID": Config().config_dict["cloud_api.app_id"]
@@ -97,6 +97,16 @@ def init_check():
                     sys.exit(1)
             else:
                 print("[!] Test cloud server failed, got HTTP code: {}, check option startswith 'cloud_api' in config file!".format(r.status_code))
+                sys.exit(1)
+
+            version_url = Config().config_dict["cloud_api.backend_url"] + "/v1/iast/version"
+            r = requests.post(url=version_url, headers=headers, json=[])
+            server_version = ""
+            if r.status_code == 200:
+                response = json.loads(r.text)
+                server_version = response["data"]["version"]
+            if server_version < "1.3":
+                print("[!] The version of rasp_cloud must be greater than 1.3! Please Check")
                 sys.exit(1)
         except Exception:
             print("[!] Cloud server url:{} connect failed, check option startswith 'cloud_api' in config file!".format(url))
