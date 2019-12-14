@@ -278,6 +278,11 @@ class Monitor(base.BaseModule):
             self.crash_module = "cloud_thread"
             return False
 
+        if self.transaction_thread is not None and not self.transaction_thread.isAlive():
+            Logger().error("Detect monitor transaction thread stopped, Monitor exit!")
+            self.crash_module = "transaction_thread"
+            return False
+
         if self.preprocessor_proc is None:
             pid = Communicator().get_value("pid", "Preprocessor")
             if pid != 0:
@@ -393,6 +398,15 @@ class Monitor(base.BaseModule):
         )
         self.web_console_thread.start()
 
+        # 向云控后台发送心跳，用于建立ws连接
+        transaction = Transaction()
+        self.transaction_thread = threading.Thread(
+            target=transaction.run,
+            name="transaction_thread",
+            daemon=True
+        )
+        self.transaction_thread.start()
+
         time.sleep(1)
         if self._check_alive():
             print("[-] OpenRASP-IAST init success!")
@@ -405,15 +419,6 @@ class Monitor(base.BaseModule):
         else:
             self._terminate_modules()
             sys.exit(1)
-
-        # 向云控后台发送心跳，用于建立ws连接
-        transaction = Transaction()
-        self.transaction_thread = threading.Thread(
-            target=transaction.run,
-            name="ws_thread",
-            daemon=True
-        )
-        self.transaction_thread.start()
 
         while True:
             try:
