@@ -158,6 +158,8 @@ class WebGoatCrawler(object):
         data = '{"text":"xsss"}'
         self._post(path, data, headers)
 
+    # ssrf 仅能控制URL结尾，不符合规则未测试
+
     def crawl(self):
         self._login()
         for method in self.__dir__():

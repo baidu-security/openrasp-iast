@@ -134,7 +134,7 @@ def check_start():
     for i in range(15):
         try:
             r = requests.get(url=url, timeout=2)
-            if r.status_code == 405:
+            if r.status_code == 200:
                 return True
             break
         except Exception:
