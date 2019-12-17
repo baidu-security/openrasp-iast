@@ -264,12 +264,13 @@ class ResultStorage(object):
                 time.time() + 60
             ]
             del_host = []
-            for host, model in self.models.items():
+            for host_port, model in self.models.items():
                 if model[1] < now_time:
-                    del_host.append(host)
+                    del_host.append(host_port)
 
-            for host in del_host:
-                del self.models[host]
+            for host_port in del_host:
+                del self.models[host_port]
+                self.dedup_lru.clean_lru(host_port)
 
             if host_port not in self.known_hosts:
                 self.known_hosts[host_port] = None
