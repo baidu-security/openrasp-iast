@@ -260,21 +260,23 @@ class ResultStorage(object):
         """
         now_time = time.time()
         if host_port not in self.models or self.models[host_port][1] < now_time:
+
+            del_host = []
+            for host_port_item, model in self.models.items():
+                if model[1] < now_time:
+                    del_host.append(host_port_item)
+
+            for host_port_item in del_host:
+                del self.models[host_port_item]
+                self.dedup_lru.clean_lru(host_port_item)
+
             self.models[host_port] = [
                 new_request_model.NewRequestModel(host_port, multiplexing_conn=False),
                 time.time() + 60
             ]
-            del_host = []
-            for host_port, model in self.models.items():
-                if model[1] < now_time:
-                    del_host.append(host_port)
-
-            for host_port in del_host:
-                del self.models[host_port]
-                self.dedup_lru.clean_lru(host_port)
 
             if host_port not in self.known_hosts:
-                self.known_hosts[host_port] = None
+                self.known_hosts[host_port] = True
                 self._start_scanner(host_port)
 
         return self.models[host_port][0]
