@@ -259,7 +259,6 @@ class ResultStorage(object):
             获取到的NewRequestModel实例
         """
         now_time = time.time()
-        print(self.models)
         if host_port not in self.models or self.models[host_port][1] < now_time:
 
             del_host = []
