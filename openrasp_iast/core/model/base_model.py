@@ -211,7 +211,7 @@ class BaseModel(object):
 
     @staticmethod
     def _handle_exception(msg, e):
-        if (str(e).find("Too many connections")):
+        if str(e).find("Too many connections") != -1:
             msg = "Mysql connection limit exceeded, try to increase max_connections to solve this problem."
         Logger().error(msg, exc_info=e)
         raise exceptions.DatabaseError
