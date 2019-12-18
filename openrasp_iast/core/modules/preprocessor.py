@@ -57,7 +57,7 @@ class Preprocessor(base.BaseModule):
             Logger().warning("Dedupulicate plugin {} init fail!".format(plugin_name), exc_info=e)
 
         self.dedup_lru = DedupLru(Config().get_config("preprocessor.request_lru_size"))
-        self.new_request_storage = ResultStorage()
+        self.new_request_storage = ResultStorage(self.dedup_lru)
         self.app = tornado.web.Application([
             tornado.web.url(
                 Config().get_config("preprocessor.api_path"),
@@ -222,12 +222,13 @@ class jsonHandler(tornado.web.RequestHandler):
 
 class ResultStorage(object):
 
-    def __init__(self):
+    def __init__(self, dedup_lru):
         """
         初始化
         """
         self.models = {}
         self.known_hosts = {}
+        self.dedup_lru = dedup_lru
 
     async def _send_start_request(self, host, port):
         data = {
