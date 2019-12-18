@@ -149,7 +149,7 @@ api_path = Config().get_config("preprocessor.api_path")
 
 def test_http_server_run(preprocessor_fixture):
     r = http_sender.test_connect(api_path)
-    assert r.status_code == 405
+    assert r.status_code == 200
 
 
 def test_send_invalid_data(preprocessor_fixture):
