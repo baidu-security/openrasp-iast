@@ -25,6 +25,7 @@ COPY settings.xml /root/.m2/settings.xml
 
 WORKDIR /owasp/benchmark
 RUN sed -i 's/<cargo.servlet.port>8443<\/cargo.servlet.port>/<cargo.jvmargs>-javaagent:\/root\/rasp-java\/rasp\/rasp.jar<\/cargo.jvmargs><cargo.servlet.port>8443<\/cargo.servlet.port>/' pom.xml
+RUN sed -i 's/http:\/\/archive.apache.org\/dist\/tomcat\/tomcat-${tomcat.major.version}\/v${version.tomcat}\/bin\/apache-tomcat-${version.tomcat}.zip/https:\/\/packages.baidu.com\/app\/apache-tomcat-8\/apache-tomcat-8.5.4.zip/' pom.xml
 RUN mvn clean package cargo:install
 
 WORKDIR /root/

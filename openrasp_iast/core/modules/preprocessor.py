@@ -259,6 +259,7 @@ class ResultStorage(object):
             获取到的NewRequestModel实例
         """
         now_time = time.time()
+        print(self.models)
         if host_port not in self.models or self.models[host_port][1] < now_time:
 
             del_host = []
@@ -270,14 +271,14 @@ class ResultStorage(object):
                 del self.models[host_port_item]
                 self.dedup_lru.clean_lru(host_port_item)
 
-            self.models[host_port] = [
-                new_request_model.NewRequestModel(host_port, multiplexing_conn=False),
-                time.time() + 60
-            ]
-
             if host_port not in self.known_hosts:
                 self.known_hosts[host_port] = True
                 self._start_scanner(host_port)
+
+            self.models[host_port] = [
+                new_request_model.NewRequestModel(host_port, multiplexing_conn=False),
+                time.time() + 180
+            ]
 
         return self.models[host_port][0]
 
