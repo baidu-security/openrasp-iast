@@ -284,7 +284,10 @@ class ScanPluginBase(object):
             rasp_result_ins - RaspResult实例
         """
         if self._white_reg is not None:
-            uri = rasp_result_ins.get_path() + "?" + rasp_result_ins.get_query_string()
+            qs = rasp_result_ins.get_query_string()
+            uri = rasp_result_ins.get_path()
+            if len(qs) > 0:
+                uri = uri + "?" + qs
             if self._white_reg.search(uri) is not None:
                 self.logger.info("Skip task with task_id: {}, request_id:{}, url match white reg, request url:{}".format(
                     task_id,
