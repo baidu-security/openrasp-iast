@@ -62,19 +62,27 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         # 获取所有待测试参数
         request_data_ins = self.new_request_data(rasp_result_ins)
-        test_params = self.mutant_helper.get_params_list(
-            request_data_ins, ["files"])
+        test_params = self.mutant_helper.get_params_list(request_data_ins, ["files"])
         for param in test_params:
             payload_seq = self.gen_payload_seq()
             for payload in payload_list:
-                request_data_ins = self.new_request_data(
-                    rasp_result_ins, payload_seq, payload[1])
-                request_data_ins.set_param(
-                    param["type"], param["name"], payload[0])
-                request_data_ins.set_param(
-                    param["type"], [param["name"][0], "content_type"], "image/jpeg")
-                request_data_ins.set_param(
-                    param["type"], [param["name"][0], "content"], b"gif89a xxxx")
+                request_data_ins = self.new_request_data(rasp_result_ins, payload_seq, payload[1])
+                request_data_ins.set_param(param["type"], param["name"], payload[0])
+                request_data_ins.set_param(param["type"], [param["name"][0], "content_type"], "image/jpeg")
+                request_data_ins.set_param(param["type"], [param["name"][0], "content"], b"gif89a xxxx")
+
+                hook_filter = [{
+                    "type": "fileUpload",
+                    "filter": {
+                        "filename": payload[1]
+                    }
+                }, {
+                    "type": "writeFile",
+                    "filter": {
+                        "realpath": payload[1]
+                    }
+                }]
+                request_data_ins.set_filter(hook_filter)
                 request_data_list = [request_data_ins]
                 yield request_data_list
 

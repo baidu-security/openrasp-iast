@@ -42,15 +42,13 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         ]
 
         windows_payload_list = [
-            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\Windows\\system.ini",
-             ":\\Windows\\system.ini"),
+            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\Windows\\system.ini", ":\\Windows\\system.ini"),
             ("..\\..\\..\\Windows\\system.ini", ":\\Windows\\system.ini"),
             ("file://c:\\Windows\\system.ini", "c:\\Windows\\system.ini")
         ]
 
         mac_payload_list = [
-            ("../../../../../../../../../../../../../../../../../../../../private/etc/passwd",
-             "/private/etc/passwd"),
+            ("../../../../../../../../../../../../../../../../../../../../private/etc/passwd", "/private/etc/passwd"),
             ("../../../private/etc/passwd", "/private/etc/passwd"),
             ("/private/etc/passwd", "/private/etc/passwd")
         ]
@@ -73,10 +71,16 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
                 continue
             payload_seq = self.gen_payload_seq()
             for payload in payload_list:
-                request_data_ins = self.new_request_data(
-                    rasp_result_ins, payload_seq, payload[1])
-                request_data_ins.set_param(
-                    param["type"], param["name"], payload[0])
+                request_data_ins = self.new_request_data(rasp_result_ins, payload_seq, payload[1])
+                request_data_ins.set_param(param["type"], param["name"], payload[0])
+
+                hook_filter = [{
+                    "type": "include",
+                    "filter": {
+                        "realpath": payload[1]
+                    }
+                }]
+                request_data_ins.set_filter(hook_filter)
                 request_data_list = [request_data_ins]
                 yield request_data_list
 

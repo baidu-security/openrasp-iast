@@ -61,13 +61,18 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
                 request_data_ins = self.new_request_data(
                     rasp_result_ins, payload_seq, payload[1])
                 if param["type"] == "files":
-                    request_data_ins.set_param(
-                        param["type"], [param["name"][0], "content_type"], "application/xml")
-                    request_data_ins.set_param(
-                        param["type"], [param["name"][0], "content"], payload[0].encode("utf-8"))
+                    request_data_ins.set_param(param["type"], [param["name"][0], "content_type"], "application/xml")
+                    request_data_ins.set_param(param["type"], [param["name"][0], "content"], payload[0].encode("utf-8"))
                 else:
-                    request_data_ins.set_param(
-                        param["type"], param["name"], payload[0])
+                    request_data_ins.set_param(param["type"], param["name"], payload[0])
+
+                hook_filter = [{
+                    "type": "xxe",
+                    "filter": {
+                        "entity": payload[1]
+                    }
+                }]
+                request_data_ins.set_filter(hook_filter)
                 request_data_list = [request_data_ins]
                 yield request_data_list
 
