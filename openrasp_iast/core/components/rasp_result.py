@@ -346,6 +346,15 @@ class RaspResult(object):
         path = self.get_path()
         return protocol + host_port + path
 
+    def get_http_protocol(self):
+        """
+        获取HTTP协议版本
+
+        Returns:
+            string, 形如 HTTP/1.1
+        """
+        return self.rasp_result_dict["context"]["protocol"].upper()
+
     def get_query_string(self):
         """
         获取当前请求的url query

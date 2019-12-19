@@ -20,6 +20,7 @@ limitations under the License.
 import re
 import copy
 import json
+import base64
 import aiohttp
 import binascii
 import urllib.parse
@@ -74,11 +75,14 @@ class RequestData(object):
 
         raw_cookie = rasp_result_ins.get_cookies()
         if raw_cookie is not None:
-            cookie_obj = http.cookies.SimpleCookie()
-            cookie_obj.load(raw_cookie)
-            cookies = {}
-            for key, morsel in cookie_obj.items():
-                cookies[key] = morsel.value
+            try:
+                cookie_obj = http.cookies.SimpleCookie()
+                cookie_obj.load(raw_cookie)
+                cookies = {}
+                for key, morsel in cookie_obj.items():
+                    cookies[key] = morsel.value
+            except Exception:
+                Logger().warning("Found illegal cookie {} in request with id: {}".format(raw_cookie, rasp_result_ins.get_request_id()))
 
         headers = copy.deepcopy(rasp_result_ins.get_headers())
         del_keys = []
@@ -86,8 +90,7 @@ class RequestData(object):
             lkey = key.lower()
             if lkey in ("cookie", "content-length"):
                 del_keys.append(key)
-            if lkey.startswith("x-forwarded"):
-                del_keys.append(key)
+
         for key in del_keys:
             del headers[key]
 
@@ -214,6 +217,29 @@ class RequestData(object):
             Logger().error("Use an invalid para_type in set_param method!")
             raise exceptions.DataParamError
 
+    def set_filter(self, hook_filter):
+        """
+        添加一个hook信息过滤器，js插件会忽略未命中规则的hook_item，
+
+        Parameters:
+            hook_filter - list, 形式如下
+            [{
+                // 过滤适用的类型
+                "type": "sql",
+                "filter": [
+                    {
+                        // 过滤字段关键字，若不包含则忽略
+                        "query": "openrasp"
+                    },
+                    ...
+                ]
+            },
+            ...
+            ]
+        """
+        value = base64.b64encode(json.dumps(hook_filter).encode("utf-8"))
+        self.http_data["headers"]["x-iast-filter"] = value.decode("utf-8")
+
     def get_content_type(self):
         """
         获取请求的content-type
@@ -294,6 +320,7 @@ class RequestData(object):
                     "cache-control",
                     "connection",
                     "date",
+                    "dnt",
                     "content-type",
                     "upgrade-insecure-requests",
                     "expect",
@@ -302,12 +329,14 @@ class RequestData(object):
                     "if-none-match",
                     "if-range",
                     "if-unmodified-since",
+                    "host",
                     "max-forwards",
                     "origin",
                     "pragma",
                     "range",
                     "sec-fetch-site",
                     "sec-fetch-mode",
+                    "sec-fetch-user",
                     "te",
                     "trailer",
                     "transfer-encoding",
@@ -404,18 +433,27 @@ class RequestData(object):
 
         parse_result = urllib.parse.urlparse(self.http_data["url"])
         raw_request = []
-        raw_request.append(self.method.upper() + " " + parse_result.path + "?" + parse_result.query + " HTTP/1.1")
+        line = self.method.upper() + " " + parse_result.path
+        if len(parse_result.query) > 0:
+            line += "?" + parse_result.query
+        line += " HTTP/1.1"
+        raw_request.append(line)
+
         for key in self.http_data["headers"]:
             raw_request.append(key + ": " + self.http_data["headers"][key])
 
         if self.http_data["cookies"] is not None:
-            cookie_obj = http.cookies.SimpleCookie()
-            cookie_obj.load(self.http_data["cookies"])
-            output = cookie_obj.output().split("\r\n")
-            cookie = "Cookie: "
-            for item in output:
-                cookie += item[12:] + ";"
-            raw_request.append(cookie)
+            try:
+                cookie_obj = http.cookies.SimpleCookie()
+                cookie_obj.load(self.http_data["cookies"])
+                output = cookie_obj.output().split("\r\n")
+                cookie = "Cookie: "
+                for item in output:
+                    cookie += item[12:] + ";"
+            except Exception:
+                cookie = "[!]cookie get error, cookie raw data is:" + json.dumps(self.http_data["cookies"])
+            finally:
+                raw_request.append(cookie)
 
         raw_request.append("")
         raw_request.append(body)

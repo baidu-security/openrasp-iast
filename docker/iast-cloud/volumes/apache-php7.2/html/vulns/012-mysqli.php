@@ -6,7 +6,7 @@
     $user   = isset($_GET["user"])   ? $_GET['user']  : 'test';
     $pass   = isset($_GET["pass"])   ? $_GET['pass']  : 'test';
     $db     = isset($_GET["db"])     ? $_GET['db']    : 'test';
-    $id     = isset($_GET['id'])     ? $_GET['id']    : '0';
+    $id     = isset($_GET['id'])     ? $_GET['id']    : (isset($_POST['id']) ? $_POST['id'] : '0');
 
     if(isset($_SERVER["CONTENT_TYPE"]) && strpos($_SERVER["CONTENT_TYPE"], "application/json") !== false){
         $input = file_get_contents("php://input");

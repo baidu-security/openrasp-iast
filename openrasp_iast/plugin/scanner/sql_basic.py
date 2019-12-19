@@ -53,6 +53,13 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
                     rasp_result_ins, payload_seq, payload[1])
                 request_data_ins.set_param(
                     param["type"], param["name"], payload[0])
+                hook_filter = [{
+                    "type": "sql",
+                    "filter": {
+                        "query": payload[1]
+                    }
+                }]
+                request_data_ins.set_filter(hook_filter)
                 request_data_list = [request_data_ins]
                 yield request_data_list
 

@@ -343,7 +343,7 @@ class ScanPluginBase(object):
                     self.logger.debug("Send scan request: \n{}\n".format(raw_request))
 
                     raw_response = []
-                    raw_response.append("Status:" + str(ret["response"]["status"]))
+                    raw_response.append("HTTP Code:" + str(ret["response"]["status"]))
                     for key, value in ret["response"]["headers"].items():
                         raw_response.append(key + ": " + value)
 
