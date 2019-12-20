@@ -42,8 +42,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         ]
 
         windows_payload_list = [
-            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\openrasp_dir", ":\\openrasp_dir"),
-            ("file://c:\\openrasp_dir", "c:\\openrasp_dir")
+            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\windows", ":\\windows"),
+            ("c:\\windows", "c:\\windows")
         ]
 
         mac_payload_list = [
@@ -70,10 +70,8 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
                 continue
             payload_seq = self.gen_payload_seq()
             for payload in payload_list:
-                request_data_ins = self.new_request_data(
-                    rasp_result_ins, payload_seq, payload[1])
-                request_data_ins.set_param(
-                    param["type"], param["name"], payload[0])
+                request_data_ins = self.new_request_data(rasp_result_ins, payload_seq, payload[1])
+                request_data_ins.set_param(param["type"], param["name"], payload[0])
                 hook_filter = [{
                     "type": "dir",
                     "filter": {

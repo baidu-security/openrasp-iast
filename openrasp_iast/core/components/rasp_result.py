@@ -55,6 +55,7 @@ class RaspResult(object):
                     "nic": {"type": "array"},
                     "target": {"type": "string"},
                     "source": {"type": "string"},
+                    "url": {"type": "string"},
                 }
             },
             "hook_info": {"type": "array"}

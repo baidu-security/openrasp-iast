@@ -50,7 +50,6 @@ class RequestData(object):
             payload_feature - 用于检测payload是否成功投放的特征
         """
         self.rasp_result_ins = rasp_result_ins
-        url = rasp_result_ins.get_scan_url()
         self.method = rasp_result_ins.get_method().lower()
         if not self._is_valid_method(self.method):
             Logger().error("Found invalid http method {}".format(self.method))
@@ -431,11 +430,14 @@ class RequestData(object):
                 body += "{}={}&".format(key, value)
             body = body[:-1]
 
-        parse_result = urllib.parse.urlparse(self.http_data["url"])
         raw_request = []
-        line = self.method.upper() + " " + parse_result.path
-        if len(parse_result.query) > 0:
-            line += "?" + parse_result.query
+
+        url_path = self.rasp_result_ins.get_path()
+        qs = urllib.parse.urlencode(self.http_data["params"])
+
+        line = self.method.upper() + " " + url_path
+        if len(qs) > 0:
+            line += "?" + qs
         line += " HTTP/1.1"
         raw_request.append(line)
 
