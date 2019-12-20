@@ -42,7 +42,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         ]
 
         windows_payload_list = [
-            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\openrasp_dir", ":/openrasp_dir"),
+            ("..\\..\\..\\..\\..\\..\\..\\..\\..\\openrasp_dir", ":\\openrasp_dir"),
             ("file://c:\\openrasp_dir", "c:\\openrasp_dir")
         ]
 
