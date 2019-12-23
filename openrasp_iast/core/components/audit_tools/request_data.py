@@ -216,6 +216,28 @@ class RequestData(object):
             Logger().error("Use an invalid para_type in set_param method!")
             raise exceptions.DataParamError
 
+    def delete_param(self, para_type, para_name):
+        """
+        删除HTTP请求的某个变量，支持get、post、Cookie、headers
+
+        Parameters:
+            para_type - str, 要删除的参数类型，可选get、post、Cookie、headers
+            para_name - str, 要删除的参数名
+        Raises:
+            exceptions.DataParamError - 参数错误引发此异常
+        """
+        if para_type == "cookies" and para_name in self.http_data["cookies"]:
+            del self.http_data["cookies"][para_name]
+        elif para_type == "get" and para_name in self.http_data["params"]:
+            del self.http_data["params"][para_name]
+        elif para_type == "post" and para_name in self.http_data["data"]:
+            del self.http_data["data"][para_name]
+        elif para_type == "headers" and para_name in self.http_data["headers"]:
+            del self.http_data["headers"][para_name]
+        else:
+            Logger().error("Use an invalid para_type in set_param method!")
+            raise exceptions.DataParamError
+
     def set_filter(self, hook_filter):
         """
         添加一个hook信息过滤器，js插件会忽略未命中规则的hook_item，

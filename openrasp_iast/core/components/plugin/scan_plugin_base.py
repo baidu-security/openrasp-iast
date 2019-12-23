@@ -368,8 +368,11 @@ class ScanPluginBase(object):
             message = self.check(request_data_list)
             if type(message) is str:
                 if await self.report(request_data_list, message):
-                    self.logger.info("Plugin find vuln after request {}".format(request_data_list[0].get_aiohttp_param()["url"]))
-                    # self.logger.info("Plugin find vuln after request {}".format(ret["scan_req_id"]))
+                    url_list = []
+                    for request in request_data_list:
+                        url_list.append(request.get_aiohttp_param()["url"])
+                    urls = ",".join(url_list)
+                    self.logger.info("Plugin find vuln with request {}".format(urls))
 
     async def report(self, request_data_list, message=""):
         """
