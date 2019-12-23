@@ -240,7 +240,7 @@ class RequestData(object):
 
     def set_filter(self, hook_filter):
         """
-        添加一个hook信息过滤器，js插件会忽略未命中规则的hook_item，
+        添加一个hook信息过滤器，js插件会忽略未命中规则的hook信息，仅回传命中规则的hook点信息到IAST的rasp_result，用于提高扫描效率
 
         Parameters:
             hook_filter - list, 形式如下
