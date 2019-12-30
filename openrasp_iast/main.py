@@ -93,6 +93,18 @@ def init_check():
     # 测试是否能正确连接云控
     if Config().config_dict["cloud_api.enable"]:
         url = Config().config_dict["cloud_api.backend_url"] + "/v1/iast/auth"
+
+        cloud_config = {
+            "backend_url": Config().config_dict["cloud_api.backend_url"],
+            "app_secret": Config().config_dict["cloud_api.app_secret"],
+            "app_id": Config().config_dict["cloud_api.app_id"]
+        }
+
+        for k, v in cloud_config.items():
+            if v == "":
+                print("[!] Config item cloud_api.{} is empty, refer to rasp cloud page to configure this option!".format(k))
+                sys.exit(1)
+
         headers = {
             "X-OpenRASP-AppSecret": cloud_config["app_secret"],
             "X-OpenRASP-AppID": cloud_config["app_id"]
