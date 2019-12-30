@@ -402,6 +402,7 @@ class Monitor(base.BaseModule):
         # self.web_console_thread.start()
 
         # 向云控后台发送心跳，用于建立ws连接
+
         transaction = Transaction()
         self.transaction_thread = threading.Thread(
             target=transaction.run,

@@ -179,7 +179,8 @@ def start(args):
     """
     Config().load_config(args.config_path)
 
-    init_check()
+    if os.environ.get("IAST_TEST_MODE", "0") != "1":
+        init_check()
 
     real_log_path = os.path.realpath(Config().get_config("log.path"))
     log_level = Config().get_config("log.level").upper()
