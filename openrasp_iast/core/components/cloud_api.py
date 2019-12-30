@@ -197,7 +197,7 @@ class Transaction(object):
                         await converse.send(res)
         except exceptions.AppIdExist as e:
             print("[!] Same cloud_api.app_id can only connection for once time!")
-            Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!", exc_info=e)
+            Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
             os._exit(1)
 
     def parse_message(self):
