@@ -209,6 +209,14 @@ class ScannerManager(object):
         Raises:
             exceptions.DatabaseError - 数据库错误引发此异常
         """
+        return self.get_all_iast_target(page)
+
+    def get_all_iast_target(self, page=1):
+        """
+        被get_all_target调用
+        :param page:
+        :return:
+        """
         result_tables = self._target_status.get_tables()
         Logger().debug("Got current tables: {}".format(", ".join(result_tables)))
 
