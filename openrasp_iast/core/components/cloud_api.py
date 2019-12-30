@@ -17,17 +17,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
+import sys
 import json
 import time
-import sys
 import requests
 import asyncio
-import logging
 
-from aiowebsocket.converses import AioWebSocket
 from urllib.parse import urlparse
+from aiowebsocket.converses import AioWebSocket
 
 from core.model import report_model
+from core.components import exceptions
 from core.components import rasp_result
 from core.components.logger import Logger
 from core.components.config import Config
@@ -39,7 +40,6 @@ from core.components.cloud_console import AutoStartHandler
 from core.components.cloud_console import AutoStartStatusHandler
 from core.components.cloud_console import GetConfigHandler
 from core.components.cloud_console import ScanConfigHandler
-
 
 
 class CloudApi(object):
@@ -189,16 +189,15 @@ class Transaction(object):
                     if "order" in message_str:
                         self.message_bucket.append(message_str)
                     elif "app_id already exist!" in message_str:
-                        raise ConnectionError
+                        raise exceptions.AppIdExist
                     elif "heartbeat" not in message_str:
                         Logger().error("unknown message:", message_str)
                     res = self.parse_message()
                     if isinstance(res, str):
                         await converse.send(res)
-        except ConnectionError:
-            import os
+        except exceptions.AppIdExist as e:
             print("[!] Same cloud_api.app_id can only connection for once time!")
-            Logger.error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
+            Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!", exc_info=e)
             os._exit(1)
 
     def parse_message(self):
@@ -237,6 +236,4 @@ class Transaction(object):
             asyncio.set_event_loop(asyncio.new_event_loop())
             asyncio.get_event_loop().run_until_complete(self.start(remote, union_header))
         except Exception as e:
-            logging.info("Quit.")
-            return
-
+            Logger().error('Cloud transaction disconnected!', exc_info=e)

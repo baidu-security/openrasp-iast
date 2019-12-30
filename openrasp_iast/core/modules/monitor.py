@@ -198,7 +198,7 @@ class ScannerScheduler(object):
                 elif cr > 1:
                     cr -= 1
                 else:
-                    ri += int((self.ri_max - self.ri_min)/10)
+                    ri += int((self.ri_max - self.ri_min) / 10)
 
                 if ri > self.ri_max:
                     ri = self.ri_max
@@ -210,7 +210,7 @@ class ScannerScheduler(object):
                     return
                 else:
                     if ri > 128:
-                        ri -= int((self.ri_max - self.ri_min)/10)
+                        ri -= int((self.ri_max - self.ri_min) / 10)
                         if ri < 128:
                             ri = 128
                     elif cr < self.cr_max:
@@ -268,10 +268,11 @@ class Monitor(base.BaseModule):
             self.crash_module = "main"
             return False
 
-        if not self.web_console_thread.isAlive():
-            Logger().error("Detect monitor web console stopped, Monitor exit!")
-            self.crash_module = "Monitor_web_console"
-            return False
+        # http server存活检测
+        # if not self.web_console_thread.isAlive():
+        #     Logger().error("Detect monitor web console stopped, Monitor exit!")
+        #     self.crash_module = "Monitor_web_console"
+        #     return False
 
         if self.cloud_thread is not None and not self.cloud_thread.isAlive():
             Logger().error("Detect monitor cloud thread stopped, Monitor exit!")
@@ -279,7 +280,7 @@ class Monitor(base.BaseModule):
             return False
 
         if self.transaction_thread is not None and not self.transaction_thread.isAlive():
-            Logger().error("Detect monitor transaction thread stopped, Monitor exit!")
+            Logger().error("Detect monitor cloud transaction thread stopped, Monitor exit!")
             self.crash_module = "transaction_thread"
             return False
 
@@ -349,10 +350,12 @@ class Monitor(base.BaseModule):
         info = psutil.net_if_addrs()
         for name, value in info.items():
             for item in value:
-                if (item[0] == 2 and
+                if (
+                    item[0] == 2 and
                     item[1].find(".") > 0 and
                     item[1] != '127.0.0.1' and
-                        item[2] is not None):
+                    item[2] is not None
+                ):
                     return item[1]
         return "127.0.0.1"
 
@@ -390,13 +393,13 @@ class Monitor(base.BaseModule):
         ScannerManager().init_manager(scanner_schedulers)
 
         # 启动后台http server
-        web_console = WebConsole()
-        self.web_console_thread = threading.Thread(
-            target=web_console.run,
-            name="web_console_thread",
-            daemon=True
-        )
-        self.web_console_thread.start()
+        # web_console = WebConsole()
+        # self.web_console_thread = threading.Thread(
+        #     target=web_console.run,
+        #     name="web_console_thread",
+        #     daemon=True
+        # )
+        # self.web_console_thread.start()
 
         # 向云控后台发送心跳，用于建立ws连接
         transaction = Transaction()

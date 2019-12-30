@@ -506,7 +506,7 @@ class GetAllTargetHandler(ApiHandlerBase):
         }
         """
         page = data.get("page", 1)
-        result, total = await ScannerManager().get_all_target(page)
+        result, total = ScannerManager().get_all_target(page)
         ret = {
             "status": 0,
             "description": "ok",
