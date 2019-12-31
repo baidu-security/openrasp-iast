@@ -191,7 +191,7 @@ class Transaction(object):
                     elif "app_id already exist!" in message_str:
                         raise exceptions.AppIdExist
                     elif "heartbeat" not in message_str:
-                        Logger().error("unknown message:", message_str)
+                        Logger().error("Converse received unknown message: {}".format(message_str))
                     res = self.parse_message()
                     if isinstance(res, str):
                         await converse.send(res)

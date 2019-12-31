@@ -414,8 +414,7 @@ class Monitor(base.BaseModule):
         time.sleep(1)
         if self._check_alive():
             print("[-] OpenRASP-IAST init success!")
-            print("[-] Visit web console with url: http://{}:{}/".format(
-                self._get_self_ip(), Config().get_config("monitor.console_port")))
+            print("[-] Visit web console in cloud server: {}".format(Config().get_config("cloud_api.backend_url")))
             print("[-] Before start scan task, set OpenRASP agent plugin algorithmConfig option 'fuzz_server' (edit iast.js or use cloud server web console)  with url: 'http://{}:{}{}'".format(
                 self._get_self_ip(), Config().get_config("preprocessor.http_port"), Config().get_config("preprocessor.api_path")))
 
