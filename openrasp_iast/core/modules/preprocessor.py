@@ -227,26 +227,7 @@ class ResultStorage(object):
         初始化
         """
         self.models = {}
-        self.known_hosts = {}
         self.dedup_lru = dedup_lru
-
-    async def _send_start_request(self, host, port):
-        data = {
-            "host": host,
-            "port": port,
-            "config": {}
-        }
-        api_port = Config().get_config("monitor.console_port")
-        url = "http://127.0.0.1:" + str(api_port) + "/api/scanner/new"
-        async with aiohttp.ClientSession() as session:
-            await session.post(url, json=data, timeout=5)
-
-    def _start_scanner(self, host_port):
-        if Communicator().get_value("auto_start", "Monitor") == 1:
-            host = "".join(host_port.split("_")[:-1])
-            port = int(host_port.split("_")[-1])
-            loop = asyncio.get_event_loop()
-            loop.create_task(self._send_start_request(host, port))
 
     def _get_model(self, host_port):
         """
@@ -270,10 +251,6 @@ class ResultStorage(object):
                 del self.models[host_port_item]
                 self.dedup_lru.clean_lru(host_port_item)
 
-            if host_port not in self.known_hosts:
-                self.known_hosts[host_port] = True
-                self._start_scanner(host_port)
-
             self.models[host_port] = [
                 new_request_model.NewRequestModel(host_port, multiplexing_conn=False),
                 time.time() + 180
@@ -290,7 +267,6 @@ class ResultStorage(object):
         """
         if host_port in self.models:
             del self.models[host_port]
-            del self.known_hosts[host_port]
 
     async def put(self, rasp_result_ins):
         """
