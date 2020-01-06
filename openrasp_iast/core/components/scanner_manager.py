@@ -591,7 +591,7 @@ class ScannerConfig(object):
         if host_port not in self._config_cache:
             origin_config_json = config_model.get(host_port)
             if origin_config_json is None:
-                origin_config = self._default_config
+                origin_config = copy.deepcopy(self._default_config)
             else:
                 origin_config = json.loads(origin_config_json)
         else:
@@ -640,7 +640,7 @@ class ScannerConfig(object):
             config_model = ConfigModel(table_prefix="", use_async=True, create_table=True, multiplexing_conn=True)
             config_json = config_model.get(host_port)
             if config_json is None:
-                self._config_cache[host_port] = self._default_config
+                self._config_cache[host_port] = copy.deepcopy(self._default_config)
             else:
                 self._config_cache[host_port] = json.loads(config_json)
 
