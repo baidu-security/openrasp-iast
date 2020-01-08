@@ -24,6 +24,7 @@ import json
 import asyncio
 import traceback
 import jsonschema
+import urllib.parse
 
 
 from core import modules
@@ -170,12 +171,12 @@ class ScanConfigHandler(ApiHandlerBase):
             if "white_url_reg" in module_params["config"]:
                 re.compile(module_params["config"]["white_url_reg"])
 
-            # if "scan_proxy" in module_params["config"]:
-            #     proxy_url = module_params["config"]["scan_proxy"]
-            #     if proxy_url != "":
-            #         scheme = urllib.parse.urlparse(proxy_url).scheme
-            #         if scheme not in ("http", "https"):
-            #             assert False
+            if "scan_proxy" in module_params["config"]:
+                proxy_url = module_params["config"]["scan_proxy"]
+                if proxy_url != "":
+                    scheme = urllib.parse.urlparse(proxy_url).scheme
+                    if scheme not in ("http", "https"):
+                        assert False
 
         except (KeyError, TypeError, jsonschema.exceptions.ValidationError):
             ret = {
