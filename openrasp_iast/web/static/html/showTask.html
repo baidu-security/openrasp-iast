@@ -124,7 +124,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-sm-12">
-                            <label>url白名单正则（被正则命中的url不会被扫描, 正则会匹配request_uri部分, 例如 http://test.com/path/eg?p=1&b=2 会匹配 /path/eg?p=1&b=2, 当不希望扫描path/eg时可以配置为 ^/path/eg）</label>
+                            <label>url白名单正则（被正则命中的url不会被扫描, 正则会匹配request_uri部分, 例如 http://test.com/path/eg?p=1&b=2 对应request_uri部分为 /path/eg?p=1&b=2, 当不希望扫描path/eg开头的路径时时可以配置为 ^/path/eg）</label>
                             <input type="text" class="form-control"
                                    id="urlWhiteRegex" ng-model="urlWhiteRegex">
                             <label ng-show="!regLegal" style="color:#F00">*白名单正则非法</label>
