@@ -18,9 +18,13 @@ RUN apt-get install -q -y \
      curl \
      && apt-get clean
 
-RUN mkdir /owasp
-WORKDIR /owasp
-RUN git clone https://github.com/OWASP/benchmark
+WORKDIR /root
+RUN wget https://packages.baidu.com/app/Benchmark-master.zip && \
+    unzip Benchmark-master.zip && \
+    rm -rf Benchmark-master.zip && \
+    mkdir /owasp && \
+    mv Benchmark-master /owasp/benchmark
+
 COPY settings.xml /root/.m2/settings.xml
 
 WORKDIR /owasp/benchmark
