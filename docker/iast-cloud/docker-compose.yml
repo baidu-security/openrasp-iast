@@ -86,21 +86,21 @@ services:
             - "./volumes/testfiles/:/testfiles"
         tty: true
 
-    # owasp-benchmark:
-    #     build:
-    #         # network: host
-    #         context: ./images/owasp-benchmark
-    #         args: 
-    #             - RASP_VERSION
-    #     image: openrasp/iast-cloud/owasp-benchmark
-    #     hostname: owasp-benchmark
-    #     ports: 
-    #         - "8443:8443"
-    #     depends_on:
-    #         - rasp-cloud
-    #     volumes: 
-    #         - "./volumes/testfiles/:/testfiles"
-    #     tty: true
+    owasp-benchmark:
+        build:
+            # network: host
+            context: ./images/owasp-benchmark
+            args: 
+                - RASP_VERSION
+        image: openrasp/iast-cloud/owasp-benchmark
+        hostname: owasp-benchmark
+        ports: 
+            - "8443:8443"
+        depends_on:
+            - rasp-cloud
+        volumes: 
+            - "./volumes/testfiles/:/testfiles"
+        tty: true
 
     webgoat:
         build:
