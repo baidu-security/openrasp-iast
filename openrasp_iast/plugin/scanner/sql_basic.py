@@ -72,6 +72,6 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
         if rasp_result_ins is None:
             return None
         if self.checker.check_concat_in_hook(rasp_result_ins, "sql", feature):
-            return "sql语句逻辑可被用户输入控制"
+            return "SQL语句逻辑可被用户输入控制"
         else:
             return None
