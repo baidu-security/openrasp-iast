@@ -331,7 +331,6 @@ class GetAllTargetHandler(ApiHandlerBase):
         }
         """
         page = data.get("page", 1)
-        app_id = data.get("app_id", "0")
         result, total = ScannerManager().get_all_target(page)
 
         ret = {
@@ -340,7 +339,6 @@ class GetAllTargetHandler(ApiHandlerBase):
             # data 格式参考get_all_target返回值
             "data": {
                 "total": total,
-                "app_id": app_id,
                 "result": result
             }
         }

@@ -223,6 +223,10 @@ class Transaction(object):
             elif order == 'setConfig':
                 ret = ScanConfigHandler().handle_request(message_json["data"])
             if isinstance(ret, dict):
+                app_id = message_json["data"].get("app_id", "0")
+                if 'data' not in ret.keys():
+                    ret['data'] = dict()
+                ret['data']['app_id'] = app_id
                 return json.dumps(ret)
         return
 
