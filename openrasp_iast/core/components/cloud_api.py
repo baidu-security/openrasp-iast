@@ -175,30 +175,38 @@ class Transaction(object):
 
     async def start(self, uri, union_header):
         print("[-] Starting HandShake to cloud_api....")
-        try:
-            async with AioWebSocket(uri, union_header=union_header, timeout=5) as aws:
-                converse = aws.manipulator
-                # 客户端给服务端发送消息
-                await converse.send("startup")
-                while True:
-                    mes = await converse.receive()
-                    # from datetime import datetime
-                    # print('[-] {time}-Client receive: {rec}'
-                    #       .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
-                    message_str = str(mes, encoding="utf-8")
-                    if "order" in message_str:
-                        self.message_bucket.append(message_str)
-                    elif "app_id already exist!" in message_str:
-                        raise exceptions.AppIdExist
-                    elif "heartbeat" not in message_str:
-                        Logger().error("Converse received unknown message: {}".format(message_str))
-                    res = self.parse_message()
-                    if isinstance(res, str):
-                        await converse.send(res)
-        except exceptions.AppIdExist as e:
-            print("[!] Same cloud_api.app_id can only connection for once time!")
-            Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
-            os._exit(1)
+        while True:
+            try:
+                async with AioWebSocket(uri, union_header=union_header, timeout=5) as aws:
+                    converse = aws.manipulator
+                    # 客户端给服务端发送消息
+                    await converse.send("startup")
+                    self.message_bucket = []
+                    print("[-] Connect to cloud server success!")
+                    Logger().info("Connect to cloud server success!")
+                    while True:
+                        mes = await converse.receive()
+                        # from datetime import datetime
+                        # print('[-] {time}-Client receive: {rec}'
+                        #       .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
+                        message_str = str(mes, encoding="utf-8")
+                        if "order" in message_str:
+                            self.message_bucket.append(message_str)
+                        elif "app_id already exist!" in message_str:
+                            raise exceptions.AppIdExist
+                        elif "heartbeat" not in message_str:
+                            Logger().error("Converse received unknown message: {}".format(message_str))
+                        res = self.parse_message()
+                        if isinstance(res, str):
+                            await converse.send(res)
+            except exceptions.AppIdExist as e:
+                print("[!] Same cloud_api.app_id can only connection for once time!")
+                Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
+                os._exit(1)
+            except Exception as e:
+                print("[!] Lost connection with cloud server, will try to connect after 20 seconds!")
+                Logger().warning("Lost connection with cloud server, will try to connect after 20 seconds!", exc_info=e)
+            time.sleep(20)
 
     def parse_message(self):
         message_str = self.get_one_message()
