@@ -20,6 +20,7 @@ limitations under the License.
 import os
 import sys
 import json
+import traceback
 import time
 import requests
 import asyncio
@@ -206,11 +207,10 @@ class Transaction(object):
                 Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
                 os._exit(1)
             except Exception as e:
-                if not success:
-                    os._exit(1)
-                print("[!] Lost connection with cloud server, will try to connect after 20 seconds!")
-                Logger().warning("Lost connection with cloud server, will try to connect after 20 seconds!", exc_info=e)
-            time.sleep(20)
+                m = traceback.format_exc()
+                Logger().error(m)
+                os._exit(1)
+
 
     def parse_message(self):
         message_str = self.get_one_message()
