@@ -175,6 +175,7 @@ class Transaction(object):
 
     async def start(self, uri, union_header):
         print("[-] Starting HandShake to cloud_api....")
+        success = False
         while True:
             try:
                 async with AioWebSocket(uri, union_header=union_header, timeout=5) as aws:
@@ -183,6 +184,7 @@ class Transaction(object):
                     await converse.send("startup")
                     self.message_bucket = []
                     print("[-] Connect to cloud server success!")
+                    success = True
                     Logger().info("Connect to cloud server success!")
                     while True:
                         mes = await converse.receive()
@@ -204,6 +206,8 @@ class Transaction(object):
                 Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
                 os._exit(1)
             except Exception as e:
+                if not success:
+                    os._exit(1)
                 print("[!] Lost connection with cloud server, will try to connect after 20 seconds!")
                 Logger().warning("Lost connection with cloud server, will try to connect after 20 seconds!", exc_info=e)
             time.sleep(20)
