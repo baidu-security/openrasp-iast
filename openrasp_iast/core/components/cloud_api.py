@@ -176,8 +176,8 @@ class Transaction(object):
 
     async def start(self, uri, union_header):
         print("[-] Starting HandShake to cloud_api....")
-        success = False
         while True:
+            success = False
             try:
                 async with AioWebSocket(uri, union_header=union_header, timeout=5) as aws:
                     converse = aws.manipulator
@@ -207,9 +207,12 @@ class Transaction(object):
                 Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
                 os._exit(1)
             except Exception as e:
-                m = traceback.format_exc()
-                Logger().error(m)
-                os._exit(1)
+                if not success:
+                    m = traceback.format_exc()
+                    Logger().error(m)
+                    print("[!] Lost connection with cloud server, will try to connect after 5 seconds!")
+                    # Logger().warning("Lost connection with cloud server, will try to connect after 5 seconds!", exc_info=e)
+            time.sleep(5)
 
 
     def parse_message(self):
