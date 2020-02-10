@@ -120,7 +120,7 @@ def init_check():
                 print("[!] Test cloud server failed, got HTTP code: {} from cloud server: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, url))
                 sys.exit(1)
 
-            version_url = Config().config_dict["cloud_api.backend_url"] + "/v1/iast/version"
+            version_url = Config().config_dict["cloud_api.backend_url"] + "/v1/version"
             r = requests.post(url=version_url, headers=headers, json=[])
             server_version = ""
             if r.status_code == 200:
