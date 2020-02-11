@@ -294,6 +294,10 @@ def set_config(args):
     Config().save_config()
 
 
+def show_version(args):
+    print("OpenRASP-IAST v1.3")
+
+
 def run():
     parser = argparse.ArgumentParser(usage='%(prog)s [options]')
 
@@ -311,6 +315,10 @@ def run():
 
     parser_restart = subparsers.add_parser('restart', help='restart help')
     parser_restart.set_defaults(func=restart)
+
+    # 显示版本
+    parser_config = subparsers.add_parser('version', help='show version')
+    parser_config.set_defaults(func=show_version)
 
     # 修改配置
     parser_config = subparsers.add_parser('config', help='config help')
