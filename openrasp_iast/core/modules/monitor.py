@@ -29,6 +29,7 @@ from core.components import common
 from core.components.logger import Logger
 from core.components.config import Config
 from core.components.cloud_api import CloudApi
+from core.components.cloud_api import Transaction
 from core.components.web_console import WebConsole
 from core.components.runtime_info import RuntimeInfo
 from core.components.communicator import Communicator
@@ -197,7 +198,7 @@ class ScannerScheduler(object):
                 elif cr > 1:
                     cr -= 1
                 else:
-                    ri += int((self.ri_max - self.ri_min)/10)
+                    ri += int((self.ri_max - self.ri_min) / 10)
 
                 if ri > self.ri_max:
                     ri = self.ri_max
@@ -209,7 +210,7 @@ class ScannerScheduler(object):
                     return
                 else:
                     if ri > 128:
-                        ri -= int((self.ri_max - self.ri_min)/10)
+                        ri -= int((self.ri_max - self.ri_min) / 10)
                         if ri < 128:
                             ri = 128
                     elif cr < self.cr_max:
@@ -267,14 +268,20 @@ class Monitor(base.BaseModule):
             self.crash_module = "main"
             return False
 
-        if not self.web_console_thread.isAlive():
-            Logger().error("Detect monitor web console stopped, Monitor exit!")
-            self.crash_module = "Monitor_web_console"
-            return False
+        # http server存活检测
+        # if not self.web_console_thread.isAlive():
+        #     Logger().error("Detect monitor web console stopped, Monitor exit!")
+        #     self.crash_module = "Monitor_web_console"
+        #     return False
 
         if self.cloud_thread is not None and not self.cloud_thread.isAlive():
             Logger().error("Detect monitor cloud thread stopped, Monitor exit!")
             self.crash_module = "cloud_thread"
+            return False
+
+        if self.transaction_thread is not None and not self.transaction_thread.isAlive():
+            Logger().error("Detect monitor cloud transaction thread stopped, Monitor exit!")
+            self.crash_module = "transaction_thread"
             return False
 
         if self.preprocessor_proc is None:
@@ -343,10 +350,12 @@ class Monitor(base.BaseModule):
         info = psutil.net_if_addrs()
         for name, value in info.items():
             for item in value:
-                if (item[0] == 2 and
+                if (
+                    item[0] == 2 and
                     item[1].find(".") > 0 and
                     item[1] != '127.0.0.1' and
-                        item[2] is not None):
+                    item[2] is not None
+                ):
                     return item[1]
         return "127.0.0.1"
 
@@ -384,19 +393,28 @@ class Monitor(base.BaseModule):
         ScannerManager().init_manager(scanner_schedulers)
 
         # 启动后台http server
-        web_console = WebConsole()
-        self.web_console_thread = threading.Thread(
-            target=web_console.run,
-            name="web_console_thread",
+        # web_console = WebConsole()
+        # self.web_console_thread = threading.Thread(
+        #     target=web_console.run,
+        #     name="web_console_thread",
+        #     daemon=True
+        # )
+        # self.web_console_thread.start()
+
+        # 向云控后台发送心跳，用于建立ws连接
+
+        transaction = Transaction()
+        self.transaction_thread = threading.Thread(
+            target=transaction.run,
+            name="transaction_thread",
             daemon=True
         )
-        self.web_console_thread.start()
+        self.transaction_thread.start()
 
         time.sleep(1)
         if self._check_alive():
             print("[-] OpenRASP-IAST init success!")
-            print("[-] Visit web console with url: http://{}:{}/".format(
-                self._get_self_ip(), Config().get_config("monitor.console_port")))
+            print("[-] Visit web console in cloud server: {}".format(Config().get_config("cloud_api.backend_url")))
             print("[-] Before start scan task, set OpenRASP agent plugin algorithmConfig option 'fuzz_server' (edit iast.js or use cloud server web console)  with url: 'http://{}:{}{}'".format(
                 self._get_self_ip(), Config().get_config("preprocessor.http_port"), Config().get_config("preprocessor.api_path")))
 

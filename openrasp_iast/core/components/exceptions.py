@@ -43,6 +43,17 @@ class ContentTypeInvalid(PreprocessorException, OriExpectedException):
         super().__init__(message)
 
 
+# MonitorException
+class MonitorException(OriException):
+    pass
+
+
+class AppIdExist(MonitorException, OriExpectedException):
+    def __init__(self):
+        message = "app_id already exist in cloud!"
+        super().__init__(message)
+
+
 # RaspResultException
 class RaspResultException(OriException):
     pass
@@ -178,6 +189,12 @@ class NoPluginError(ScannerException, OriFatalError):
         super().__init__(message)
 
 
+class PluginModeError(ScannerException, OriFatalError):
+    def __init__(self):
+        message = "Scanner plugin set an invalid scan_mode!"
+        super().__init__(message)
+
+
 class UnsupportedPayloadType(ScannerException, OriFatalError):
     def __init__(self):
         message = "Mutant get an unknow payload type!"
@@ -191,8 +208,6 @@ class GetRuntimeConfigFail(ScannerException, OriFatalError):
 
 
 # DatabaseException
-
-
 class DatabaseException(OriException):
     pass
 

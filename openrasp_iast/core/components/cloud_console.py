@@ -24,10 +24,8 @@ import json
 import asyncio
 import traceback
 import jsonschema
-import tornado.web
 import urllib.parse
-import tornado.ioloop
-import tornado.httpserver
+
 
 from core import modules
 from core.components import exceptions
@@ -36,140 +34,9 @@ from core.components.config import Config
 from core.components.scanner_manager import ScannerManager
 
 
-class WebConsole(object):
-
-    def __init__(self):
-        """
-        初始化
-        """
-        current_path = os.path.dirname(__file__)
-        self.static_path = os.path.join(current_path, "../../web")
-        self.port = Config().get_config("monitor.console_port")
-        self._init_app()
-
-    def _init_app(self):
-        """
-        注册处理请求的handler
-        """
-        handlers = []
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/new",
-                RunScannerHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/config",
-                ScanConfigHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/get_config",
-                GetConfigHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/kill",
-                KillScannerHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/auto_start",
-                AutoStartHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/scanner/auto_start_status",
-                AutoStartStatusHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/model/get_all",
-                GetAllTargetHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/model/get_url_info",
-                GetUrlInfoHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/model/clean_target",
-                CleanTargetHandler
-            )
-        )
-
-        handlers.append(
-            tornado.web.url(
-                "/api/model/get_report",
-                GetReportHandler
-            )
-        )
-
-        handlers.append(
-            (
-                r'^/((?:index.html)?)$',
-                NoCacheStaticFileHandler,
-                {
-                    "path": self.static_path,
-                    "default_filename": "index.html"
-                }
-            )
-        )
-        settings = {
-            "static_path": os.path.join(self.static_path, "static"),
-            "static_url_prefix": "/static/",
-            "static_handler_class": NoCacheStaticFileHandler
-        }
-        self.app = tornado.web.Application(handlers=handlers, **settings)
-
-    def run(self):
-        """
-        单进程（协程）方式启动http server
-        """
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        server = tornado.httpserver.HTTPServer(self.app)
-        try:
-            server.listen(self.port)
-        except OSError as e:
-            Logger().critical("Monitor web_console bind port error!", exc_info=e)
-            sys.exit(1)
-        else:
-            tornado.ioloop.IOLoop.current().start()
 
 
-class NoCacheStaticFileHandler(tornado.web.StaticFileHandler):
-    """
-    静态文件不使用缓存
-    """
-
-    def set_extra_headers(self, path):
-        self.set_header("Cache-control", "no-cache, no-store, must-revalidate")
-        self.set_header("Pragma", "no-cache")
-        self.set_header("Expires", 0)
-
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Credentials", "true")
-
-
-class ApiHandlerBase(tornado.web.RequestHandler):
+class ApiHandlerBase():
 
     # config 类请求格式定义
     config_schema = {
@@ -215,48 +82,6 @@ class ApiHandlerBase(tornado.web.RequestHandler):
         }
     }
 
-    def get(self):
-        """
-        处理get请求
-        """
-        self.send_error(405)
-
-    async def post(self):
-        """
-        处理post请求
-        """
-        header = self.request.headers
-        if "Content-Type" in header:
-            if header["Content-Type"].startswith("application/json"):
-                try:
-                    try:
-                        data = json.loads(self.request.body)
-                    except json.decoder.JSONDecodeError:
-                        Logger().warning(
-                            "Invalid json send to server, data: {}.".format(self.request.body))
-                        self.send_error(415)
-                        return
-                    else:
-                        response = await self.handle_request(data)
-                except Exception as e:
-                    Logger().error(
-                        "Error when process http request.", exc_info=e)
-                    response = {
-                        "exception_info": e.__repr__(),
-                        "trace_back": traceback.format_exc()
-                    }
-                    self.write(json.dumps(response))
-                    self.send_error(500)
-                else:
-                    self.set_header('Content-type', 'application/json')
-                    self.write(json.dumps(response))
-                return
-
-        Logger().warning("Data with Content-Type: {} posted to http server, rejected!".format(
-            header.get("Content-Type", "None")))
-        # Unsupported media type
-        self.send_error(415)
-
     def handle_request(self, data):
         """
         子类实现请求的具体处理方法
@@ -266,7 +91,7 @@ class ApiHandlerBase(tornado.web.RequestHandler):
 
 class RunScannerHandler(ApiHandlerBase):
 
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {
@@ -311,7 +136,7 @@ class ScanConfigHandler(ApiHandlerBase):
 
     config_validtor = jsonschema.Draft7Validator(ApiHandlerBase.config_schema)
 
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {
@@ -378,7 +203,7 @@ class ScanConfigHandler(ApiHandlerBase):
 
 
 class GetConfigHandler(ApiHandlerBase):
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {
@@ -420,7 +245,7 @@ class GetConfigHandler(ApiHandlerBase):
 
 
 class KillScannerHandler(ApiHandlerBase):
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {
@@ -457,7 +282,7 @@ class KillScannerHandler(ApiHandlerBase):
 
 
 class AutoStartHandler(ApiHandlerBase):
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {
@@ -481,7 +306,7 @@ class AutoStartHandler(ApiHandlerBase):
 
 
 class AutoStartStatusHandler(ApiHandlerBase):
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {}
@@ -498,7 +323,7 @@ class AutoStartStatusHandler(ApiHandlerBase):
 
 
 class GetAllTargetHandler(ApiHandlerBase):
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {
@@ -507,6 +332,7 @@ class GetAllTargetHandler(ApiHandlerBase):
         """
         page = data.get("page", 1)
         result, total = ScannerManager().get_all_target(page)
+
         ret = {
             "status": 0,
             "description": "ok",
@@ -564,7 +390,7 @@ class GetUrlInfoHandler(ApiHandlerBase):
 
 
 class CleanTargetHandler(ApiHandlerBase):
-    async def handle_request(self, data):
+    def handle_request(self, data):
         """
         请求格式：
         {

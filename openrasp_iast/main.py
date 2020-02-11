@@ -92,6 +92,8 @@ def init_check():
 
     # 测试是否能正确连接云控
     if Config().config_dict["cloud_api.enable"]:
+        url = Config().config_dict["cloud_api.backend_url"] + "/v1/iast/auth"
+
         cloud_config = {
             "backend_url": Config().config_dict["cloud_api.backend_url"],
             "app_secret": Config().config_dict["cloud_api.app_secret"],
@@ -103,7 +105,6 @@ def init_check():
                 print("[!] Config item cloud_api.{} is empty, refer to rasp cloud page to configure this option!".format(k))
                 sys.exit(1)
 
-        url = cloud_config["backend_url"] + "/v1/agent/rasp/auth"
         headers = {
             "X-OpenRASP-AppSecret": cloud_config["app_secret"],
             "X-OpenRASP-AppID": cloud_config["app_id"]
@@ -117,6 +118,16 @@ def init_check():
                     sys.exit(1)
             else:
                 print("[!] Test cloud server failed, got HTTP code: {} from cloud server: {}, check option startswith 'cloud_api' in config file!".format(r.status_code, url))
+                sys.exit(1)
+
+            version_url = Config().config_dict["cloud_api.backend_url"] + "/v1/version"
+            r = requests.post(url=version_url, headers=headers, json=[])
+            server_version = ""
+            if r.status_code == 200:
+                response = json.loads(r.text)
+                server_version = response["data"]["version"]
+            if server_version < "1.3":
+                print("[!] The version of rasp_cloud must be greater than 1.3! Please Check")
                 sys.exit(1)
         except Exception:
             print("[!] Cloud server url:{} connect failed, check option startswith 'cloud_api' in config file!".format(url))
@@ -180,7 +191,8 @@ def start(args):
     """
     Config().load_config(args.config_path)
 
-    init_check()
+    if os.environ.get("IAST_TEST_MODE", "0") != "1":
+        init_check()
 
     real_log_path = os.path.realpath(Config().get_config("log.path"))
     log_level = Config().get_config("log.level").upper()
@@ -307,7 +319,7 @@ def run():
     # 输出路径
     parser_config.add_argument(
         "-o", "--output-path",
-        help="Assign path config file path to generate, default is /home/username/openrasp-iast/config.yaml", 
+        help="Assign path config file path to generate, default is /home/username/openrasp-iast/config.yaml",
         type=str, default=None, nargs='?')
 
     # Preprocessor 模块

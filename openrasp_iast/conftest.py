@@ -24,6 +24,7 @@ from pytest_cov.embed import cleanup_on_sigterm
 
 from core.components.config import Config
 
+os.environ["IAST_TEST_MODE"] = "1"
 Config().generate_config("./config.yaml")
 Config().load_config("./config.yaml")
 # 用于支持多进程覆盖率统计

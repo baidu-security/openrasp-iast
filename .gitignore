@@ -13,6 +13,7 @@ __pycache__
 openrasp_iast.egg-info/
 htmlcov
 /log
+/tempfiles
 openrasp-iast-*
 openrasp_iast/log
 openrasp_iast/dist

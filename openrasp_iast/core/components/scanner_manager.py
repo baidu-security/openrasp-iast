@@ -162,7 +162,7 @@ class ScannerManager(object):
             self._config.del_config(host_port)
         Communicator().set_clean_lru([host_port])
 
-    async def get_all_target(self, page=1):
+    def get_all_target(self, page=1):
         """
         获取数据库中存在的所有目标主机的列表
 

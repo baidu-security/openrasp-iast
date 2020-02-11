@@ -37,7 +37,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         linux_payload_list = [
             ("../../../../../../../../../../../../../../../../../../../../etc/passwd", "/etc/passwd"),
-            ("../../../etc/passwd", "/etc/passwd"),
+            ("file:///etc/passwd", "/etc/passwd"),
             ("/etc/passwd", "/etc/passwd")
         ]
 
@@ -49,7 +49,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         mac_payload_list = [
             ("../../../../../../../../../../../../../../../../../../../../private/etc/passwd", "/private/etc/passwd"),
-            ("../../../private/etc/passwd", "/private/etc/passwd"),
+            ("file:///private/etc/passwd", "/private/etc/passwd"),
             ("/private/etc/passwd", "/private/etc/passwd")
         ]
 

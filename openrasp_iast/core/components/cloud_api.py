@@ -17,15 +17,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
+import sys
 import json
+import traceback
 import time
-import base64
 import requests
+import asyncio
+
+from urllib.parse import urlparse
+from aiowebsocket.converses import AioWebSocket
 
 from core.model import report_model
+from core.components import exceptions
 from core.components import rasp_result
 from core.components.logger import Logger
 from core.components.config import Config
+from core.components.cloud_console import GetAllTargetHandler
+from core.components.cloud_console import KillScannerHandler
+from core.components.cloud_console import CleanTargetHandler
+from core.components.cloud_console import RunScannerHandler
+from core.components.cloud_console import AutoStartHandler
+from core.components.cloud_console import AutoStartStatusHandler
+from core.components.cloud_console import GetConfigHandler
+from core.components.cloud_console import ScanConfigHandler
 
 
 class CloudApi(object):
@@ -140,3 +155,104 @@ class CloudApi(object):
         except Exception as e:
             Logger().warning("Upload report to cloud failed!", exc_info=e)
             return False
+
+
+class Transaction(object):
+
+    def __init__(self):
+        self.server_url = Config().get_config("cloud_api.backend_url")
+        self.app_secret = Config().get_config("cloud_api.app_secret")
+        self.app_id = Config().get_config("cloud_api.app_id")
+        self.monitor_port = str(Config().config_dict["monitor.console_port"])
+        self.monitor_url = urlparse(self.server_url).hostname + ":" + self.monitor_port
+        self.message_bucket = []
+
+    def get_one_message(self):
+        if len(self.message_bucket) == 0:
+            return
+        else:
+            message = self.message_bucket.pop()
+            return message
+
+    async def start(self, uri, union_header):
+        print("[-] Starting HandShake to cloud_api....")
+        while True:
+            success = False
+            try:
+                async with AioWebSocket(uri, union_header=union_header, timeout=5) as aws:
+                    converse = aws.manipulator
+                    # 客户端给服务端发送消息
+                    await converse.send("startup")
+                    self.message_bucket = []
+                    print("[-] Connect to cloud server success!")
+                    success = True
+                    Logger().info("Connect to cloud server success!")
+                    while True:
+                        mes = await converse.receive()
+                        # from datetime import datetime
+                        # print('[-] {time}-Client receive: {rec}'
+                        #       .format(time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rec=mes))
+                        message_str = str(mes, encoding="utf-8")
+                        if "order" in message_str:
+                            self.message_bucket.append(message_str)
+                        elif "app_id already exist!" in message_str:
+                            raise exceptions.AppIdExist
+                        elif "heartbeat" not in message_str:
+                            Logger().error("Converse received unknown message: {}".format(message_str))
+                        res = self.parse_message()
+                        if isinstance(res, str):
+                            await converse.send(res)
+            except exceptions.AppIdExist as e:
+                print("[!] Same cloud_api.app_id can only connection for once time!")
+                Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
+                os._exit(1)
+            except Exception as e:
+                if not success:
+                    m = traceback.format_exc()
+                    Logger().error(m)
+                    print("[!] Lost connection with cloud server, will try to connect after 5 seconds!")
+                    # Logger().warning("Lost connection with cloud server, will try to connect after 5 seconds!", exc_info=e)
+            time.sleep(5)
+
+
+    def parse_message(self):
+        message_str = self.get_one_message()
+        ret = ''
+        if message_str:
+            message_json = json.loads(message_str)
+            order = message_json["order"]
+            if order == "getAllTasks":
+                ret = GetAllTargetHandler().handle_request(message_json["data"])
+            elif order == 'stopTask':
+                ret = KillScannerHandler().handle_request(message_json["data"])
+            elif order == 'cleanTask':
+                ret = CleanTargetHandler().handle_request(message_json["data"])
+            elif order == 'startTask':
+                ret = RunScannerHandler().handle_request(message_json["data"])
+            elif order == 'autoStartTask':
+                ret = AutoStartHandler().handle_request(message_json["data"])
+            elif order == 'autoStartStatus':
+                ret = AutoStartStatusHandler().handle_request(message_json["data"])
+            elif order == 'getConfig':
+                ret = GetConfigHandler().handle_request(message_json["data"])
+            elif order == 'setConfig':
+                ret = ScanConfigHandler().handle_request(message_json["data"])
+            if isinstance(ret, dict):
+                app_id = message_json["data"].get("app_id", "0")
+                if 'data' not in ret.keys():
+                    ret['data'] = dict()
+                ret['data']['app_id'] = app_id
+                return json.dumps(ret)
+        return
+
+    def run(self):
+        remote = self.server_url.replace("https", "wss").replace("http", "ws") + "/v1/iast"
+        union_header = {
+            "X-OpenRASP-AppSecret": Config().config_dict["cloud_api.app_secret"],
+            "X-OpenRASP-AppID": Config().config_dict["cloud_api.app_id"]
+        }
+        try:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            asyncio.get_event_loop().run_until_complete(self.start(remote, union_header))
+        except Exception as e:
+            Logger().error('Cloud transaction disconnected!', exc_info=e)
