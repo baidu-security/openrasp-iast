@@ -77,7 +77,7 @@ services:
         depends_on:
             - mysql5.6
             - rasp-cloud
-            - owasp-benchmark
+            # - owasp-benchmark
             - apache-php7.2
         volumes:
             - "../../openrasp_iast:/root/openrasp-iast-code"
