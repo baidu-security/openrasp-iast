@@ -34,7 +34,7 @@ entry_points = {
 
 setuptools.setup(
     name='openrasp-iast',
-    version='0.0.1',
+    version='v1.3',
     description='An IAST scanner base on OpenRASP',
     long_description="An IAST scanner base on OpenRASP",
     author='OpenRASP',
