@@ -203,8 +203,11 @@ class Transaction(object):
                         if isinstance(res, str):
                             await converse.send(res)
             except exceptions.AppIdExist as e:
-                print("[!] Same cloud_api.app_id can only connection for once time!")
-                Logger().error("Connection cloud_api failed! Same cloud_api.app_id can only connection for once time!")
+                msg = 'Only one openrasp-iast instance is allowed per application. '
+                msg = msg + 'To continue, create another application in the management panel and proceed with a different app_id. '
+                msg = msg + 'We will change this behavior in future versions.'
+                print("[!] " + msg)
+                Logger().error(msg)
                 os._exit(1)
             except Exception as e:
                 if not success:
