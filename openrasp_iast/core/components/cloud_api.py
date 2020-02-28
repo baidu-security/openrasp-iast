@@ -20,7 +20,6 @@ limitations under the License.
 import os
 import sys
 import json
-import traceback
 import time
 import requests
 import asyncio
@@ -211,12 +210,9 @@ class Transaction(object):
                 os._exit(1)
             except Exception as e:
                 if not success:
-                    m = traceback.format_exc()
-                    Logger().error(m)
+                    Logger().warning("Lost connection with cloud server, will try to connect after 5 seconds!", exc_info=e)
                     print("[!] Lost connection with cloud server, will try to connect after 5 seconds!")
-                    # Logger().warning("Lost connection with cloud server, will try to connect after 5 seconds!", exc_info=e)
             time.sleep(5)
-
 
     def parse_message(self):
         message_str = self.get_one_message()

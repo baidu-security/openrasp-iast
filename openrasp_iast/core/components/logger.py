@@ -19,11 +19,12 @@ limitations under the License.
 
 import os
 import sys
+import peewee
+import shutil
 import tornado
 import logging
-import peewee
-import multiprocessing
 import cloghandler
+import multiprocessing
 
 from core.components.config import Config
 from core.components.communicator import Communicator
@@ -199,3 +200,7 @@ class Logger(object):
 
         self._init_error_log()
         self.init_module_logger()
+
+        # log目录添加VERSION文件
+        main_path = Config().get_main_path()
+        shutil.copyfile(main_path + "/VERSION", self.log_path + "/VERSION")
