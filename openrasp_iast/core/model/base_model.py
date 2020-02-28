@@ -326,7 +326,7 @@ class BaseModel(object):
                 result[target] = {
                     "last_time": 0
                 }
-                sql += "union all ( SELECT '{target}', time FROM `{target}_ResultList` order by id limit 1) ".format(target=target)
+                sql += "union all ( SELECT '{target}', time FROM `{target}_ResultList` order by id desc limit 1) ".format(target=target)
             sql = sql[10:]
             cursor = conn.cursor()
             cursor._defer_warnings = True
