@@ -71,6 +71,15 @@ class Config(object):
             traceback.print_exc()
             sys.exit(1)
 
+    def get_main_path(self):
+        """
+        获取当前iast主目录
+
+        Returns:
+            str - 目录字符串
+        """
+        return self._main_path
+
     def get_config_path(self):
         """
         获取当前配置文件路径, 不存在返回空字符串
