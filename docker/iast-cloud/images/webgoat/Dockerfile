@@ -4,6 +4,8 @@ LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
 ARG RASP_VERSION
 
+COPY sources.list /etc/apt/sources.list
+
 USER root
 
 RUN rm -rf /var/lib/apt/lists/* && apt-get update && apt-get clean

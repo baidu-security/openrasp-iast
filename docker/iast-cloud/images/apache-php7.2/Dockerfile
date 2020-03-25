@@ -4,6 +4,8 @@ LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
 ARG RASP_VERSION
 
+COPY sources.list /etc/apt/sources.list
+
 RUN apt-get update && \
     apt-get install -y wget unzip libpng-dev mariadb-server curl netcat
 
