@@ -4,6 +4,8 @@ LABEL MAINTAINER "OpenRASP <ext_yunfenxi@baidu.com>"
 
 ARG RASP_VERSION
 
+COPY sources.list /etc/apt/sources.list
+
 RUN apt-get update && apt-get clean
 
 RUN mkdir -p /usr/share/man/man1
