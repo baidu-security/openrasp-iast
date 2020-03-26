@@ -7,7 +7,7 @@ a = Analysis(['main.py'],
              pathex=['.'],
              binaries=[],
              datas=[("./config.default.yaml", "."),
-                    ("./web", "./web"),
+                    ("./VERSION", "."),
                     ("./plugin", "./plugin")
                     ],
              hiddenimports=[],
