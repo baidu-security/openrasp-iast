@@ -34,7 +34,7 @@ RUN cd /root && \
 RUN sed -i "s/openrasp.heartbeat_interval=180/openrasp.heartbeat_interval=10/" /usr/local/etc/php/conf.d/z_openrasp.ini
 
 RUN cd /root && \
-    wget https://github.com/webpwnized/mutillidae/archive/v2.7.11.zip && \
+    wget https://packages.baidu.com/app/mutillidae-v2.7.11.zip -o v2.7.11.zip && \
     unzip v2.7.11.zip && \
     rm -rf v2.7.11.zip && \
     mv mutillidae* mutillidae
