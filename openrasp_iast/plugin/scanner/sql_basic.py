@@ -37,7 +37,7 @@ class ScanPlugin(scan_plugin_base.ScanPluginBase):
 
         payload_list = [("1'openrasp", "1'openrasp"),
                         ("1\"openrasp", "1\"openrasp"),
-                        ("`a openrasp", "`a openrasp")]
+                        ("a`openrasp", "a`openrasp")]
 
         # 获取所有待测试参数
         request_data_ins = self.new_request_data(rasp_result_ins)
