@@ -1,4 +1,4 @@
-aiohttp==3.5.4
+aiohttp==3.7.4
 aiomysql==0.0.20
 jsonschema==3.0.1
 lru-dict==1.1.6
