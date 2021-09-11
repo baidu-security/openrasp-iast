@@ -274,12 +274,12 @@ class Monitor(base.BaseModule):
         #     self.crash_module = "Monitor_web_console"
         #     return False
 
-        if self.cloud_thread is not None and not self.cloud_thread.isAlive():
+        if self.cloud_thread is not None and not self.cloud_thread.is_alive():
             Logger().error("Detect monitor cloud thread stopped, Monitor exit!")
             self.crash_module = "cloud_thread"
             return False
 
-        if self.transaction_thread is not None and not self.transaction_thread.isAlive():
+        if self.transaction_thread is not None and not self.transaction_thread.is_alive():
             Logger().error("Detect monitor cloud transaction thread stopped, Monitor exit!")
             self.crash_module = "transaction_thread"
             return False
