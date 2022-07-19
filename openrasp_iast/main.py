@@ -35,9 +35,8 @@ from core.components.config import Config
 
 
 def init_check():
-    from packaging import version
-    currentversion = platform.python_version()
-    if version.parse(currentversion) < version.parse("3.6"):
+    version_parts = platform.python_version().split(".")
+    if int(version_parts[0]) < 3 or (int(version_parts[0]) == 3 and int(version_parts[1]) < 6):
         print("[!] You must run this tool with Python 3.6 or newer version.")
         sys.exit(1)
 
